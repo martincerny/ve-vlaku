@@ -7,9 +7,11 @@ gameConstants =
     , nervesBaseGrowth = 0 -- per second
     , nervesActivityGrowth = 0.2 -- growth per second at maximal kid activity    
     , nervesActivityGrowthThreshold = 0.3
+    , deepBreathNervesRecovery = 0.2 --per second 
 
 
     , highActivityKidsToFail = 2 -- no. of kids
-    , highActivityTimeToFail = 3 -- seconds
-    , highActivityThreshold = 0.9 
+    , highActivityTimeToFail = 2 -- seconds
+    , highActivityThreshold = 0.9
+
   }

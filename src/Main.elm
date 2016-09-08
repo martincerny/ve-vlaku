@@ -31,6 +31,9 @@ init =
       , {defaultKid | name = "David", waywardness = 0.5}
       , {defaultKid | name = "Eva", waywardness = 0.2}
     ]
+    , takingDeepBreath = False
+    , lost = False
+    , highActivityTime = 0 
     }
   , Cmd.none
   )

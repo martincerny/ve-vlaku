@@ -1,9 +1,10 @@
 module View exposing (view)
 
 import Model exposing(..)
-import Msg exposing (Msg)
+import Msg exposing (Msg(..))
 import Html exposing (..)
 import Html.Attributes as Attr
+import Html.Events as Events
 
 valueToStyle : Float -> (String, String)
 valueToStyle value =
@@ -32,4 +33,21 @@ view model =
       ] [
         text (toString (round (100 * model.nerves))) 
       ]
+    , div [ 
+        Attr.classList [
+            ("takeDeepBreath", True)
+            , ("active", model.takingDeepBreath)
+            ]
+        , Events.onMouseDown DeepBreathStarted 
+        , Events.onMouseUp DeepBreathEnded
+        , Events.onMouseOut DeepBreathEnded
+      ] [
+        text ("Zhluboka dýchej")
+      ]
+      , div []
+        ( 
+        (if model.lost then text("Lost ") else text(""))
+        :: (if isHighActivity model then text(" High activity ") else  text(""))
+        :: []
+        )
   ]

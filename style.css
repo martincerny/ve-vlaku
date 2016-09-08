@@ -15,3 +15,16 @@ font-variant: bold;
     width:60px;
     padding:10px;
 }
+
+.takeDeepBreath
+{
+    margin-top:20px;
+    width: 200px;
+    padding:30px;
+    background-color:lightgray;
+}
+
+.takeDeepBreath.active
+{
+    background-color:lightcoral;    
+}

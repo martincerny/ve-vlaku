@@ -4,7 +4,6 @@ import Time
 import Msg exposing (Msg(..))
 
 import Model exposing (..)
-import Utils 
 import GameConstants exposing(gameConstants)
 
 defaultClamp : Float -> Float
@@ -22,16 +21,13 @@ updateKid deltaSeconds kid =
       , activityGrowthCooldown = max (kid.activityGrowthCooldown - deltaSeconds) 0   
     }
 
-computeNervesGrowth : Model -> Float
-computeNervesGrowth model =
+isHighActivity : Model -> Bool
+isHighActivity model =
   let
-    averageActivity = 
-      Utils.avg (List.map .activity model.kids)
-  in
-    gameConstants.nervesBaseGrowth  
-    + if averageActivity > gameConstants.nervesActivityGrowthThreshold  
-        then gameConstants.nervesActivityGrowth  * ((averageActivity - gameConstants.nervesActivityGrowthThreshold) / (1 - gameConstants.nervesActivityGrowthThreshold))
-        else 0
+    numActiveKids = 
+      List.length (List.filter (\kid -> kid.activity > gameConstants.highActivityThreshold) model.kids)
+    in 
+      numActiveKids >= gameConstants.highActivityKidsToFail
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
@@ -42,9 +38,26 @@ update msg model =
           delta / Time.second
       in
       (
-        {model | 
-          nerves = defaultClamp ( model.nerves + (computeNervesGrowth model) * deltaSeconds )
-          , kids = List.map (updateKid deltaSeconds) model.kids
-        }
+        if model.lost then model
+        else
+          {model | 
+            nerves = defaultClamp ( model.nerves +
+              if model.takingDeepBreath then 
+                  -gameConstants.deepBreathNervesRecovery * deltaSeconds
+              else
+                  (nervesGrowth model) * deltaSeconds 
+            ) 
+            , highActivityTime =
+              if isHighActivity model then model.highActivityTime + deltaSeconds
+              else 0   
+            , lost =
+              if model.highActivityTime >= gameConstants.highActivityTimeToFail then True
+              else model.lost
+            , kids = List.map (updateKid deltaSeconds) model.kids
+          }
         , Cmd.none        
       )
+    DeepBreathStarted ->
+        ({ model | takingDeepBreath = True}, Cmd.none)
+    DeepBreathEnded ->
+        ({ model | takingDeepBreath = False}, Cmd.none)
