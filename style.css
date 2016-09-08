@@ -1,0 +1,17 @@
+* {
+font-size: 20;
+font-variant: bold;
+}
+
+.kid
+{
+    padding:10px;
+    margin:10px;
+}
+
+.nervesDisplay 
+{
+    margin-top:100px;
+    width:60px;
+    padding:10px;
+}
