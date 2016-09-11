@@ -1,6 +1,7 @@
 module View exposing (view)
 
 import Model exposing(..)
+import GameConstants exposing(..)
 import Msg exposing (Msg(..))
 import Html exposing (..)
 import Html.Attributes as Attr
@@ -10,12 +11,27 @@ valueToStyle : Float -> (String, String)
 valueToStyle value =
   ("background-color", "rgb(" ++ (toString (144 + round (112 * value))) ++ ",200,200)")
 
+nervesToOverlayStyle : Float -> (String, String) 
+nervesToOverlayStyle nerves =
+  let 
+    threshold = 
+      gameConstants.nervesVisualChangeThreshold
+  in
+    ("opacity", if nerves < threshold then "0"
+                else toString (0.8 * (nerves - threshold) / (1 - threshold))  
+    )
+
 viewKid : Kid -> Html Msg
 viewKid kid =
   td 
     [ 
       Attr.style  [valueToStyle kid.activity]
-      , Attr.class "kid"
+      , Attr.classList [
+        ("kid", True)
+        , ("highActivity", isKidHighActivity kid)
+        , ("increasesNerves", isKidIncreasingNerves kid)
+        ]
+      , Events.onClick (CalmDown kid)
     ] [
       div [] [text (kid.name)] 
       , div [] [text (toString (round (100 * kid.activity)))]
@@ -33,6 +49,7 @@ view model =
       ] [
         text (toString (round (100 * model.nerves))) 
       ]
+    , div [ Attr.class "nervesOverlay", Attr.style [ nervesToOverlayStyle model.nerves ]] []  
     , div [ 
         Attr.classList [
             ("takeDeepBreath", True)
@@ -44,6 +61,13 @@ view model =
       ] [
         text ("Zhluboka dýchej")
       ]
+      , div [Attr.class "lostSliderContainer"]
+        [
+          div [
+            Attr.class "lostSlider"
+            , Attr.style [("bottom", (toString ((model.highActivityTime * 100) / gameConstants.highActivityTimeToFail)) ++ "%")]
+          ] []
+        ]
       , div []
         ( 
         (if model.lost then text("Lost ") else text(""))

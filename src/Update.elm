@@ -21,43 +21,65 @@ updateKid deltaSeconds kid =
       , activityGrowthCooldown = max (kid.activityGrowthCooldown - deltaSeconds) 0   
     }
 
-isHighActivity : Model -> Bool
-isHighActivity model =
-  let
-    numActiveKids = 
-      List.length (List.filter (\kid -> kid.activity > gameConstants.highActivityThreshold) model.kids)
-    in 
-      numActiveKids >= gameConstants.highActivityKidsToFail
+updateFrame : Float -> Model -> Model
+updateFrame delta model =
+    let 
+      deltaSeconds = 
+        delta / Time.second
+    in
+      {model | 
+        nerves = defaultClamp ( model.nerves +
+          if model.takingDeepBreath then 
+              -gameConstants.deepBreathNervesRecovery * deltaSeconds
+          else
+              (nervesGrowth model) * deltaSeconds 
+        ) 
+        , highActivityTime =
+          if isHighActivity model then model.highActivityTime + deltaSeconds
+          else 0   
+        , lost =
+          if model.highActivityTime >= gameConstants.highActivityTimeToFail then True
+          else model.lost
+        , kids = List.map (updateKid deltaSeconds) model.kids
+      }
+
+kidCalmDownMapFunction : Int -> Float -> Kid -> Kid
+kidCalmDownMapFunction kidId effectivity kid =
+  if kid.id == kidId then 
+    {kid |
+      activity = (effectivity * kid.activity * gameConstants.calmDownActivityMultiplier)
+                  + ( (1.0 - effectivity) * kid.activity) 
+      , activityGrowthCooldown = gameConstants.activityGrowthCooldown                  
+    } 
+  else kid
+
+performKidCalmdown : Int -> Model -> Model
+performKidCalmdown kidId model =
+  let 
+    effectivity = if 1 - model.nerves >= gameConstants.calmDownNervesGrowth then 1
+                    else  (1 - model.nerves) / gameConstants.calmDownNervesGrowth
+    kidsMapFunction = effectivity                    
+  in
+    {model |
+      nerves = defaultClamp (model.nerves + gameConstants.calmDownNervesGrowth)
+      , kids = List.map (kidCalmDownMapFunction kidId effectivity) model.kids 
+    }
+
+
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
-  case msg of
-    Frame delta ->
-      let 
-        deltaSeconds = 
-          delta / Time.second
-      in
-      (
-        if model.lost then model
-        else
-          {model | 
-            nerves = defaultClamp ( model.nerves +
-              if model.takingDeepBreath then 
-                  -gameConstants.deepBreathNervesRecovery * deltaSeconds
-              else
-                  (nervesGrowth model) * deltaSeconds 
-            ) 
-            , highActivityTime =
-              if isHighActivity model then model.highActivityTime + deltaSeconds
-              else 0   
-            , lost =
-              if model.highActivityTime >= gameConstants.highActivityTimeToFail then True
-              else model.lost
-            , kids = List.map (updateKid deltaSeconds) model.kids
-          }
-        , Cmd.none        
-      )
-    DeepBreathStarted ->
+  if model.lost then (model, Cmd.none)
+  else
+    case msg of
+      Frame delta ->
+        (
+          updateFrame delta model
+          , Cmd.none        
+        )
+      DeepBreathStarted ->
         ({ model | takingDeepBreath = True}, Cmd.none)
-    DeepBreathEnded ->
+      DeepBreathEnded ->
         ({ model | takingDeepBreath = False}, Cmd.none)
+      CalmDown kid ->
+        (performKidCalmdown kid.id model, Cmd.none)
