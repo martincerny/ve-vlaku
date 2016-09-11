@@ -1,7 +1,13 @@
-module Model exposing (Kid, Model, defaultKid, nervesGrowth, isHighActivity, isKidHighActivity, isKidIncreasingNerves)
+module Model exposing (
+  Kid
+  , Model
+  , defaultKid
+  , nervesGrowth
+  , isMuted
+  , isKidHighActivity
+  , isKidIncreasingNerves)
 
 import GameConstants exposing (..)
-import Utils
 
 type alias Kid = 
   { 
@@ -9,15 +15,16 @@ type alias Kid =
     , name : String
     , waywardness : Float
     , activity: Float
-    , activityGrowthCooldown: Float   
+    , mutedCooldown: Float   
   }
 
 type alias Model = 
   { nerves : Float  
     , kids : List Kid
     , takingDeepBreath : Bool
+    , highActivityScore : Float 
     , lost : Bool
-    , highActivityTime : Float
+    , paused : Bool
   }
 
 -- Constructors
@@ -28,34 +35,37 @@ defaultKid =
   , name = ""
   , waywardness = 0
   , activity = 0
-  , activityGrowthCooldown = 0 
+  , mutedCooldown = 0 
   }
 
 -- Computed properties
 
-nervesGrowth : Model -> Float
-nervesGrowth model =
-  let
-    averageActivity = 
-      Utils.avg (List.map .activity model.kids)
-  in
-    gameConstants.nervesBaseGrowth  
-    + if averageActivity > gameConstants.nervesActivityGrowthThreshold  
-        then gameConstants.nervesActivityGrowth  * ((averageActivity - gameConstants.nervesActivityGrowthThreshold) / (1 - gameConstants.nervesActivityGrowthThreshold))
-        else 0
-
-isKidHighActivity : Kid -> Bool
-isKidHighActivity kid =
-  kid.activity > gameConstants.highActivityThreshold
-
-isHighActivity : Model -> Bool
-isHighActivity model =
-  let
-    numActiveKids = 
-      List.length (List.filter isKidHighActivity model.kids)
-    in 
-      numActiveKids >= gameConstants.highActivityKidsToFail
+isMuted : Kid -> Bool
+isMuted kid =
+  kid.mutedCooldown > 0
 
 isKidIncreasingNerves : Kid -> Bool
 isKidIncreasingNerves kid =
-  kid.activity > gameConstants.nervesActivityGrowthThreshold
+   not (isMuted kid) && kid.activity > gameConstants.nervesActivityGrowthThreshold
+
+nervesGrowthPerKid : Kid -> Float
+nervesGrowthPerKid kid =
+  if not (isKidIncreasingNerves kid) then 0
+  else
+    let 
+      threshold = gameConstants.nervesActivityGrowthThreshold
+    in
+      ((kid.activity - threshold) / (1 - threshold)) * gameConstants.nervesActivityGrowth 
+
+
+nervesGrowth : Model -> Float
+nervesGrowth model =
+    gameConstants.nervesBaseGrowth  
+    + ( List.map nervesGrowthPerKid model.kids
+        |> List.sum )        
+
+isKidHighActivity : Kid -> Bool
+isKidHighActivity kid =
+  not (isMuted kid) && kid.activity > gameConstants.highActivityThreshold
+
+

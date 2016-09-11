@@ -3,6 +3,10 @@ font-size: 20;
 font-variant: bold;
 }
 
+td {
+    text-align:center;
+}
+
 .kid
 {
     padding:10px;
@@ -17,6 +21,14 @@ font-variant: bold;
 .highActivity
 {
     border: 3px red solid;
+}
+
+.muted
+{
+    border: 3px gray solid;
+    text-decoration: line-through;
+    background-color: #CCCCCC;
+    color: #505050;
 }
 
 .nervesDisplay 
@@ -34,21 +46,30 @@ font-variant: bold;
     background-color:lightgray;
 }
 
+.takeDeepBreath.highlighted
+{
+    border:3px lightblue solid;
+    background-color: lightgreen;    
+}
+
+
 .takeDeepBreath.active
 {
     background-color:lightcoral;    
 }
 
-.lostSliderContainer
+
+.nervesSliderContainer
 {
     margin:10px;
     border: 1px green solid;
     position:relative;
     height : 100px;
     width: 30px;
+    margin: 0 50px;
 }
 
-.lostSlider 
+.nervesSlider 
 {
     background-color:red;
     width : 100%;
@@ -56,13 +77,23 @@ font-variant: bold;
     position:absolute;
 }
 
-.nervesOverlay
+.gameOverlay
 {
     position:absolute;
     top: 0px;
     left:0px;
+    width: 0px;
+    height: 0px;
+    font-size: 50;
+    font-weight:bold;
+    text-align: center;
+}
+
+.gameOverlay.disableGame
+{
+    padding:100px;
+    background-color: gray;
     width: 600px;
     height: 240px;
-    background-color: red;
-    pointer-events: none;
+    opacity: 0.8;
 }

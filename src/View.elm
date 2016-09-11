@@ -11,23 +11,32 @@ valueToStyle : Float -> (String, String)
 valueToStyle value =
   ("background-color", "rgb(" ++ (toString (144 + round (112 * value))) ++ ",200,200)")
 
-nervesToOverlayStyle : Float -> (String, String) 
-nervesToOverlayStyle nerves =
+nervesToStyle : Float -> (String, String) 
+nervesToStyle nerves =
   let 
     threshold = 
-      gameConstants.nervesVisualChangeThreshold
+      gameConstants.nervesVisualChangeThreshold    
   in
-    ("opacity", if nerves < threshold then "0"
-                else toString (0.8 * (nerves - threshold) / (1 - threshold))  
+    ("background-color", 
+      if nerves < threshold then "white"
+      else
+        let 
+          scale =  
+            (nerves - threshold) / (1 - threshold)            
+          otherColors = 
+            toString (144 + round(112 * (1 - scale) ))
+        in
+          "rgb(255," ++ otherColors ++ "," ++ otherColors ++")"  
     )
 
 viewKid : Kid -> Html Msg
 viewKid kid =
   td 
     [ 
-      Attr.style  [valueToStyle kid.activity]
+      Attr.style  (if isMuted kid then [] else [valueToStyle kid.activity])
       , Attr.classList [
         ("kid", True)
+        , ("muted", isMuted kid)
         , ("highActivity", isKidHighActivity kid)
         , ("increasesNerves", isKidIncreasingNerves kid)
         ]
@@ -39,21 +48,32 @@ viewKid kid =
 
 view : Model -> Html Msg
 view model =
-  div [] [
+  div [
+     Attr.style [ nervesToStyle model.nerves ]    
+  ] [
     table [] [ tr [] 
       (List.map viewKid model.kids)         
-    ]
-    , div [
-        Attr.style [valueToStyle(model.nerves)]
-        , Attr.class "nervesDisplay"
-      ] [
-        text (toString (round (100 * model.nerves))) 
-      ]
-    , div [ Attr.class "nervesOverlay", Attr.style [ nervesToOverlayStyle model.nerves ]] []  
+    ]    
+    , div
+       ( 
+       [Attr.classList [
+          ("gameOverlay", True)
+          , ("disableGame", model.lost || model.paused)
+       ]]                
+        ++  if model.paused then [Events.onClick ResumeGame]
+            else if model.lost then [Events.onClick RestartGame]
+            else []
+       )
+      [
+        if model.lost then text("Průvodčí tě vyhodil") 
+        else if model.paused then text("Klikni pro spuštění")
+        else text("")
+      ]  
     , div [ 
         Attr.classList [
             ("takeDeepBreath", True)
             , ("active", model.takingDeepBreath)
+            , ("highlighted", not model.takingDeepBreath && model.nerves > 1 - gameConstants.calmDownNervesGrowth)
             ]
         , Events.onMouseDown DeepBreathStarted 
         , Events.onMouseUp DeepBreathEnded
@@ -61,17 +81,31 @@ view model =
       ] [
         text ("Zhluboka dýchej")
       ]
-      , div [Attr.class "lostSliderContainer"]
-        [
-          div [
-            Attr.class "lostSlider"
-            , Attr.style [("bottom", (toString ((model.highActivityTime * 100) / gameConstants.highActivityTimeToFail)) ++ "%")]
-          ] []
+      , 
+      table [] [
+        tr [] [
+          td [] [
+            div [Attr.class "nervesSliderContainer"]
+            [
+              div [
+                Attr.class "nervesSlider"
+                , Attr.style [("bottom", (toString ((model.nerves * 100))) ++ "%")]
+              ] []
+            ]      
+          ]
+          , td [] [
+            div [Attr.class "nervesSliderContainer"]
+            [
+              div [
+                Attr.class "nervesSlider"
+                , Attr.style [("bottom", (toString ((model.highActivityScore * 100) / gameConstants.highActivityScoreToLose)) ++ "%")]
+              ] []
+            ]      
+          ]
         ]
-      , div []
-        ( 
-        (if model.lost then text("Lost ") else text(""))
-        :: (if isHighActivity model then text(" High activity ") else  text(""))
-        :: []
-        )
+        , tr [] [
+          td [] [text("Tvoje nervy")]
+          , td [] [text("Nervy průvodčího")]
+        ]
+      ]
   ]

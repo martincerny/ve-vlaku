@@ -9,6 +9,8 @@ type Msg
     | DeepBreathStarted
     | DeepBreathEnded
     | CalmDown Kid
+    | ResumeGame
+    | RestartGame
 
 -- SUBSCRIPTIONS
 

@@ -5,7 +5,7 @@ import Model exposing (..)
 import Update
 import View
 import Msg exposing (Msg)
-
+import Init exposing (..)
 
 main =
   App.program
@@ -20,23 +20,6 @@ main =
 
 
 
-init : (Model, Cmd Msg)
-init =
-  (
-    {nerves = 0
-    , kids = [ 
-      {  defaultKid | id = 1, name = "Adam", waywardness = 0.1}
-      , {defaultKid | id = 2, name = "Bara", waywardness = 0.3}
-      , {defaultKid | id = 3, name = "Cochtan", waywardness = 0.8}
-      , {defaultKid | id = 4, name = "David", waywardness = 0.5}
-      , {defaultKid | id = 5, name = "Eva", waywardness = 0.2}
-    ]
-    , takingDeepBreath = False
-    , lost = False
-    , highActivityTime = 0 
-    }
-  , Cmd.none
-  )
 
 
 
