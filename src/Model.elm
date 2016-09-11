@@ -1,7 +1,9 @@
 module Model exposing (
   Kid
   , Model
+  , GameState(..)
   , defaultKid
+  , shouldUpdateGame
   , nervesGrowth
   , isMuted
   , isKidHighActivity
@@ -18,13 +20,15 @@ type alias Kid =
     , mutedCooldown: Float   
   }
 
+type GameState = Running | Paused | Lost | Won
+
 type alias Model = 
   { nerves : Float  
     , kids : List Kid
     , takingDeepBreath : Bool
-    , highActivityScore : Float 
-    , lost : Bool
-    , paused : Bool
+    , highActivityScore : Float
+    , timeToWin : Float 
+    , state : GameState
   }
 
 -- Constructors
@@ -39,6 +43,10 @@ defaultKid =
   }
 
 -- Computed properties
+
+shouldUpdateGame : Model -> Bool
+shouldUpdateGame model =
+  model.state == Running
 
 isMuted : Kid -> Bool
 isMuted kid =

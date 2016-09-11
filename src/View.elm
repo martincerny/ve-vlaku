@@ -2,7 +2,7 @@ module View exposing (view)
 
 import Model exposing(..)
 import GameConstants exposing(..)
-import Msg exposing (Msg(..))
+import Msg exposing (..)
 import Html exposing (..)
 import Html.Attributes as Attr
 import Html.Events as Events
@@ -40,7 +40,7 @@ viewKid kid =
         , ("highActivity", isKidHighActivity kid)
         , ("increasesNerves", isKidIncreasingNerves kid)
         ]
-      , Events.onClick (CalmDown kid)
+      , Events.onClick (Game (CalmDown kid))
     ] [
       div [] [text (kid.name)] 
       , div [] [text (toString (round (100 * kid.activity)))]
@@ -58,26 +58,37 @@ view model =
        ( 
        [Attr.classList [
           ("gameOverlay", True)
-          , ("disableGame", model.lost || model.paused)
+          , ("disableGame", not (shouldUpdateGame model))
        ]]                
-        ++  if model.paused then [Events.onClick ResumeGame]
-            else if model.lost then [Events.onClick RestartGame]
-            else []
+        ++  case model.state of
+              Paused ->
+                [Events.onClick (UI ResumeGame)]
+              Lost ->
+                [Events.onClick (UI RestartGame)]
+              Won -> 
+                [Events.onClick (UI RestartGame)]
+              Running ->
+                []
+       )      
+       (case model.state of
+          Paused ->
+            [text("Klikni pro spuštění")]
+          Lost ->
+            [text("Průvodčí vás vyhodil z vlaku :-(")]
+          Won -> 
+            [text("Dojeli jste na místo. Hurá!")]
+          Running ->
+            []        
        )
-      [
-        if model.lost then text("Průvodčí tě vyhodil") 
-        else if model.paused then text("Klikni pro spuštění")
-        else text("")
-      ]  
     , div [ 
         Attr.classList [
             ("takeDeepBreath", True)
             , ("active", model.takingDeepBreath)
             , ("highlighted", not model.takingDeepBreath && model.nerves > 1 - gameConstants.calmDownNervesGrowth)
             ]
-        , Events.onMouseDown DeepBreathStarted 
-        , Events.onMouseUp DeepBreathEnded
-        , Events.onMouseOut DeepBreathEnded
+        , Events.onMouseDown (Game DeepBreathStarted) 
+        , Events.onMouseUp (Game DeepBreathEnded)
+        , Events.onMouseOut (Game DeepBreathEnded)
       ] [
         text ("Zhluboka dýchej")
       ]
@@ -102,10 +113,16 @@ view model =
               ] []
             ]      
           ]
+          , td [] [ text("Čas do cílové stanice")]
         ]
         , tr [] [
           td [] [text("Tvoje nervy")]
           , td [] [text("Nervy průvodčího")]
+          , td [] [text(
+              toString ((round model.timeToWin) // 60)
+              ++ ":"
+              ++ toString ( (round model.timeToWin) % 60) 
+          )]
         ]
       ]
   ]

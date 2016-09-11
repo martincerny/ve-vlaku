@@ -1,21 +1,28 @@
-module Msg exposing (Msg(..), subscriptions)
+module Msg exposing (GameMessage(..), UIMessage(..), Msg(..), subscriptions)
 
 import Time
 import AnimationFrame
 import Model exposing(..)
 
-type Msg
-  = Frame Time.Time
-    | DeepBreathStarted
-    | DeepBreathEnded
-    | CalmDown Kid
-    | ResumeGame
-    | RestartGame
+type GameMessage =
+  Frame Time.Time
+  | DeepBreathStarted
+  | DeepBreathEnded
+  | CalmDown Kid
+
+type UIMessage =
+  ResumeGame
+  | RestartGame
+
+
+type Msg =
+  Game GameMessage
+  | UI UIMessage
 
 -- SUBSCRIPTIONS
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-  AnimationFrame.diffs Frame
+  AnimationFrame.diffs (\time -> Game (Frame time))
 
 

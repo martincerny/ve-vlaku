@@ -15,9 +15,9 @@ init =
       , {defaultKid | id = 5, name = "Eva", waywardness = 0.2}
     ]
     , takingDeepBreath = False
-    , lost = False
-    , paused = True
-    , highActivityScore = 0 
+    , highActivityScore = 0
+    , timeToWin = 90
+    , state = Paused 
     }
   , Cmd.none
   )

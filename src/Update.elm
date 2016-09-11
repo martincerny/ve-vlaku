@@ -1,7 +1,7 @@
 module Update exposing (update)
 
 import Time
-import Msg exposing (Msg(..))
+import Msg exposing (..)
 
 import Model exposing (..)
 import GameConstants exposing(gameConstants)
@@ -43,9 +43,11 @@ updateFrame delta model =
                 model.highActivityScore + deltaSeconds * (toFloat numHighActivityKids) * gameConstants.highActivityScoreIncreasePerKid
               else 
                 max 0 (model.highActivityScore - deltaSeconds * gameConstants.highActivityScoreRecovery)   
-        , lost =
-          if model.highActivityScore >= gameConstants.highActivityScoreToLose then True
-          else model.lost
+        , timeToWin = model.timeToWin - deltaSeconds
+        , state =
+          if model.highActivityScore >= gameConstants.highActivityScoreToLose then Lost
+          else if not (model.state == Lost) && model.timeToWin <= 0 then Won
+          else model.state
         , kids = List.map (updateKid deltaSeconds) model.kids
       }
 
@@ -75,30 +77,36 @@ performKidCalmdown kidId model =
 
 
 
-update : Msg -> Model -> (Model, Cmd Msg)
-update msg model =
+processUIMessage : UIMessage -> Model -> (Model, Cmd Msg)
+processUIMessage msg model =
   case msg of 
     ResumeGame -> 
-      ({model | paused = False}, Cmd.none)
+      {model | state = Running } ! []
     RestartGame -> 
       init
 
-    _ ->
-      if model.lost || model.paused then (model, Cmd.none)
-      else
-        case msg of
-          Frame delta ->
-            (
-              updateFrame delta model
-              , Cmd.none        
-            )
-          DeepBreathStarted ->
-            ({ model | takingDeepBreath = True}, Cmd.none)
-          DeepBreathEnded ->
-            ({ model | takingDeepBreath = False}, Cmd.none)
-          CalmDown kid ->
-            (performKidCalmdown kid.id model, Cmd.none)
-          ResumeGame ->
-            (model, Cmd.none)
-          RestartGame ->
-            (model, Cmd.none)
+processGameMessage : GameMessage -> Model -> (Model, Cmd Msg)
+processGameMessage msg model =
+  if not (shouldUpdateGame model) then (model, Cmd.none)
+  else
+    case msg of
+      Frame delta ->
+        updateFrame delta model 
+        ! []
+      DeepBreathStarted ->
+        { model | takingDeepBreath = True} 
+        ! []
+      DeepBreathEnded ->
+        { model | takingDeepBreath = False} 
+        ! []
+      CalmDown kid ->
+        performKidCalmdown kid.id model 
+        ! []
+
+update : Msg -> Model -> (Model, Cmd Msg)
+update msg model =
+  case msg of
+    UI uiMsg ->
+      processUIMessage uiMsg model
+    Game gameMsg -> 
+      processGameMessage gameMsg model
