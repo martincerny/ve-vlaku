@@ -1,7 +1,8 @@
 module GameConstants exposing (gameConstants)
 
 gameConstants =
-  { activityBaseGrowth = 0.1 -- per second
+  {   
+    activityBaseGrowth = 0.1 -- per second
 
     , nervesBaseGrowth = 0 -- per second
     , nervesActivityGrowth = 0.05 -- growth per second per kid at maximal kid activity    
@@ -12,7 +13,7 @@ gameConstants =
 
     , calmDownNervesGrowth = 0.1
     , calmDownActivityMultiplier = 0.5   
-    , calmDownMutedTime = 1 -- seconds
+    , calmDownMutedTime = 2 -- seconds
 
 
     , highActivityScoreToLose = 1
@@ -20,4 +21,5 @@ gameConstants =
     , highActivityThreshold = 0.9
     , highActivityScoreRecovery = 0.3 -- per second
 
+    , transitionInactivity = 0.5
   }

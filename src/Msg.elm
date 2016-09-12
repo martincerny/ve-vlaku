@@ -5,8 +5,7 @@ import AnimationFrame
 import Model exposing(..)
 
 type GameMessage =
-  Frame Time.Time
-  | DeepBreathStarted
+  DeepBreathStarted
   | DeepBreathEnded
   | CalmDown Kid
 
@@ -18,11 +17,12 @@ type UIMessage =
 type Msg =
   Game GameMessage
   | UI UIMessage
+  | Frame Time.Time
 
 -- SUBSCRIPTIONS
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-  AnimationFrame.diffs (\time -> Game (Frame time))
+  AnimationFrame.diffs Frame
 
 

@@ -7,7 +7,9 @@ module Model exposing (
   , nervesGrowth
   , isMuted
   , isKidHighActivity
-  , isKidIncreasingNerves)
+  , isKidIncreasingNerves
+  , setState
+  )
 
 import GameConstants exposing (..)
 
@@ -17,6 +19,7 @@ type alias Kid =
     , name : String
     , waywardness : Float
     , activity: Float
+    , aggressivity: Float
     , mutedCooldown: Float   
   }
 
@@ -29,6 +32,7 @@ type alias Model =
     , highActivityScore : Float
     , timeToWin : Float 
     , state : GameState
+    , transitionInactivity : Float
   }
 
 -- Constructors
@@ -39,7 +43,19 @@ defaultKid =
   , name = ""
   , waywardness = 0
   , activity = 0
+  , aggressivity = 0
   , mutedCooldown = 0 
+  }
+
+-- Complex modifiers
+
+setState : Model -> GameState -> Model
+setState model state =
+  {model 
+    | state = state
+    , transitionInactivity = 
+        if model.state == state then model.transitionInactivity
+        else gameConstants.transitionInactivity  
   }
 
 -- Computed properties

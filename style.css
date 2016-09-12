@@ -31,6 +31,11 @@ td {
     color: #505050;
 }
 
+.muted *
+{
+    text-decoration: line-through;    
+}
+
 .nervesDisplay 
 {
     margin-top:100px;
@@ -96,4 +101,31 @@ td {
     width: 600px;
     height: 240px;
     opacity: 0.8;
+}
+
+.horizontalProgressContainer
+{
+    height: 10px;
+    padding:0;    
+    margin:5px;
+    border: 1px solid black;    
+}
+
+.kid .horizontalProgressContainer
+{
+    width : 50px;
+}
+
+
+.horizontalProgress
+{
+    padding: 0;
+    margin:0;
+    background-color:red;
+    height:100%;
+}
+
+.muted .horizontalProgress
+{
+    background-color: black;
 }

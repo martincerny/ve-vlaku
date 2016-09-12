@@ -17,7 +17,8 @@ init =
     , takingDeepBreath = False
     , highActivityScore = 0
     , timeToWin = 90
-    , state = Paused 
+    , state = Paused
+    , transitionInactivity = 0 
     }
   , Cmd.none
   )

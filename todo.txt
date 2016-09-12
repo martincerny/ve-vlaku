@@ -1,0 +1,17 @@
+- Process Frame event in both Game and UI
+- Vysoké nervy znamenají, že uklidnění zvedne agresivitu
+  - Hlášky pro uklidnění, které to budou komunikovat
+- Události (jednorázově zvedne rozjetost)
+  - Hlášky pro vizualizaci událostí  
+- Zvážit: prohrát při plných nervech (jakože jsem ty děti zbil).
+- Zlobení - rozjeté dítě může excitovat (jednorázově) souseda
+- Přesuny dětí - rozjeté děti se mohou přesouvat 
+- Generovat děti + délku cesty
+- Kampaň: Děti mi zůstávají.
+  - Failnuté mise (nervy) lze hrát znovu ze stejného výchozího stavu. Failnuté přes průvodčího se neopakují (aby se tím ladila obtížnost) 
+  - Ty děti, kterým celou hru nestoupla naštvanost nad určitou mez mají šanci, že jim klesne neposlušnost.
+  - Ty děti, které skončily s vysokou naštvaností mají šanci, že odejdou z oddílu
+  - Pokud mě nevyhodili z vlaku a maximální naštvanost byla malá, přijde mi nové dítě
+- Fast forward (mezerník ?)
+- ZVážit: průvodčí varuje než oddíl vyhodí (to by ale muselo na chvíli zastavit růst nervů průvodčího).
+  - Taky by šlo vyřešit tak, že průvodčí sprdne při varování děti a ty se uklidní, a výměnou vyrostou nervy hráče (něco jako na půl cesty mezi aktuálními nervy a 1)

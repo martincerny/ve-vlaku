@@ -6,6 +6,7 @@ import Msg exposing (..)
 import Html exposing (..)
 import Html.Attributes as Attr
 import Html.Events as Events
+import Utils
 
 valueToStyle : Float -> (String, String)
 valueToStyle value =
@@ -29,6 +30,14 @@ nervesToStyle nerves =
           "rgb(255," ++ otherColors ++ "," ++ otherColors ++")"  
     )
 
+horizontalProgress : List (Attribute Msg) -> Float -> Html Msg
+horizontalProgress attributes progress =
+  div ([ Attr.class "horizontalProgressContainer" ] ++ attributes)
+  [ 
+    div [ Attr.class "horizontalProgress", Attr.style [("width", (toString ((progress * 100))) ++ "%")]]
+    []
+  ]
+
 viewKid : Kid -> Html Msg
 viewKid kid =
   td 
@@ -42,8 +51,11 @@ viewKid kid =
         ]
       , Events.onClick (Game (CalmDown kid))
     ] [
-      div [] [text (kid.name)] 
-      , div [] [text (toString (round (100 * kid.activity)))]
+      table [] [
+        tr [] [ td [] [ text("Rozjetost: ")], td [] [horizontalProgress [] kid.activity] ]
+        , tr [] [ td [] [ text("Naštvanost: ")], td [] [horizontalProgress [] kid.aggressivity] ]
+      ]
+      , div [] [text (kid.name)]       
     ]
 
 view : Model -> Html Msg
@@ -121,7 +133,7 @@ view model =
           , td [] [text(
               toString ((round model.timeToWin) // 60)
               ++ ":"
-              ++ toString ( (round model.timeToWin) % 60) 
+              ++ Utils.fixedWidthNumberFormat 2 ( (round model.timeToWin) % 60) 
           )]
         ]
       ]
