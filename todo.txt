@@ -1,4 +1,3 @@
-- Process Frame event in both Game and UI
 - Vysoké nervy znamenají, že uklidnění zvedne agresivitu
   - Hlášky pro uklidnění, které to budou komunikovat
 - Události (jednorázově zvedne rozjetost)

@@ -19,7 +19,7 @@ type alias Kid =
     , name : String
     , waywardness : Float
     , activity: Float
-    , aggressivity: Float
+    , frustration: Float
     , mutedCooldown: Float   
   }
 
@@ -43,7 +43,7 @@ defaultKid =
   , name = ""
   , waywardness = 0
   , activity = 0
-  , aggressivity = 0
+  , frustration = 0
   , mutedCooldown = 0 
   }
 

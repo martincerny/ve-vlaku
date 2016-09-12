@@ -53,7 +53,7 @@ viewKid kid =
     ] [
       table [] [
         tr [] [ td [] [ text("Rozjetost: ")], td [] [horizontalProgress [] kid.activity] ]
-        , tr [] [ td [] [ text("Naštvanost: ")], td [] [horizontalProgress [] kid.aggressivity] ]
+        , tr [] [ td [] [ text("Naštvanost: ")], td [] [horizontalProgress [] kid.frustration] ]
       ]
       , div [] [text (kid.name)]       
     ]

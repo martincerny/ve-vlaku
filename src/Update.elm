@@ -18,7 +18,10 @@ updateKid deltaSeconds kid =
     else deltaSeconds - kid.mutedCooldown
   in
     {kid |
-      activity = defaultClamp ( kid.activity + usefulDelta * kid.waywardness * (gameConstants.activityBaseGrowth) )
+      activity = 
+        defaultClamp ( kid.activity + usefulDelta * kid.waywardness * 
+          (gameConstants.activityBaseGrowth + gameConstants.activityFrustrationGrowth * kid.frustration) 
+        )
       , mutedCooldown = max (kid.mutedCooldown - deltaSeconds) 0   
     }
 
@@ -52,27 +55,31 @@ updateGameFrame deltaSeconds oldModel =
       }
 
 kidCalmDownMapFunction : Int -> Float -> Kid -> Kid
-kidCalmDownMapFunction kidId effectivity kid =
-  if kid.id == kidId then 
-    {kid |
-      activity = (effectivity * kid.activity * gameConstants.calmDownActivityMultiplier)
-                  + ( (1.0 - effectivity) * kid.activity) 
-      , mutedCooldown = gameConstants.calmDownMutedTime                  
-    } 
-  else kid
+kidCalmDownMapFunction kidId nerves kid =
+  let 
+    effectivity = if 1 - nerves >= gameConstants.calmDownNervesGrowth then 1
+                    else  (1 - nerves) / gameConstants.calmDownNervesGrowth
+  in
+    if kid.id == kidId then 
+      {kid |
+        activity = (effectivity * kid.activity * gameConstants.calmDownActivityMultiplier)
+                    + ( (1.0 - effectivity) * kid.activity)
+        , frustration = 
+            defaultClamp (
+              kid.frustration 
+                + gameConstants.frustrationGrowthFromNerves * (nerves ^ gameConstants.frustrationGrowthFromNervesExponent) 
+            )
+        , mutedCooldown = gameConstants.calmDownMutedTime                  
+      } 
+    else kid
 
 performKidCalmdown : Int -> Model -> Model
 performKidCalmdown kidId model =
   if List.any (\kid -> kid.id == kidId && not (isMuted kid)) model.kids then --check if the target kid is not muted
-    let 
-      effectivity = if 1 - model.nerves >= gameConstants.calmDownNervesGrowth then 1
-                      else  (1 - model.nerves) / gameConstants.calmDownNervesGrowth
-      kidsMapFunction = effectivity                    
-    in
-      {model |
-        nerves = defaultClamp (model.nerves + gameConstants.calmDownNervesGrowth)
-        , kids = List.map (kidCalmDownMapFunction kidId effectivity) model.kids 
-      }
+    {model |
+      nerves = defaultClamp (model.nerves + gameConstants.calmDownNervesGrowth)
+      , kids = List.map (kidCalmDownMapFunction kidId model.nerves) model.kids 
+    }
   else model
 
 updateUIFrame : Float -> Model -> Model
