@@ -6,6 +6,7 @@ import Msg exposing (..)
 import Model exposing (..)
 import GameConstants exposing(gameConstants)
 import Init exposing(init)
+import Texts
 
 defaultClamp : Float -> Float
 defaultClamp = 
@@ -23,6 +24,7 @@ updateKid deltaSeconds kid =
           (gameConstants.activityBaseGrowth + gameConstants.activityFrustrationGrowth * kid.frustration) 
         )
       , mutedCooldown = max (kid.mutedCooldown - deltaSeconds) 0   
+      , playerDialogCooldown = max (kid.playerDialogCooldown - deltaSeconds) 0   
     }
 
 updateGameFrame : Float -> Model -> Model
@@ -69,7 +71,9 @@ kidCalmDownMapFunction kidId nerves kid =
               kid.frustration 
                 + gameConstants.frustrationGrowthFromNerves * (nerves ^ gameConstants.frustrationGrowthFromNervesExponent) 
             )
-        , mutedCooldown = gameConstants.calmDownMutedTime                  
+        , mutedCooldown = gameConstants.calmDownMutedTime
+        , shownPlayerDialog = Texts.getDialogString (Texts.calmDownDialog nerves)
+        , playerDialogCooldown = gameConstants.dialogCooldown                  
       } 
     else kid
 

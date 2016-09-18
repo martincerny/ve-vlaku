@@ -18,6 +18,7 @@ gameConstants =
     , calmDownActivityMultiplier = 0.5   
     , calmDownMutedTime = 2 -- seconds
 
+    , dialogCooldown = 3 -- seconds
 
     , highActivityScoreToLose = 1
     , highActivityScoreIncreasePerKid = 0.15 -- per kid and second    

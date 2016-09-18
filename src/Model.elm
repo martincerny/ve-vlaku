@@ -12,6 +12,7 @@ module Model exposing (
   )
 
 import GameConstants exposing (..)
+import Texts
 
 type alias Kid = 
   { 
@@ -21,7 +22,22 @@ type alias Kid =
     , activity: Float
     , frustration: Float
     , mutedCooldown: Float   
+    , shownPlayerDialog : Texts.DialogString
+    , playerDialogCooldown: Float
   }
+
+defaultKid : Kid
+defaultKid =
+  { id = -1
+  , name = ""
+  , waywardness = 0
+  , activity = 0
+  , frustration = 0
+  , mutedCooldown = 0 
+  , shownPlayerDialog = Texts.noDialogString
+  , playerDialogCooldown = 0
+  }
+
 
 type GameState = Running | Paused | Lost | Won
 
@@ -33,18 +49,6 @@ type alias Model =
     , timeToWin : Float 
     , state : GameState
     , transitionInactivity : Float
-  }
-
--- Constructors
-
-defaultKid : Kid
-defaultKid =
-  { id = -1
-  , name = ""
-  , waywardness = 0
-  , activity = 0
-  , frustration = 0
-  , mutedCooldown = 0 
   }
 
 -- Complex modifiers

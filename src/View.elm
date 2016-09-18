@@ -7,6 +7,7 @@ import Html exposing (..)
 import Html.Attributes as Attr
 import Html.Events as Events
 import Utils
+import Texts
 
 valueToStyle : Float -> (String, String)
 valueToStyle value =
@@ -54,6 +55,10 @@ viewKid kid =
       table [] [
         tr [] [ td [] [ text("Rozjetost: ")], td [] [horizontalProgress [] kid.activity] ]
         , tr [] [ td [] [ text("Naštvanost: ")], td [] [horizontalProgress [] kid.frustration] ]
+        , tr [] [ td [ Attr.colspan 2] [ text(
+                    if kid.playerDialogCooldown > 0 then kid.shownPlayerDialog Texts.Cz
+                    else ""
+        )] ]
       ]
       , div [] [text (kid.name)]       
     ]
