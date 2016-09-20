@@ -1,5 +1,3 @@
-- Vysoké nervy znamenají, že uklidnění zvedne agresivitu
-  - Hlášky pro uklidnění, které to budou komunikovat
 - Události (jednorázově zvedne rozjetost)
   - Hlášky pro vizualizaci událostí  
 - Zvážit: prohrát při plných nervech (jakože jsem ty děti zbil).

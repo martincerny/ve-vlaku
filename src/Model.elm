@@ -46,6 +46,7 @@ type alias Model =
     , kids : List Kid
     , takingDeepBreath : Bool
     , highActivityScore : Float
+    , timeToOutburst : Float
     , timeToWin : Float 
     , state : GameState
     , transitionInactivity : Float

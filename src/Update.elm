@@ -7,6 +7,8 @@ import Model exposing (..)
 import GameConstants exposing(gameConstants)
 import Init exposing(init)
 import Texts
+import Random 
+import RandomGenerators
 
 defaultClamp : Float -> Float
 defaultClamp = 
@@ -27,7 +29,7 @@ updateKid deltaSeconds kid =
       , playerDialogCooldown = max (kid.playerDialogCooldown - deltaSeconds) 0   
     }
 
-updateGameFrame : Float -> Model -> Model
+updateGameFrame : Float -> Model -> (Model, Cmd Msg)
 updateGameFrame deltaSeconds oldModel =
     let 
       model = 
@@ -37,24 +39,32 @@ updateGameFrame deltaSeconds oldModel =
           else oldModel.state
         )
     in
-      {model | 
-        nerves = defaultClamp ( model.nerves +
-          if model.takingDeepBreath then 
-              -gameConstants.deepBreathNervesRecovery * deltaSeconds
-          else
-              (nervesGrowth model) * deltaSeconds 
-        ) 
-        , highActivityScore =
-            let 
-              numHighActivityKids = List.filter isKidHighActivity model.kids |> List.length
-            in
-              if numHighActivityKids > 0 then 
-                model.highActivityScore + deltaSeconds * (toFloat numHighActivityKids) * gameConstants.highActivityScoreIncreasePerKid
-              else 
-                max 0 (model.highActivityScore - deltaSeconds * gameConstants.highActivityScoreRecovery)   
-        , timeToWin = model.timeToWin - deltaSeconds
-        , kids = List.map (updateKid deltaSeconds) model.kids
-      }
+      (
+        {model | 
+          nerves = defaultClamp ( model.nerves +
+            if model.takingDeepBreath then 
+                -gameConstants.deepBreathNervesRecovery * deltaSeconds
+            else
+                (nervesGrowth model) * deltaSeconds 
+          ) 
+          , highActivityScore =
+              let 
+                numHighActivityKids = List.filter isKidHighActivity model.kids |> List.length
+              in
+                if numHighActivityKids > 0 then 
+                  model.highActivityScore + deltaSeconds * (toFloat numHighActivityKids) * gameConstants.highActivityScoreIncreasePerKid
+                else 
+                  max 0 (model.highActivityScore - deltaSeconds * gameConstants.highActivityScoreRecovery)   
+          , timeToWin = max 0 (model.timeToWin - deltaSeconds)
+          , timeToOutburst = max 0 (model.timeToOutburst - deltaSeconds)
+          , kids = List.map (updateKid deltaSeconds) model.kids
+        } 
+      ,
+        (
+          if model.timeToOutburst <= 0 then Random.generate (gameMsg PerformOutburst) (RandomGenerators.outburstTarget model.kids)
+          else Cmd.none
+        )
+      )
 
 kidCalmDownMapFunction : Int -> Float -> Kid -> Kid
 kidCalmDownMapFunction kidId nerves kid =
@@ -85,6 +95,18 @@ performKidCalmdown kidId model =
       , kids = List.map (kidCalmDownMapFunction kidId model.nerves) model.kids 
     }
   else model
+
+performKidOutburst : Kid -> Kid 
+performKidOutburst kid =
+  {kid |
+    activity = defaultClamp kid.activity + (kid.waywardness * gameConstants.outburstActivityGrowth)
+  }
+
+performOutburst : Float -> Model -> Model
+performOutburst randomValue model =
+  {model |
+    kids = RandomGenerators.outburstTargetFilter randomValue performKidOutburst model.kids
+  } 
 
 updateUIFrame : Float -> Model -> Model
 updateUIFrame deltaSeconds model =
@@ -120,6 +142,15 @@ processGameMessage msg model =
       CalmDown kid ->
         performKidCalmdown kid.id model 
         ! []
+      ScheduleOutburst delta ->  
+        {model | timeToOutburst = delta}
+        ! []
+      PerformOutburst randomValue ->
+        (
+          performOutburst randomValue model
+          ,Random.generate (gameMsg ScheduleOutburst) RandomGenerators.outburstSchedule
+        )
+
 
 
 update : Msg -> Model -> (Model, Cmd Msg)
@@ -135,6 +166,6 @@ update msg model =
           delta / Time.second
       in
         if shouldUpdateGame model then 
-          (updateGameFrame deltaSeconds model) ! []
+          updateGameFrame deltaSeconds model
         else
           (updateUIFrame deltaSeconds model) ! []

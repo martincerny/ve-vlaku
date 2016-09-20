@@ -25,5 +25,10 @@ gameConstants =
     , highActivityThreshold = 0.9
     , highActivityScoreRecovery = 0.3 -- per second
 
+
+    , minOutburstInterval = 1 --seconds
+    , maxOutburstInterval = 5 --seconds
+    , outburstActivityGrowth = 0.7 --activity growth at max waywardness
+
     , transitionInactivity = 0.5
   }

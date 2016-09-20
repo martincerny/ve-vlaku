@@ -55,21 +55,28 @@ viewKid kid =
       table [] [
         tr [] [ td [] [ text("Rozjetost: ")], td [] [horizontalProgress [] kid.activity] ]
         , tr [] [ td [] [ text("Naštvanost: ")], td [] [horizontalProgress [] kid.frustration] ]
-        , tr [] [ td [ Attr.colspan 2] [ text(
-                    if kid.playerDialogCooldown > 0 then kid.shownPlayerDialog Texts.Cz
-                    else ""
-        )] ]
       ]
       , div [] [text (kid.name)]       
     ]
+
+viewKidDialog : Kid -> Html Msg
+viewKidDialog kid =
+  td [] 
+  [
+    text(
+      if kid.playerDialogCooldown > 0 then kid.shownPlayerDialog Texts.Cz
+      else ""      
+    )
+  ]
 
 view : Model -> Html Msg
 view model =
   div [
      Attr.style [ nervesToStyle model.nerves ]    
   ] [
-    table [] [ tr [] 
-      (List.map viewKid model.kids)         
+    table [] [ 
+      tr [] (List.map viewKid model.kids)         
+      , tr [] (List.map viewKidDialog model.kids)         
     ]    
     , div
        ( 

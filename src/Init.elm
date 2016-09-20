@@ -2,6 +2,8 @@ module Init exposing (init)
 
 import Model exposing(..)
 import Msg exposing(..)
+import Random
+import RandomGenerators
 
 init : (Model, Cmd Msg)
 init =
@@ -18,7 +20,8 @@ init =
     , highActivityScore = 0
     , timeToWin = 90
     , state = Paused
-    , transitionInactivity = 0 
+    , transitionInactivity = 0
+    , timeToOutburst = 1 
     }
-  , Cmd.none
+  , Random.generate (gameMsg ScheduleOutburst)  RandomGenerators.outburstSchedule
   )
