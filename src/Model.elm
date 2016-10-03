@@ -22,6 +22,8 @@ type alias Kid =
     , activity: Float
     , frustration: Float
     , mutedCooldown: Float   
+    , shownKidDialog : Texts.DialogString
+    , kidDialogCooldown: Float
     , shownPlayerDialog : Texts.DialogString
     , playerDialogCooldown: Float
   }
@@ -34,6 +36,8 @@ defaultKid =
   , activity = 0
   , frustration = 0
   , mutedCooldown = 0 
+  , shownKidDialog = Texts.noDialogString
+  , kidDialogCooldown = 0
   , shownPlayerDialog = Texts.noDialogString
   , playerDialogCooldown = 0
   }

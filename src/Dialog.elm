@@ -4,3 +4,6 @@ type Dialog =
   CalmDownLowNerves
   | CalmDownMidNerves
   | CalmDownHighNerves
+
+  | OutburstLow
+  | OutburstHigh

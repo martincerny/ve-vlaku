@@ -26,6 +26,7 @@ updateKid deltaSeconds kid =
           (gameConstants.activityBaseGrowth + gameConstants.activityFrustrationGrowth * kid.frustration) 
         )
       , mutedCooldown = max (kid.mutedCooldown - deltaSeconds) 0   
+      , kidDialogCooldown = max (kid.kidDialogCooldown - deltaSeconds) 0   
       , playerDialogCooldown = max (kid.playerDialogCooldown - deltaSeconds) 0   
     }
 
@@ -98,9 +99,14 @@ performKidCalmdown kidId model =
 
 performKidOutburst : Kid -> Kid 
 performKidOutburst kid =
-  {kid |
-    activity = defaultClamp kid.activity + (kid.waywardness * gameConstants.outburstActivityGrowth)
-  }
+  let
+    intensity = kid.waywardness --the intensity should probably be randomized
+  in
+    {kid |
+      activity = defaultClamp kid.activity + (intensity * gameConstants.outburstActivityGrowth)
+      , shownKidDialog = Texts.getDialogString (Texts.outburstDialog intensity)
+      , kidDialogCooldown = gameConstants.dialogCooldown
+    }
 
 performOutburst : Float -> Model -> Model
 performOutburst randomValue model =

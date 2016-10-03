@@ -1,4 +1,4 @@
-module Texts exposing (Language(..), DialogString, noDialogString, getDialogString, calmDownDialog)
+module Texts exposing (Language(..), DialogString, noDialogString, getDialogString, calmDownDialog, outburstDialog)
 
 import Dialog exposing(..)
 import TextsCz
@@ -25,3 +25,8 @@ calmDownDialog nerves =
   if nerves < 0.5 then CalmDownLowNerves
   else if nerves < 0.9 then CalmDownMidNerves
   else CalmDownHighNerves
+
+outburstDialog : Float -> Dialog
+outburstDialog intensity =
+  if intensity < 0.5 then OutburstLow
+  else OutburstHigh

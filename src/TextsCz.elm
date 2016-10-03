@@ -8,3 +8,6 @@ dialogStringCz dialog =
     CalmDownLowNerves -> ["Uklidni se, prosím."]
     CalmDownMidNerves -> ["Hej, fakt to klidni!"]
     CalmDownHighNerves -> ["Drž už konečně hubu!"]
+
+    OutburstLow -> ["Hele, srnka!"]
+    OutburstHigh -> ["Pojďme se poprat"]

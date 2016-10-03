@@ -61,13 +61,20 @@ viewKid kid =
 
 viewKidDialog : Kid -> Html Msg
 viewKidDialog kid =
-  td [] 
-  [
-    text(
-      if kid.playerDialogCooldown > 0 then kid.shownPlayerDialog Texts.Cz
-      else ""      
-    )
-  ]
+  td []
+  ( 
+      (
+        if kid.kidDialogCooldown > 0 then 
+          [ div [Attr.class "kidDialog"] [ text ( kid.shownKidDialog Texts.Cz ) ] ]
+        else []
+      )
+      ++            
+      (
+        if kid.playerDialogCooldown > 0 then 
+          [ div [Attr.class "playerDialog"] [ text ( kid.shownPlayerDialog Texts.Cz ) ] ]
+        else []
+      )
+  )
 
 view : Model -> Html Msg
 view model =
