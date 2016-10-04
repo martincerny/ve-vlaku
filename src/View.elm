@@ -94,7 +94,7 @@ view model =
         ++  case model.state of
               Paused ->
                 [Events.onClick (UI ResumeGame)]
-              Lost ->
+              Lost _ ->
                 [Events.onClick (UI RestartGame)]
               Won -> 
                 [Events.onClick (UI RestartGame)]
@@ -104,8 +104,12 @@ view model =
        (case model.state of
           Paused ->
             [text("Klikni pro spuštění")]
-          Lost ->
-            [text("Průvodčí vás vyhodil z vlaku :-(")]
+          Lost reason ->
+            case reason of
+              Activity ->
+                [text("Průvodčí vás vyhodil z vlaku :-(")]
+              Nerves ->
+                [text("Ruply ti nervy :-(")]
           Won -> 
             [text("Dojeli jste na místo. Hurá!")]
           Running ->

@@ -35,8 +35,9 @@ updateGameFrame deltaSeconds oldModel =
     let 
       model = 
         setState oldModel (
-          if oldModel.highActivityScore >= gameConstants.highActivityScoreToLose then Lost
-          else if not (oldModel.state == Lost) && oldModel.timeToWin <= 0 then Won
+          if oldModel.highActivityScore >= gameConstants.highActivityScoreToLose then Lost Activity
+          else if oldModel.nerves >= 1 then Lost Nerves 
+          else if not (isStateLost oldModel.state) && oldModel.timeToWin <= 0 then Won
           else oldModel.state
         )
     in

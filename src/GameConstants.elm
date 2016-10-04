@@ -28,7 +28,7 @@ gameConstants =
 
     , minOutburstInterval = 1 --seconds
     , maxOutburstInterval = 5 --seconds
-    , outburstActivityGrowth = 0 -- 0.7 --activity growth at max waywardness
+    , outburstActivityGrowth = 0.5 --activity growth at max waywardness
 
     , transitionInactivity = 0.5
   }

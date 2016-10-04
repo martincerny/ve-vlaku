@@ -1,5 +1,3 @@
-- Události (jednorázově zvedne rozjetost)
-  - Hlášky pro vizualizaci událostí  
 - Zvážit: prohrát při plných nervech (jakože jsem ty děti zbil).
 - Zlobení - rozjeté dítě může excitovat (jednorázově) souseda
 - Přesuny dětí - rozjeté děti se mohou přesouvat 

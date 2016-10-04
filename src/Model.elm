@@ -2,9 +2,11 @@ module Model exposing (
   Kid
   , Model
   , GameState(..)
+  , LostCause(..)
   , defaultKid
   , shouldUpdateGame
   , nervesGrowth
+  , isStateLost
   , isMuted
   , isKidHighActivity
   , isKidIncreasingNerves
@@ -43,7 +45,13 @@ defaultKid =
   }
 
 
-type GameState = Running | Paused | Lost | Won
+type LostCause = Activity | Nerves
+
+type GameState = 
+  Running 
+  | Paused 
+  | Lost LostCause 
+  | Won
 
 type alias Model = 
   { nerves : Float  
@@ -72,6 +80,12 @@ setState model state =
 shouldUpdateGame : Model -> Bool
 shouldUpdateGame model =
   model.state == Running
+
+isStateLost : GameState -> Bool
+isStateLost state =
+  case state of
+    Lost _ -> True
+    _ -> True
 
 isMuted : Kid -> Bool
 isMuted kid =
