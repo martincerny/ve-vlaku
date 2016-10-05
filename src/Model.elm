@@ -1,11 +1,12 @@
 module Model exposing (
   Kid
   , Model
+  , CalmDownInfo
+  , PlayerActivity(..)
   , GameState(..)
   , LostCause(..)
   , defaultKid
   , shouldUpdateGame
-  , nervesGrowth
   , isStateLost
   , isMuted
   , isKidHighActivity
@@ -16,14 +17,14 @@ module Model exposing (
 import GameConstants exposing (..)
 import Texts
 
-type alias Kid = 
-  { 
+type alias Kid =
+  {
     id : Int
     , name : String
     , waywardness : Float
     , activity: Float
     , frustration: Float
-    , mutedCooldown: Float   
+    , mutedCooldown: Float
     , shownKidDialog : Texts.DialogString
     , kidDialogCooldown: Float
     , shownPlayerDialog : Texts.DialogString
@@ -37,7 +38,7 @@ defaultKid =
   , waywardness = 0
   , activity = 0
   , frustration = 0
-  , mutedCooldown = 0 
+  , mutedCooldown = 0
   , shownKidDialog = Texts.noDialogString
   , kidDialogCooldown = 0
   , shownPlayerDialog = Texts.noDialogString
@@ -47,19 +48,30 @@ defaultKid =
 
 type LostCause = Activity | Nerves
 
-type GameState = 
-  Running 
-  | Paused 
-  | Lost LostCause 
+type GameState =
+  Running
+  | Paused
+  | Lost LostCause
   | Won
 
-type alias Model = 
-  { nerves : Float  
+type alias CalmDownInfo =
+  {
+    kidId : Int
+    , duration : Float
+  }
+
+type PlayerActivity =
+  None
+  | DeepBreath
+  | CalmDownKid CalmDownInfo
+
+type alias Model =
+  { nerves : Float
     , kids : List Kid
-    , takingDeepBreath : Bool
+    , playerActivity : PlayerActivity
     , highActivityScore : Float
     , timeToOutburst : Float
-    , timeToWin : Float 
+    , timeToWin : Float
     , state : GameState
     , transitionInactivity : Float
   }
@@ -68,11 +80,11 @@ type alias Model =
 
 setState : Model -> GameState -> Model
 setState model state =
-  {model 
+  {model
     | state = state
-    , transitionInactivity = 
+    , transitionInactivity =
         if model.state == state then model.transitionInactivity
-        else gameConstants.transitionInactivity  
+        else gameConstants.transitionInactivity
   }
 
 -- Computed properties
@@ -85,7 +97,7 @@ isStateLost : GameState -> Bool
 isStateLost state =
   case state of
     Lost _ -> True
-    _ -> True
+    _ -> False
 
 isMuted : Kid -> Bool
 isMuted kid =
@@ -95,21 +107,6 @@ isKidIncreasingNerves : Kid -> Bool
 isKidIncreasingNerves kid =
    not (isMuted kid) && kid.activity > gameConstants.nervesActivityGrowthThreshold
 
-nervesGrowthPerKid : Kid -> Float
-nervesGrowthPerKid kid =
-  if not (isKidIncreasingNerves kid) then 0
-  else
-    let 
-      threshold = gameConstants.nervesActivityGrowthThreshold
-    in
-      ((kid.activity - threshold) / (1 - threshold)) * gameConstants.nervesActivityGrowth 
-
-
-nervesGrowth : Model -> Float
-nervesGrowth model =
-    gameConstants.nervesBaseGrowth  
-    + ( List.map nervesGrowthPerKid model.kids
-        |> List.sum )        
 
 isKidHighActivity : Kid -> Bool
 isKidHighActivity kid =

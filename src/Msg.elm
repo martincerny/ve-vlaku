@@ -7,7 +7,8 @@ import Model exposing(..)
 type GameMessage =
   DeepBreathStarted
   | DeepBreathEnded
-  | CalmDown Kid
+  | CalmDownStarted Kid
+  | CalmDownEnded
   | ScheduleOutburst Float --parameter is the time until the outburst
   | PerformOutburst Float --parameter is the "index" of the kid in terms of waywardness
 

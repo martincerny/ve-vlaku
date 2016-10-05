@@ -11,3 +11,4 @@ dialogStringCz dialog =
 
     OutburstLow -> ["Hele, srnka!"]
     OutburstHigh -> ["Pojďme se poprat"]
+

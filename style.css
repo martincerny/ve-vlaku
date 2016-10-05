@@ -15,7 +15,7 @@ td {
 
 .increasesNerves
 {
-    border: 3px yellow solid;    
+    border: 3px yellow solid;
 }
 
 .highActivity
@@ -33,10 +33,10 @@ td {
 
 .muted *
 {
-    text-decoration: line-through;    
+    text-decoration: line-through;
 }
 
-.nervesDisplay 
+.nervesDisplay
 {
     margin-top:100px;
     width:60px;
@@ -54,13 +54,13 @@ td {
 .takeDeepBreath.highlighted
 {
     border:3px lightblue solid;
-    background-color: lightgreen;    
+    background-color: lightgreen;
 }
 
 
 .takeDeepBreath.active
 {
-    background-color:lightcoral;    
+    background-color:lightcoral;
 }
 
 
@@ -74,7 +74,7 @@ td {
     margin: 0 50px;
 }
 
-.nervesSlider 
+.nervesSlider
 {
     background-color:red;
     width : 100%;
@@ -106,9 +106,9 @@ td {
 .horizontalProgressContainer
 {
     height: 10px;
-    padding:0;    
+    padding:0;
     margin:5px;
-    border: 1px solid black;    
+    border: 1px solid black;
 }
 
 .kid .horizontalProgressContainer
@@ -128,6 +128,11 @@ td {
 .muted .horizontalProgress
 {
     background-color: black;
+}
+
+.dialogCell
+{
+    height: 50px;
 }
 
 .kidDialog

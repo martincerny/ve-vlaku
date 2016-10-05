@@ -16,7 +16,7 @@ init =
       , {defaultKid | id = 4, name = "David", waywardness = 0.4, activity = 0.05}
       , {defaultKid | id = 5, name = "Eva", waywardness = 0.2}
     ]
-    , takingDeepBreath = False
+    , playerActivity = None
     , highActivityScore = 0
     , timeToWin = 90
     , state = Paused
