@@ -30,7 +30,7 @@ outburstTargetFilterMapper mapFunction kidsToProcess value waywardnessSum proces
         newWaywardnessSum = 
           waywardnessSum + kidToOutburstProbability kid
         processedCurrentKid = 
-          if value < newWaywardnessSum then mapFunction kid
+          if value > waywardnessSum && value < newWaywardnessSum then mapFunction kid
           else kid
       in 
         outburstTargetFilterMapper mapFunction remainingKids value newWaywardnessSum (processedCurrentKid :: processedKids)

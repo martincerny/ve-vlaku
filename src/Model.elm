@@ -58,6 +58,7 @@ type alias CalmDownInfo =
   {
     kidId : Int
     , duration : Float
+    , nervesAtStart : Float
   }
 
 type PlayerActivity =

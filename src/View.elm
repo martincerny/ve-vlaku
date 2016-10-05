@@ -71,7 +71,7 @@ viewKid playerActivity kid =
               [horizontalProgress [] (progress)]
           ) ]         
           , tr [] [ td [] [ text("Rozjetost: ")], td [] [horizontalProgress [] kid.activity] ]
-          , tr [] [ td [] [ text("Naštvanost: ")], td [] [horizontalProgress [] kid.frustration] ]
+          , tr [] [ td [] [ text("Nálada: ")], td [] [horizontalProgress [] (1 - kid.frustration) ] ]
         ]
         , div [] [text (kid.name)]
       ]

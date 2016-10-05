@@ -25,6 +25,7 @@ updateKid deltaSeconds kid =
         defaultClamp ( kid.activity + usefulDelta * kid.waywardness *
           (gameConstants.activityBaseGrowth + gameConstants.activityFrustrationGrowth * kid.frustration)
         )
+      , frustration = max (kid.frustration - usefulDelta * gameConstants.frustrationRecovery) 0
       , mutedCooldown = max (kid.mutedCooldown - deltaSeconds) 0
       , kidDialogCooldown = max (kid.kidDialogCooldown - deltaSeconds) 0
       , playerDialogCooldown = max (kid.playerDialogCooldown - deltaSeconds) 0
@@ -65,7 +66,7 @@ updateActivity deltaSeconds model =
           newCalmDownDuration = calmDownInfo.duration + deltaSeconds 
         in
           if newCalmDownDuration >= gameConstants.calmDownDuration then
-            performKidCalmdown calmDownInfo.kidId { model | playerActivity = None}
+            performKidCalmdown calmDownInfo { model | playerActivity = None}
           else
             {model | 
               playerActivity = CalmDownKid {calmDownInfo | duration = newCalmDownDuration}
@@ -126,17 +127,21 @@ kidCalmDownFunction nerves kid =
       , frustration =
           defaultClamp (
             kid.frustration
-              + gameConstants.frustrationGrowthFromNerves * (nerves ^ gameConstants.frustrationGrowthFromNervesExponent)
+              + gameConstants.calmDownFrustrationGrowthMin
+              + (
+                (gameConstants.calmDownFrustrationGrowthMax - gameConstants.calmDownFrustrationGrowthMin) 
+                * (nerves ^ gameConstants.calmDownFrustrationGrowthExponent)
+              )
           )
       , mutedCooldown = gameConstants.calmDownMutedTime
       , shownPlayerDialog = Texts.getDialogString (Texts.calmDownDialog nerves)
       , playerDialogCooldown = gameConstants.dialogCooldown
     }
 
-performKidCalmdown : Int -> Model -> Model
-performKidCalmdown kidId model =
+performKidCalmdown : CalmDownInfo -> Model -> Model
+performKidCalmdown calmDownInfo model =
   {model |
-    kids = updateKidById kidId (kidCalmDownFunction model.nerves) model.kids
+    kids = updateKidById calmDownInfo.kidId (kidCalmDownFunction calmDownInfo.nervesAtStart) model.kids
   }
 
 performKidOutburst : Kid -> Kid
@@ -182,13 +187,13 @@ processGameMessage msg model =
   else
     case msg of
       DeepBreathStarted ->
-        { model | playerActivity = DeepBreath}
+        { model | playerActivity = DeepBreath }
         ! []
       DeepBreathEnded ->
         { model | playerActivity = None}
         ! []
       CalmDownStarted kid ->
-        { model | playerActivity = CalmDownKid {duration = 0, kidId = kid.id} }
+        { model | playerActivity = CalmDownKid { duration = 0, kidId = kid.id, nervesAtStart = model.nerves } }
         ! []
       CalmDownEnded ->
         { model | playerActivity = None}

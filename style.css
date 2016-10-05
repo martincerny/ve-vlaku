@@ -11,14 +11,15 @@ td {
 {
     padding:10px;
     margin:10px;
+    border: 3px white solid;
 }
 
-.increasesNerves
+.kid.increasesNerves
 {
     border: 3px yellow solid;
 }
 
-.highActivity
+.kid.highActivity
 {
     border: 3px red solid;
 }
