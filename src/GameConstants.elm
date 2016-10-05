@@ -2,7 +2,7 @@ module GameConstants exposing (gameConstants)
 
 gameConstants =
   {
-    activityBaseGrowth = 0.08 -- per second at max waywardness
+    activityBaseGrowth = 0--0.08 -- per second at max waywardness
     , activityFrustrationGrowth = 0 --per second at max frustration
 
     , nervesBaseGrowth = 0 -- per second
@@ -30,9 +30,10 @@ gameConstants =
     , highActivityScoreRecovery = 0.2 -- per second
 
 
-    , minOutburstInterval = 3 --seconds
-    , maxOutburstInterval = 12 --seconds
-    , outburstActivityGrowth = 0.8 --activity growth at max waywardness
+    , minOutburstInterval = 2 --seconds
+    , maxOutburstInterval = 8 --seconds
+    , outburstMinActivityGrowth = 0.2 --activity growth at min outburst intensity or waywardness 
+    , outburstMaxActivityGrowth = 0.8 --activity growth at max outburst intensity and max waywardness
 
     , transitionInactivity = 0.5 -- GUI parameter (how long to prevent clicks after a transition)
   }

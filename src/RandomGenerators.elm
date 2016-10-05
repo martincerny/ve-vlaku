@@ -1,4 +1,9 @@
-module RandomGenerators exposing (outburstSchedule, outburstTarget, outburstTargetFilter)
+module RandomGenerators exposing (
+  outburstSchedule, 
+  outburstIntensity,
+  outburstTarget,
+  outburstTargetFilter
+  )
 
 import GameConstants exposing(..)
 import Random
@@ -12,6 +17,10 @@ kidToOutburstProbability : Kid -> Float
 kidToOutburstProbability kid =
   if isMuted kid then 0
   else kid.waywardness
+
+outburstIntensity : Random.Generator Float
+outburstIntensity =
+  Random.float 0 1
 
 outburstTarget : List Kid -> Random.Generator Float
 outburstTarget kids = 

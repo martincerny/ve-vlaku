@@ -103,7 +103,13 @@ updateGameFrame deltaSeconds oldModel =
         }
       ,
         (
-          if model.timeToOutburst <= 0 then Random.generate (gameMsg PerformOutburst) (RandomGenerators.outburstTarget model.kids)
+          if model.timeToOutburst <= 0 then 
+            Random.generate (gameMsg PerformOutburst) 
+              (Random.map2 --combine the two generators to create an appropriate pair 
+                (\target intensity -> {target = target, intensity = intensity}) 
+                (RandomGenerators.outburstTarget model.kids) 
+                (RandomGenerators.outburstIntensity)
+              )
           else Cmd.none
         )
       )
@@ -144,21 +150,23 @@ performKidCalmdown calmDownInfo model =
     kids = updateKidById calmDownInfo.kidId (kidCalmDownFunction calmDownInfo.nervesAtStart) model.kids
   }
 
-performKidOutburst : Kid -> Kid
-performKidOutburst kid =
-  let
-    intensity = kid.waywardness --the intensity should probably be randomized
+performKidOutburst : OutburstParams -> Kid -> Kid
+performKidOutburst params kid =
+  let    
+    minGrowth = gameConstants.outburstMinActivityGrowth
+    maxGrowth = gameConstants.outburstMaxActivityGrowth
+    intensity = kid.waywardness * params.intensity --the intensity should probably be randomized
   in
     {kid |
-      activity = defaultClamp kid.activity + (intensity * gameConstants.outburstActivityGrowth)
+      activity = defaultClamp kid.activity + minGrowth + (intensity * (maxGrowth - minGrowth))
       , shownKidDialog = Texts.getDialogString (Texts.outburstDialog intensity)
       , kidDialogCooldown = gameConstants.dialogCooldown
     }
 
-performOutburst : Float -> Model -> Model
-performOutburst randomValue model =
+performOutburst : OutburstParams -> Model -> Model
+performOutburst params model =
   {model |
-    kids = RandomGenerators.outburstTargetFilter randomValue performKidOutburst model.kids
+    kids = RandomGenerators.outburstTargetFilter params.target (performKidOutburst params) model.kids
   }
 
 updateUIFrame : Float -> Model -> Model
@@ -201,9 +209,9 @@ processGameMessage msg model =
       ScheduleOutburst delta ->
         {model | timeToOutburst = delta}
         ! []
-      PerformOutburst randomValue ->
+      PerformOutburst params ->
         (
-          performOutburst randomValue model
+          performOutburst params model
           ,Random.generate (gameMsg ScheduleOutburst) RandomGenerators.outburstSchedule
         )
 
