@@ -1,21 +1,32 @@
 module Model exposing (
   Kid
+  , OutburstParams
   , Model
   , CalmDownInfo
   , PlayerActivity(..)
   , GameState(..)
   , LostCause(..)
+  , emptyOutburstParams
   , defaultKid
   , shouldUpdateGame
   , isStateLost
   , isMuted
   , isKidHighActivity
   , isKidIncreasingNerves
+  , isActiveOutburst
   , setState
   )
 
 import GameConstants exposing (..)
 import Texts
+
+type alias OutburstParams =
+  {
+    targetKidId : Int
+    , interval : Float
+    , intensity : Float    
+  }
+
 
 type alias Kid =
   {
@@ -29,6 +40,16 @@ type alias Kid =
     , kidDialogCooldown: Float
     , shownPlayerDialog : Texts.DialogString
     , playerDialogCooldown: Float
+    , timeSinceLastOutburst : Float
+    , scheduledOutburst : OutburstParams
+  }
+
+emptyOutburstParams : OutburstParams
+emptyOutburstParams = 
+  { 
+    targetKidId = -1
+    , interval = 1/0
+    , intensity = 0 
   }
 
 defaultKid : Kid
@@ -43,6 +64,8 @@ defaultKid =
   , kidDialogCooldown = 0
   , shownPlayerDialog = Texts.noDialogString
   , playerDialogCooldown = 0
+  , timeSinceLastOutburst = 0
+  , scheduledOutburst = emptyOutburstParams
   }
 
 
@@ -113,4 +136,6 @@ isKidHighActivity : Kid -> Bool
 isKidHighActivity kid =
   not (isMuted kid) && kid.activity > gameConstants.highActivityThreshold
 
-
+isActiveOutburst : OutburstParams -> Bool
+isActiveOutburst params =
+  not (isInfinite params.interval || params.targetKidId < 0)

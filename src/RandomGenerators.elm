@@ -1,51 +1,35 @@
 module RandomGenerators exposing (
-  outburstSchedule, 
-  outburstIntensity,
-  outburstTarget,
-  outburstTargetFilter
+  outburstParams
   )
 
 import GameConstants exposing(..)
 import Random
 import Model exposing(..)
 
-outburstSchedule : Random.Generator Float
-outburstSchedule = 
-  Random.float gameConstants.minOutburstInterval gameConstants.maxOutburstInterval
+exponentialInverseCDF : Float -> Float -> Float
+exponentialInverseCDF mean y =
+  -mean * logBase e (1 - y) 
 
-kidToOutburstProbability : Kid -> Float 
-kidToOutburstProbability kid =
-  if isMuted kid then 0
-  else kid.waywardness
+
+outburstInterval : Float -> Random.Generator Float
+outburstInterval waywardness = 
+  let
+    minMeanInterval = 
+      gameConstants.meanOutburstIntervalMin
+    maxMeanInterval = 
+      gameConstants.meanOutburstIntervalMax
+    actualMeanInterval =
+      minMeanInterval + (1 - waywardness) * (maxMeanInterval - minMeanInterval)
+  in
+    Random.map (exponentialInverseCDF actualMeanInterval) (Random.float 0 1)
 
 outburstIntensity : Random.Generator Float
 outburstIntensity =
   Random.float 0 1
 
-outburstTarget : List Kid -> Random.Generator Float
-outburstTarget kids = 
-  Random.float 0 (
-    List.map kidToOutburstProbability kids 
-      |> List.sum
-  )
-
-outburstTargetFilterMapper : (Kid -> Kid) -> List Kid -> Float -> Float -> List Kid -> List Kid
-outburstTargetFilterMapper mapFunction kidsToProcess value waywardnessSum processedKids =
-  case kidsToProcess of
-    [] -> 
-      List.reverse processedKids
-    kid :: remainingKids ->
-      let 
-        newWaywardnessSum = 
-          waywardnessSum + kidToOutburstProbability kid
-        processedCurrentKid = 
-          if value > waywardnessSum && value < newWaywardnessSum then mapFunction kid
-          else kid
-      in 
-        outburstTargetFilterMapper mapFunction remainingKids value newWaywardnessSum (processedCurrentKid :: processedKids)
-
-
-
-outburstTargetFilter : Float -> (Kid -> Kid) -> List Kid -> List Kid 
-outburstTargetFilter value mapFunction kids = 
-  outburstTargetFilterMapper mapFunction kids value 0 []
+outburstParams : Int -> Float -> Random.Generator OutburstParams
+outburstParams kidId waywardness =
+  Random.map2 
+    (\interval intensity -> {targetKidId = kidId, interval = interval, intensity = intensity})
+    (outburstInterval waywardness)
+    outburstIntensity

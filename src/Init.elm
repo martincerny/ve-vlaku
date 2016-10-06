@@ -23,5 +23,5 @@ init =
     , transitionInactivity = 0
     , timeToOutburst = 1 
     }
-  , Random.generate (gameMsg ScheduleOutburst)  RandomGenerators.outburstSchedule
+  , Cmd.none
   )
