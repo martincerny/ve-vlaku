@@ -20,7 +20,7 @@ gameConstants =
     , calmDownFrustrationGrowthMin = 0.1 --growth at min nerves
     , calmDownFrustrationGrowthExponent = 0.8
 
-    , frustrationRecovery = 0.03 -- when nothing happens, per second
+    , frustrationRecovery = 0.01 -- when nothing happens, per second
 
     , dialogCooldown = 3 -- seconds
 
@@ -30,8 +30,9 @@ gameConstants =
     , highActivityScoreRecovery = 0.2 -- per second
 
 
+    , minOutburstInterval = 2 --minimal time between two outbursts (seconds)
     , meanOutburstIntervalMax = 20.0 --mean outburst at 0 waywardness
-    , meanOutburstIntervalMin = 5.0 --mean outburst interval at max waywardness
+    , meanOutburstIntervalMin = 5.0 --mean outburst interval at max waywardness (has to be bigger than minOutburstInterval)
     , outburstMinActivityGrowth = 0.2 --activity growth at min outburst intensity or waywardness 
     , outburstMaxActivityGrowth = 0.8 --activity growth at max outburst intensity and max waywardness
 

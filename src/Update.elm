@@ -9,6 +9,7 @@ import Init exposing(init)
 import Texts
 import Random
 import RandomGenerators
+import Debug
 
 defaultClamp : Float -> Float
 defaultClamp =
@@ -229,7 +230,7 @@ processGameMessage msg model =
         ! []      
       ScheduleOutburst outburstParams ->
         {model | 
-          kids = updateKidById outburstParams.targetKidId (\kid -> {kid | scheduledOutburst = outburstParams}) model.kids
+          kids = updateKidById outburstParams.targetKidId (\kid -> {kid | scheduledOutburst = Debug.log "Outburst: " outburstParams}) model.kids
         }
         ! []
 
