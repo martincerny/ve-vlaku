@@ -57,20 +57,7 @@ viewKid playerActivity kid =
         , Events.onMouseOut (Game (CalmDownEnded))
       ] [
         table [] [
-          tr [] [ td [Attr.colspan 2 ] (
-            let 
-              progress =  
-                case playerActivity of
-                  CalmDownKid calmDownInfo -> 
-                    if calmDownInfo.kidId == kid.id then
-                      calmDownInfo.duration / gameConstants.calmDownDuration
-                    else 
-                      0
-                  _ -> 0
-            in 
-              [horizontalProgress [] (progress)]
-          ) ]         
-          , tr [] [ td [] [ text("Rozjetost: ")], td [] [horizontalProgress [] kid.activity] ]
+          tr [] [ td [] [ text("Rozjetost: ")], td [] [horizontalProgress [] kid.activity] ]
           , tr [] [ td [] [ text("Nálada: ")], td [] [horizontalProgress [] (1 - kid.frustration) ] ]
         ]
         , div [] [text (kid.name)]

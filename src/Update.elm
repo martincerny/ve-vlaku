@@ -15,11 +15,20 @@ defaultClamp : Float -> Float
 defaultClamp =
   clamp 0 1
 
-updateKid : Float -> Kid -> Kid
-updateKid deltaSeconds kid =
-  let usefulDelta =
-    if deltaSeconds < kid.mutedCooldown then 0
-    else deltaSeconds - kid.mutedCooldown
+updateKidAlways : Float -> Kid -> Kid
+updateKidAlways deltaSeconds kid =
+      {kid |
+          kidDialogCooldown = max (kid.kidDialogCooldown - deltaSeconds) 0
+          , playerDialogCooldown = max (kid.playerDialogCooldown - deltaSeconds) 0
+      }
+
+
+updateKidDefault : Float -> Kid -> Kid
+updateKidDefault deltaSeconds kid =
+  let 
+    usefulDelta =
+      if deltaSeconds < kid.mutedCooldown then 0
+      else deltaSeconds - kid.mutedCooldown
   in
     {kid |
       activity =
@@ -30,9 +39,26 @@ updateKid deltaSeconds kid =
       , timeSinceLastOutburst = kid.timeSinceLastOutburst + usefulDelta --outbursts are not ticking when the kid is muted, so they use usefulDelta
         -- The following use deltaSeconds because those timers should work even when the kid is muted
       , mutedCooldown = max (kid.mutedCooldown - deltaSeconds) 0
-      , kidDialogCooldown = max (kid.kidDialogCooldown - deltaSeconds) 0
-      , playerDialogCooldown = max (kid.playerDialogCooldown - deltaSeconds) 0
     }
+
+calmDownFrustrationRecovery : Float -> Float -> Float
+calmDownFrustrationRecovery calmDownDuration oldFrustration =
+  if calmDownDuration <= gameConstants.calmDownFrustrationRecoveryStart then
+    0
+  else 
+    gameConstants.calmDownDurationFrustrationRecovery
+
+updateKidCalmDown : CalmDownInfo -> Float -> Kid -> Kid
+updateKidCalmDown calmDownInfo deltaSeconds kid =
+    {kid |
+      activity = defaultClamp (kid.activity - deltaSeconds * gameConstants.calmDownActivityRecovery)
+      , frustration = defaultClamp (kid.frustration - deltaSeconds * (calmDownFrustrationRecovery calmDownInfo.duration kid.frustration))
+      , mutedCooldown = gameConstants.calmDownMutedTime --always reset the cooldown 
+    }
+
+scheduleOutburstCmd : Kid -> Cmd Msg
+scheduleOutburstCmd kid =
+  Random.generate (gameMsg ScheduleOutburst) (RandomGenerators.outburstParams kid.id kid.waywardness)
 
 updateKidOutburst : Kid -> (Kid, Maybe (Cmd Msg))
 updateKidOutburst kid =
@@ -57,8 +83,48 @@ updateKidOutburst kid =
               , timeSinceLastOutburst = 0
               , scheduledOutburst = emptyOutburstParams
             }
-          , Just (Random.generate (gameMsg ScheduleOutburst) (RandomGenerators.outburstParams kid.id kid.waywardness))
+          , Just (scheduleOutburstCmd kid)
         )
+
+updateSingleKid : PlayerActivity -> Float -> Kid -> (Kid, Maybe (Cmd Msg))
+updateSingleKid playerActivity deltaSeconds kid =  
+  (
+    case playerActivity of
+      CalmDownKid calmDownInfo ->
+        if calmDownInfo.kidId == kid.id then
+          updateKidCalmDown calmDownInfo deltaSeconds kid
+        else
+          updateKidDefault deltaSeconds kid
+      _ ->
+        updateKidDefault deltaSeconds kid
+  ) 
+  |> (updateKidAlways deltaSeconds)  
+  |> updateKidOutburst
+
+addPairWithMaybeToListOfPairs : (a, Maybe b) -> (List a, List b) -> (List a, List b)
+addPairWithMaybeToListOfPairs (x, maybeY) (listOfXs, listOfYs) =
+  let 
+    newListOfYs =
+      case maybeY of 
+        Just y ->
+          y :: listOfYs
+        Nothing ->
+          listOfYs
+  in 
+    (x :: listOfXs, newListOfYs)                 
+   
+  
+
+updateKids : PlayerActivity -> Float -> List Kid -> {kids : List Kid, kidsMessages: List (Cmd Msg)}
+updateKids playerActivity deltaSeconds kids =
+  let
+    (updatedKids, kidsMessages) =
+      List.map (updateSingleKid playerActivity deltaSeconds) kids
+      |> (List.foldr --transorm the list of pairs into pair of lists & handle the maybe's
+          addPairWithMaybeToListOfPairs
+          ([],[]))
+  in
+    {kids = updatedKids, kidsMessages = kidsMessages}
 
 
 nervesGrowthPerKid : Kid -> Float
@@ -78,12 +144,9 @@ updateNerves deltaSeconds model =
     deltaPerSecond =
       case model.playerActivity of
         DeepBreath -> -gameConstants.deepBreathNervesRecovery
-        CalmDownKid _ -> (gameConstants.calmDownNervesGrowth / gameConstants.calmDownDuration)
+        CalmDownKid _ -> 0 
         _ ->       
-          gameConstants.nervesBaseGrowth
-          + ( List.map nervesGrowthPerKid model.kids
-              |> List.sum )
-
+          -gameConstants.nervesBaseRecovery
   in
     defaultClamp ( model.nerves + deltaPerSecond * deltaSeconds )
 
@@ -94,27 +157,12 @@ updateActivity deltaSeconds model =
         let 
           newCalmDownDuration = calmDownInfo.duration + deltaSeconds 
         in
-          if newCalmDownDuration >= gameConstants.calmDownDuration then
-            performKidCalmdown calmDownInfo { model | playerActivity = None}
-          else
-            {model | 
-              playerActivity = CalmDownKid {calmDownInfo | duration = newCalmDownDuration}
-            } 
+          {model | 
+            playerActivity = CalmDownKid {calmDownInfo | duration = newCalmDownDuration}
+          } 
       _ -> model --ignoring deepBreath here as it is handled in updateNerves 
 
-addPairWithMaybeToListOfPairs : (a, Maybe b) -> (List a, List b) -> (List a, List b)
-addPairWithMaybeToListOfPairs (x, maybeY) (listOfXs, listOfYs) =
-  let 
-    newListOfYs =
-      case maybeY of 
-        Just y ->
-          y :: listOfYs
-        Nothing ->
-          listOfYs
-  in 
-    (x :: listOfXs, newListOfYs)                 
-   
-  
+
 
 updateGameFrame : Float -> Model -> (Model, Cmd Msg)
 updateGameFrame deltaSeconds oldModel =
@@ -127,12 +175,8 @@ updateGameFrame deltaSeconds oldModel =
           else oldModel.state
         )
         |> updateActivity deltaSeconds
-      (updatedKids, kidsMessages) =
-        List.map (updateKid deltaSeconds) model.kids
-        |> List.map updateKidOutburst
-        |> (List.foldr --transorm the list of pairs into pair of lists & handle the maybe's
-            addPairWithMaybeToListOfPairs
-            ([],[]))
+      updatedKids = 
+        updateKids oldModel.playerActivity deltaSeconds oldModel.kids
     in
       
         {model |
@@ -147,10 +191,10 @@ updateGameFrame deltaSeconds oldModel =
                   max 0 (model.highActivityScore - deltaSeconds * gameConstants.highActivityScoreRecovery)
           , timeToWin = max 0 (model.timeToWin - deltaSeconds)
           , timeToOutburst = max 0 (model.timeToOutburst - deltaSeconds)
-          , kids = updatedKids
+          , kids = updatedKids.kids
         }
       ! 
-         kidsMessages
+         updatedKids.kidsMessages
       
 
 updateKidById : Int -> (Kid -> Kid) -> List Kid -> List Kid
@@ -162,26 +206,22 @@ updateKidById kidId updateFunction kids =
 
 kidCalmDownFunction : Float -> Kid -> Kid
 kidCalmDownFunction nerves kid =
-  let
-    effectivity = if 1 - nerves >= gameConstants.calmDownNervesGrowth then 1
-                    else  (1 - nerves) / gameConstants.calmDownNervesGrowth
-  in
-    {kid |
-      activity = (effectivity * kid.activity * gameConstants.calmDownActivityMultiplier)
-                  + ( (1.0 - effectivity) * kid.activity)
-      , frustration =
-          defaultClamp (
-            kid.frustration
-              + gameConstants.calmDownFrustrationGrowthMin
-              + (
-                (gameConstants.calmDownFrustrationGrowthMax - gameConstants.calmDownFrustrationGrowthMin) 
-                * (nerves ^ gameConstants.calmDownFrustrationGrowthExponent)
-              )
-          )
-      , mutedCooldown = gameConstants.calmDownMutedTime
-      , shownPlayerDialog = Texts.getDialogString (Texts.calmDownDialog nerves)
-      , playerDialogCooldown = gameConstants.dialogCooldown
-    }
+  {kid |
+    activity = defaultClamp (kid.activity - gameConstants.calmDownStartActivityRecovery)
+    , frustration =
+        defaultClamp (
+          kid.frustration
+            + gameConstants.calmDownFrustrationGrowthMin
+            + (
+              (gameConstants.calmDownFrustrationGrowthMax - gameConstants.calmDownFrustrationGrowthMin) 
+              * (nerves ^ gameConstants.calmDownFrustrationGrowthExponent)
+            )
+        )
+    , mutedCooldown = gameConstants.calmDownMutedTime
+    , shownPlayerDialog = Texts.getDialogString (Texts.calmDownDialog nerves)
+    , playerDialogCooldown = gameConstants.dialogCooldown
+    , scheduledOutburst = emptyOutburstParams --reset outburst
+  }
 
 performKidCalmdown : CalmDownInfo -> Model -> Model
 performKidCalmdown calmDownInfo model =
@@ -223,11 +263,23 @@ processGameMessage msg model =
         { model | playerActivity = None}
         ! []
       CalmDownStarted kid ->
-        { model | playerActivity = CalmDownKid { duration = 0, kidId = kid.id, nervesAtStart = model.nerves } }
+        { model | 
+          playerActivity = CalmDownKid { duration = 0, kidId = kid.id, nervesAtStart = model.nerves }
+          , nerves = defaultClamp (model.nerves + gameConstants.calmDownNervesGrowth)
+          , kids = updateKidById kid.id (kidCalmDownFunction model.nerves) model.kids 
+        }
         ! []
       CalmDownEnded ->
         { model | playerActivity = None}
-        ! []      
+        ! 
+          ( 
+            case model.playerActivity of
+              CalmDownKid calmDownInfo ->
+                List.filter (\kid -> kid.id == calmDownInfo.kidId) model.kids   --reschedule outburst once calm down has ended
+                |> List.map scheduleOutburstCmd
+              _ -> --This probably should not happen 
+                []
+          )       
       ScheduleOutburst outburstParams ->
         {model | 
           kids = updateKidById outburstParams.targetKidId (\kid -> {kid | scheduledOutburst = Debug.log "Outburst: " outburstParams}) model.kids
