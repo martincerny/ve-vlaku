@@ -50,7 +50,7 @@ viewKid playerActivity kid =
           ("kid", True)
           , ("muted", isMuted kid)
           , ("highActivity", isKidHighActivity kid)
-          , ("increasesNerves", isKidIncreasingNerves kid)
+          , ("increasesNerves", isKidAnnoying kid)
           ]
         , Events.onMouseDown (Game (CalmDownStarted kid))
         , Events.onMouseUp (Game (CalmDownEnded))

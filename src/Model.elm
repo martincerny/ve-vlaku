@@ -12,7 +12,7 @@ module Model exposing (
   , isStateLost
   , isMuted
   , isKidHighActivity
-  , isKidIncreasingNerves
+  , isKidAnnoying
   , isActiveOutburst
   , setState
   )
@@ -127,9 +127,9 @@ isMuted : Kid -> Bool
 isMuted kid =
   kid.mutedCooldown > 0
 
-isKidIncreasingNerves : Kid -> Bool
-isKidIncreasingNerves kid =
-   not (isMuted kid) && kid.activity > gameConstants.nervesActivityGrowthThreshold
+isKidAnnoying : Kid -> Bool
+isKidAnnoying kid =
+   not (isMuted kid) && kid.activity > gameConstants.annoyingActivityThreshold
 
 
 isKidHighActivity : Kid -> Bool

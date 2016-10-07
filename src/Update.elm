@@ -29,11 +29,19 @@ updateKidDefault deltaSeconds kid =
     usefulDelta =
       if deltaSeconds < kid.mutedCooldown then 0
       else deltaSeconds - kid.mutedCooldown
+    frustrationThreshold =
+      gameConstants.activityFrustrationGrowthThreshold
   in
     {kid |
       activity =
         defaultClamp ( kid.activity + usefulDelta * kid.waywardness *
-          (gameConstants.activityBaseGrowth + gameConstants.activityFrustrationGrowth * kid.frustration)
+          (gameConstants.activityBaseGrowth +
+            if kid.frustration > frustrationThreshold then               
+              gameConstants.activityFrustrationGrowth * 
+                ((kid.frustration - frustrationThreshold) / (1 - frustrationThreshold))
+            else
+              0
+          )
         )
       , frustration = max (kid.frustration - usefulDelta * gameConstants.frustrationRecovery) 0
       , timeSinceLastOutburst = kid.timeSinceLastOutburst + usefulDelta --outbursts are not ticking when the kid is muted, so they use usefulDelta
@@ -48,10 +56,14 @@ calmDownFrustrationRecovery calmDownDuration oldFrustration =
   else 
     gameConstants.calmDownDurationFrustrationRecovery
 
+kidCalmDownActivityRecovery : Kid -> Float
+kidCalmDownActivityRecovery kid =
+  (kid.activity / (2 * gameConstants.calmDownActivityRecoveryHalfTime))
+
 updateKidCalmDown : CalmDownInfo -> Float -> Kid -> Kid
 updateKidCalmDown calmDownInfo deltaSeconds kid =
     {kid |
-      activity = defaultClamp (kid.activity - deltaSeconds * gameConstants.calmDownActivityRecovery)
+      activity = defaultClamp (kid.activity - deltaSeconds * (kidCalmDownActivityRecovery kid) )
       , frustration = defaultClamp (kid.frustration - deltaSeconds * (calmDownFrustrationRecovery calmDownInfo.duration kid.frustration))
       , mutedCooldown = gameConstants.calmDownMutedTime --always reset the cooldown 
     }
@@ -127,16 +139,6 @@ updateKids playerActivity deltaSeconds kids =
     {kids = updatedKids, kidsMessages = kidsMessages}
 
 
-nervesGrowthPerKid : Kid -> Float
-nervesGrowthPerKid kid =
-  if not (isKidIncreasingNerves kid) then 0
-  else
-    let
-      threshold = gameConstants.nervesActivityGrowthThreshold
-    in
-      ((kid.activity - threshold) / (1 - threshold)) * gameConstants.nervesActivityGrowth
-
-
 
 updateNerves : Float -> Model -> Float --return new nerves
 updateNerves deltaSeconds model =
@@ -144,7 +146,11 @@ updateNerves deltaSeconds model =
     deltaPerSecond =
       case model.playerActivity of
         DeepBreath -> -gameConstants.deepBreathNervesRecovery
-        CalmDownKid _ -> 0 
+        CalmDownKid calmDownInfo -> 
+          (List.filter (\kid -> kid.id == calmDownInfo.kidId) model.kids --the filtered list will always have one member, but it is easier to handle as a list
+            |> List.map kidCalmDownActivityRecovery
+            |> List.sum
+          ) * gameConstants.calmDownNervesGrowthCoefficient   
         _ ->       
           -gameConstants.nervesBaseRecovery
   in
@@ -206,30 +212,29 @@ updateKidById kidId updateFunction kids =
 
 kidCalmDownFunction : Float -> Kid -> Kid
 kidCalmDownFunction nerves kid =
-  {kid |
-    activity = defaultClamp (kid.activity - gameConstants.calmDownStartActivityRecovery)
-    , frustration =
-        defaultClamp (
-          kid.frustration
-            + gameConstants.calmDownFrustrationGrowthMin
-            + (
-              (gameConstants.calmDownFrustrationGrowthMax - gameConstants.calmDownFrustrationGrowthMin) 
-              * (nerves ^ gameConstants.calmDownFrustrationGrowthExponent)
+  let 
+    baseUpdatedKid =
+      {kid |
+          mutedCooldown = gameConstants.calmDownMutedTime
+          , scheduledOutburst = emptyOutburstParams --reset outburst
+      }
+  in
+    if isKidAnnoying kid then
+      {baseUpdatedKid |
+        frustration =
+            defaultClamp (
+              kid.frustration
+                + gameConstants.calmDownFrustrationGrowthMin
+                + (
+                  (gameConstants.calmDownFrustrationGrowthMax - gameConstants.calmDownFrustrationGrowthMin) 
+                  * (nerves ^ gameConstants.calmDownFrustrationGrowthExponent)
+                )
             )
-        )
-    , mutedCooldown = gameConstants.calmDownMutedTime
-    , shownPlayerDialog = Texts.getDialogString (Texts.calmDownDialog nerves)
-    , playerDialogCooldown = gameConstants.dialogCooldown
-    , scheduledOutburst = emptyOutburstParams --reset outburst
-  }
-
-performKidCalmdown : CalmDownInfo -> Model -> Model
-performKidCalmdown calmDownInfo model =
-  {model |
-    kids = updateKidById calmDownInfo.kidId (kidCalmDownFunction calmDownInfo.nervesAtStart) model.kids
-  }
-
-
+        , shownPlayerDialog = Texts.getDialogString (Texts.calmDownDialog nerves)
+        , playerDialogCooldown = gameConstants.dialogCooldown
+      }
+    else
+      baseUpdatedKid
 
 updateUIFrame : Float -> Model -> Model
 updateUIFrame deltaSeconds model =
@@ -265,7 +270,6 @@ processGameMessage msg model =
       CalmDownStarted kid ->
         { model | 
           playerActivity = CalmDownKid { duration = 0, kidId = kid.id, nervesAtStart = model.nerves }
-          , nerves = defaultClamp (model.nerves + gameConstants.calmDownNervesGrowth)
           , kids = updateKidById kid.id (kidCalmDownFunction model.nerves) model.kids 
         }
         ! []

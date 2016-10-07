@@ -3,22 +3,23 @@ module GameConstants exposing (gameConstants)
 gameConstants =
   {
     activityBaseGrowth = 0.03--0.08 -- per second at max waywardness
-    , activityFrustrationGrowth = 0 --per second at max frustration
+    , annoyingActivityThreshold = 0.3
+    , activityFrustrationGrowthThreshold = 0.5 --frustration over this threshold forces activity to grow
+    , activityFrustrationGrowth = 0.05 --per second at max frustration
 
     , nervesBaseRecovery = 0.05 -- per second
     , nervesActivityGrowth = 0.00 -- growth per second per kid at maximal kid activity
-    , nervesActivityGrowthThreshold = 0.3 --activity level that causes a kid to increase player's nerves
 
-    , deepBreathNervesRecovery = 0.3 --per second
+    , deepBreathNervesRecovery = 0.4 --per second
 
     , nervesVisualChangeThreshold = 0.4 --threshold for screen reddening by increased nerves
 
-    , calmDownNervesGrowth = 0.17
-    , calmDownActivityRecovery = 0.2 -- per second
-    , calmDownStartActivityRecovery = 0.3 --Amount by which activity is reduced at the start of a calm down
+    , calmDownNervesGrowthCoefficient = 0.2--0.17
+    , calmDownActivityRecoveryHalfTime = 0.45 -- seconds
+
     , calmDownDurationFrustrationRecovery = 0.1 --per second
     , calmDownFrustrationRecoveryStart = 0.7 -- seconds
-    , calmDownMutedTime = 2 -- seconds
+    , calmDownMutedTime = 0.1 -- seconds
     , calmDownFrustrationGrowthMax = 0.2 --growth at max nerves
     , calmDownFrustrationGrowthMin = 0.2 --growth at min nerves
     , calmDownFrustrationGrowthExponent = 0.8
