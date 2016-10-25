@@ -15,15 +15,45 @@ defaultClamp : Float -> Float
 defaultClamp =
   clamp 0 1
 
-updateKidAlways : Float -> Kid -> Kid
-updateKidAlways deltaSeconds kid =
+updateKidDialogs : Float -> Kid -> Kid
+updateKidDialogs deltaSeconds kid =
       {kid |
           kidDialogCooldown = max (kid.kidDialogCooldown - deltaSeconds) 0
           , playerDialogCooldown = max (kid.playerDialogCooldown - deltaSeconds) 0
       }
 
 
-updateKidDefault : Float -> Kid -> Kid
+scheduleOutburstCmd : Kid -> Cmd Msg
+scheduleOutburstCmd kid =
+  Random.generate (gameMsg ScheduleOutburst) (RandomGenerators.outburstParams kid.id kid.waywardness)
+
+updateKidOutburst : Kid -> (Kid, Maybe (Cmd Msg))
+updateKidOutburst kid =
+  let 
+    outburstActive = isActiveOutburst kid.scheduledOutburst
+  in 
+    if kid.timeSinceLastOutburst < kid.scheduledOutburst.interval && outburstActive then
+      (kid, Nothing)
+    else
+      let    
+        minGrowth = gameConstants.outburstMinActivityGrowth
+        maxGrowth = gameConstants.outburstMaxActivityGrowth
+        intensity = kid.waywardness * kid.scheduledOutburst.intensity 
+      in        
+        (
+          if not outburstActive then kid
+          else
+            {kid |
+              activity = defaultClamp (kid.activity + minGrowth + (intensity * (maxGrowth - minGrowth)))
+              , shownKidDialog = Texts.getDialogString (Texts.outburstDialog intensity)
+              , kidDialogCooldown = gameConstants.dialogCooldown
+              , timeSinceLastOutburst = 0
+              , scheduledOutburst = emptyOutburstParams
+            }
+          , Just (scheduleOutburstCmd kid)
+        )
+
+updateKidDefault : Float -> Kid -> (Kid, Maybe (Cmd Msg))
 updateKidDefault deltaSeconds kid =
   let 
     usefulDelta =
@@ -48,6 +78,8 @@ updateKidDefault deltaSeconds kid =
         -- The following use deltaSeconds because those timers should work even when the kid is muted
       , mutedCooldown = max (kid.mutedCooldown - deltaSeconds) 0
     }
+    |> (updateKidDialogs deltaSeconds)
+    |> updateKidOutburst
 
 calmDownFrustrationRecovery : Float -> Float -> Float
 calmDownFrustrationRecovery calmDownDuration oldFrustration =
@@ -60,47 +92,17 @@ kidCalmDownActivityRecovery : Kid -> Float
 kidCalmDownActivityRecovery kid =
   (kid.activity / (2 * gameConstants.calmDownActivityRecoveryHalfTime))
 
-updateKidCalmDown : CalmDownInfo -> Float -> Kid -> Kid
+updateKidCalmDown : CalmDownInfo -> Float -> Kid -> (Kid, Maybe (Cmd Msg))
 updateKidCalmDown calmDownInfo deltaSeconds kid =
-    {kid |
+    ({kid |
       activity = defaultClamp (kid.activity - deltaSeconds * (kidCalmDownActivityRecovery kid) )
       , frustration = defaultClamp (kid.frustration - deltaSeconds * (calmDownFrustrationRecovery calmDownInfo.duration kid.frustration))
       , mutedCooldown = gameConstants.calmDownMutedTime --always reset the cooldown 
-    }
+    }, Nothing)
 
-scheduleOutburstCmd : Kid -> Cmd Msg
-scheduleOutburstCmd kid =
-  Random.generate (gameMsg ScheduleOutburst) (RandomGenerators.outburstParams kid.id kid.waywardness)
-
-updateKidOutburst : Kid -> (Kid, Maybe (Cmd Msg))
-updateKidOutburst kid =
-  let 
-    outburstActive = isActiveOutburst kid.scheduledOutburst
-  in 
-    if kid.timeSinceLastOutburst < kid.scheduledOutburst.interval && outburstActive then
-      (kid, Nothing)
-    else
-      let    
-        minGrowth = gameConstants.outburstMinActivityGrowth
-        maxGrowth = gameConstants.outburstMaxActivityGrowth
-        intensity = kid.waywardness * kid.scheduledOutburst.intensity 
-      in        
-        (
-          if not outburstActive then kid
-          else
-            {kid |
-              activity = defaultClamp kid.activity + minGrowth + (intensity * (maxGrowth - minGrowth))
-              , shownKidDialog = Texts.getDialogString (Texts.outburstDialog intensity)
-              , kidDialogCooldown = gameConstants.dialogCooldown
-              , timeSinceLastOutburst = 0
-              , scheduledOutburst = emptyOutburstParams
-            }
-          , Just (scheduleOutburstCmd kid)
-        )
 
 updateSingleKid : PlayerActivity -> Float -> Kid -> (Kid, Maybe (Cmd Msg))
 updateSingleKid playerActivity deltaSeconds kid =  
-  (
     case playerActivity of
       CalmDownKid calmDownInfo ->
         if calmDownInfo.kidId == kid.id then
@@ -109,9 +111,6 @@ updateSingleKid playerActivity deltaSeconds kid =
           updateKidDefault deltaSeconds kid
       _ ->
         updateKidDefault deltaSeconds kid
-  ) 
-  |> (updateKidAlways deltaSeconds)  
-  |> updateKidOutburst
 
 addPairWithMaybeToListOfPairs : (a, Maybe b) -> (List a, List b) -> (List a, List b)
 addPairWithMaybeToListOfPairs (x, maybeY) (listOfXs, listOfYs) =
