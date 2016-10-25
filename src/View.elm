@@ -52,9 +52,7 @@ viewKid playerActivity kid =
           , ("highActivity", isKidHighActivity kid)
           , ("increasesNerves", isKidAnnoying kid)
           ]
-        , Events.onMouseDown (Game (CalmDownStarted kid))
-        , Events.onMouseUp (Game (CalmDownEnded))
-        , Events.onMouseOut (Game (CalmDownEnded))
+        , Events.onClick (Game (CalmDownStarted kid))
       ] [
         table [] [
           tr [] [ td [] [ text("Rozjetost: ")], td [] [horizontalProgress [] kid.activity] ]
@@ -81,6 +79,21 @@ viewKidDialog kid =
       )
   )
 
+viewPlayerNextToKid : Model -> Kid -> Html Msg
+viewPlayerNextToKid model kid =
+  let 
+    playerHere = 
+      case model.playerActivity of 
+        CalmDownKid calmDownInfo ->
+          calmDownInfo.kidId == kid.id
+        _ ->
+          False
+  in 
+    if playerHere then
+      td [ Attr.class "playerAtKid" ] [ text ("(tu sedíš)")]
+    else
+      td [][] 
+
 view : Model -> Html Msg
 view model =
   div [
@@ -89,6 +102,7 @@ view model =
     table [] [
       Keyed.node "tr" [] (List.map (viewKid model.playerActivity) model.kids)
       , tr [] (List.map viewKidDialog model.kids)
+      , tr [ Attr.class "playerRow" ] (List.map (viewPlayerNextToKid model) model.kids)
     ]
     , div
        (
@@ -124,7 +138,7 @@ view model =
         Attr.classList [
             ("takeDeepBreath", True)
             , ("active", model.playerActivity == DeepBreath)
-            , ("highlighted", not (model.playerActivity == DeepBreath) && model.nerves > 1 - gameConstants.calmDownNervesGrowth)
+            , ("highlighted", not (model.playerActivity == DeepBreath) && model.nerves > 0.9)
             ]
         , Events.onMouseDown (Game DeepBreathStarted)
         , Events.onMouseUp (Game DeepBreathEnded)
@@ -132,6 +146,15 @@ view model =
       ] [
         text ("Zhluboka dýchej")
       ]
+      , (
+        case model.playerActivity of 
+          CalmDownKid _ ->
+            div [Attr.class "noPlayer"] []
+          DeepBreath ->
+            div [Attr.class "player"] [ text "(tu vydechuješ)"]
+          None ->
+            div [Attr.class "player"] [ text "(tu stojíš)"]
+      )
       ,
       table [] [
         tr [] [

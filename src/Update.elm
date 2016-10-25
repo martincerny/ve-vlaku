@@ -256,34 +256,51 @@ processUIMessage msg model =
       init
   )
 
+endActiveCalmDown : Model -> (Model, Cmd Msg)
+endActiveCalmDown model =
+    case model.playerActivity of
+      CalmDownKid calmDownInfo ->
+        { model | playerActivity = None }
+        !
+        (
+          List.filter (\kid -> kid.id == calmDownInfo.kidId) model.kids   --reschedule outburst once calm down has ended
+          |> List.map scheduleOutburstCmd          
+        )
+      _ ->  
+       model ! []
+
 processGameMessage : GameMessage -> Model -> (Model, Cmd Msg)
 processGameMessage msg model =
   if not (shouldUpdateGame model) then (model, Cmd.none)
   else
     case msg of
       DeepBreathStarted ->
-        { model | playerActivity = DeepBreath }
-        ! []
+        let
+          (newModel, cmd) = endActiveCalmDown model
+        in
+          (
+            { newModel | playerActivity = DeepBreath }
+            , cmd
+          )
       DeepBreathEnded ->
-        { model | playerActivity = None}
-        ! []
+        (
+          if model.playerActivity == DeepBreath then
+            { model | playerActivity = None}
+          else model
+        ) ! []
       CalmDownStarted kid ->
-        { model | 
-          playerActivity = CalmDownKid { duration = 0, kidId = kid.id, nervesAtStart = model.nerves }
-          , kids = updateKidById kid.id (kidCalmDownFunction model.nerves) model.kids 
-        }
-        ! []
+        let
+          (newModel, cmd) = endActiveCalmDown model
+        in
+          (
+            { model | 
+              playerActivity = CalmDownKid { duration = 0, kidId = kid.id, nervesAtStart = model.nerves }
+              , kids = updateKidById kid.id (kidCalmDownFunction model.nerves) model.kids 
+            }
+            , cmd
+          )
       CalmDownEnded ->
-        { model | playerActivity = None}
-        ! 
-          ( 
-            case model.playerActivity of
-              CalmDownKid calmDownInfo ->
-                List.filter (\kid -> kid.id == calmDownInfo.kidId) model.kids   --reschedule outburst once calm down has ended
-                |> List.map scheduleOutburstCmd
-              _ -> --This probably should not happen 
-                []
-          )       
+        endActiveCalmDown model
       ScheduleOutburst outburstParams ->
         {model | 
           kids = updateKidById outburstParams.targetKidId (\kid -> {kid | scheduledOutburst = Debug.log "Outburst: " outburstParams}) model.kids

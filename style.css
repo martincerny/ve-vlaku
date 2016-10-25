@@ -146,3 +146,21 @@ td {
     font-style: italic;
     background-color: lightyellow;
 }
+
+.playerRow td, .player, .noPlayer
+{
+    height:30px;
+}
+
+.player, .noPlayer
+{
+    margin:5px;
+    width: 200px;
+    text-align:center;
+}
+
+
+.playerRow td.playerAtKid, .player
+{
+    background-color: lightgreen;
+}
