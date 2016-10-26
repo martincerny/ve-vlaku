@@ -6,7 +6,7 @@ import Msg exposing (..)
 import Model exposing (..)
 import GameConstants exposing(gameConstants)
 import Init exposing(init)
-import Texts
+import Emojis
 import Random
 import RandomGenerators
 import Debug
@@ -45,7 +45,7 @@ updateKidOutburst kid =
           else
             {kid |
               activity = defaultClamp (kid.activity + minGrowth + (intensity * (maxGrowth - minGrowth)))
-              , shownKidDialog = Texts.getDialogString (Texts.outburstDialog intensity)
+              , shownKidDialog = Emojis.outburst intensity
               , kidDialogCooldown = gameConstants.dialogCooldown
               , timeSinceLastOutburst = 0
               , scheduledOutburst = emptyOutburstParams
@@ -98,8 +98,9 @@ updateKidCalmDown calmDownInfo deltaSeconds kid =
       activity = defaultClamp (kid.activity - deltaSeconds * (kidCalmDownActivityRecovery kid) )
       , frustration = defaultClamp (kid.frustration - deltaSeconds * (calmDownFrustrationRecovery calmDownInfo.duration kid.frustration))
       , mutedCooldown = gameConstants.calmDownMutedTime --always reset the cooldown 
-    }, Nothing)
-
+    }
+    |> (updateKidDialogs deltaSeconds)
+    , Nothing)
 
 updateSingleKid : PlayerActivity -> Float -> Kid -> (Kid, Maybe (Cmd Msg))
 updateSingleKid playerActivity deltaSeconds kid =  
@@ -216,6 +217,8 @@ kidCalmDownFunction nerves kid =
       {kid |
           mutedCooldown = gameConstants.calmDownMutedTime
           , scheduledOutburst = emptyOutburstParams --reset outburst
+          , shownPlayerDialog = Emojis.calmDown kid.activity
+          , playerDialogCooldown = gameConstants.dialogCooldown
       }
   in
     if isKidAnnoying kid then
@@ -229,8 +232,6 @@ kidCalmDownFunction nerves kid =
                   * (nerves ^ gameConstants.calmDownFrustrationGrowthExponent)
                 )
             )
-        , shownPlayerDialog = Texts.getDialogString (Texts.calmDownDialog nerves)
-        , playerDialogCooldown = gameConstants.dialogCooldown
       }
     else
       baseUpdatedKid

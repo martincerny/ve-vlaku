@@ -8,7 +8,7 @@ import Html.Attributes as Attr
 import Html.Events as Events
 import Html.Keyed as Keyed
 import Utils
-import Texts
+import Emojis
 
 valueToStyle : Float -> (String, String)
 valueToStyle value =
@@ -40,6 +40,28 @@ horizontalProgress attributes progress =
     []
   ]
 
+viewEmoji : Float -> String -> Html Msg 
+viewEmoji opacity emojiName =
+  img [
+    Attr.class "emoji"
+    , Attr.src ("img/emoji/" ++ emojiName ++ ".png")
+    , Attr.style [("opacity",toString opacity)] 
+  ] []
+
+viewEmojiSentence : Float -> Emojis.Sentence -> List (Html Msg)
+viewEmojiSentence coolDown sentence =
+  let
+    easeInTime = 0.1
+    easeInBorder = gameConstants.dialogCooldown - easeInTime 
+    opacity = 
+      if coolDown > easeInBorder then
+        (1 - ((coolDown - easeInBorder) / easeInTime)) 
+          |> max 0
+      else
+        coolDown / easeInBorder 
+  in    
+    List.map (viewEmoji opacity) sentence
+
 viewKid : PlayerActivity -> Kid -> (String, Html Msg)
 viewKid playerActivity kid =
   ( toString kid.id,
@@ -66,17 +88,18 @@ viewKidDialog : Kid -> Html Msg
 viewKidDialog kid =
   td [ Attr.class "dialogCell" ]
   (
-      (
-        if kid.kidDialogCooldown > 0 then
-          [ div [Attr.class "kidDialog"] [ text ( kid.shownKidDialog Texts.Cz ) ] ]
-        else []
-      )
-      ++
-      (
-        if kid.playerDialogCooldown > 0 then
-          [ div [Attr.class "playerDialog"] [ text ( kid.shownPlayerDialog Texts.Cz ) ] ]
-        else []
-      )
+    if kid.kidDialogCooldown > 0 then
+      [ div [Attr.class "kidDialog"] (viewEmojiSentence kid.kidDialogCooldown kid.shownKidDialog) ]
+    else []
+  )
+
+viewPlayerDialog : Kid -> Html Msg
+viewPlayerDialog kid =
+  td [ Attr.class "dialogCell" ]
+  (
+    if kid.playerDialogCooldown > 0 then
+      [ div [Attr.class "playerDialog"] (viewEmojiSentence kid.playerDialogCooldown kid.shownPlayerDialog) ]
+    else []
   )
 
 viewPlayerNextToKid : Model -> Kid -> Html Msg
@@ -102,6 +125,7 @@ view model =
     table [] [
       Keyed.node "tr" [] (List.map (viewKid model.playerActivity) model.kids)
       , tr [] (List.map viewKidDialog model.kids)
+      , tr [] (List.map viewPlayerDialog model.kids)
       , tr [ Attr.class "playerRow" ] (List.map (viewPlayerNextToKid model) model.kids)
     ]
     , div
