@@ -3,21 +3,25 @@ module GameConstants exposing (gameConstants)
 gameConstants =
   {
     activityBaseGrowth = 0.03--0.08 -- per second at max waywardness
-    , activityFrustrationGrowth = 0 --per second at max frustration
+    , annoyingActivityThreshold = 0.3
+    , activityFrustrationGrowthThreshold = 0.5 --frustration over this threshold forces activity to grow
+    , activityFrustrationGrowth = 0.05 --per second at max frustration
 
-    , nervesBaseGrowth = 0 -- per second
-    , nervesActivityGrowth = 0.05 -- growth per second per kid at maximal kid activity
-    , nervesActivityGrowthThreshold = 0.3 --activity level that causes a kid to increase player's nerves
-    , deepBreathNervesRecovery = 0.3 --per second
+    , nervesBaseRecovery = 0.00 -- per second
+    , nervesActivityGrowth = 0.00 -- growth per second per kid at maximal kid activity
+
+    , deepBreathNervesRecovery = 0.4 --per second
 
     , nervesVisualChangeThreshold = 0.4 --threshold for screen reddening by increased nerves
 
-    , calmDownNervesGrowth = 0.17
-    , calmDownActivityMultiplier = 0 --Fraction to which activity is reduced after a calm down
-    , calmDownDuration = 0.7 -- seconds
-    , calmDownMutedTime = 2 -- seconds
-    , calmDownFrustrationGrowthMax = 0.5 --growth at max nerves
-    , calmDownFrustrationGrowthMin = 0.1 --growth at min nerves
+    , calmDownNervesGrowthCoefficient = 0.2--0.17
+    , calmDownActivityRecoveryHalfTime = 0.45 -- seconds
+
+    , calmDownDurationFrustrationRecovery = 0.09 --per second
+    , calmDownFrustrationRecoveryStart = 1.1 -- seconds
+    , calmDownMutedTime = 0.1 -- seconds
+    , calmDownFrustrationGrowthMax = 0.3 --growth at max nerves
+    , calmDownFrustrationGrowthMin = 0.3 --growth at min nerves
     , calmDownFrustrationGrowthExponent = 0.8
 
     , frustrationRecovery = 0.01 -- when nothing happens, per second
@@ -27,7 +31,7 @@ gameConstants =
     , highActivityScoreToLose = 1
     , highActivityScoreIncreasePerKid = 0.11 -- per kid and second
     , highActivityThreshold = 0.9
-    , highActivityScoreRecovery = 0.2 -- per second
+    , highActivityScoreRecovery = 0.15 -- per second
 
 
     , minOutburstInterval = 2 --minimal time between two outbursts (seconds)

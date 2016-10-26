@@ -8,7 +8,7 @@ import Html.Attributes as Attr
 import Html.Events as Events
 import Html.Keyed as Keyed
 import Utils
-import Texts
+import Emojis
 
 valueToStyle : Float -> (String, String)
 valueToStyle value =
@@ -40,6 +40,28 @@ horizontalProgress attributes progress =
     []
   ]
 
+viewEmoji : Float -> String -> Html Msg 
+viewEmoji opacity emojiName =
+  img [
+    Attr.class "emoji"
+    , Attr.src ("img/emoji/" ++ emojiName ++ ".png")
+    , Attr.style [("opacity",toString opacity)] 
+  ] []
+
+viewEmojiSentence : Float -> Emojis.Sentence -> List (Html Msg)
+viewEmojiSentence coolDown sentence =
+  let
+    easeInTime = 0.1
+    easeInBorder = gameConstants.dialogCooldown - easeInTime 
+    opacity = 
+      if coolDown > easeInBorder then
+        (1 - ((coolDown - easeInBorder) / easeInTime)) 
+          |> max 0
+      else
+        coolDown / easeInBorder 
+  in    
+    List.map (viewEmoji opacity) sentence
+
 viewKid : PlayerActivity -> Kid -> (String, Html Msg)
 viewKid playerActivity kid =
   ( toString kid.id,
@@ -50,27 +72,12 @@ viewKid playerActivity kid =
           ("kid", True)
           , ("muted", isMuted kid)
           , ("highActivity", isKidHighActivity kid)
-          , ("increasesNerves", isKidIncreasingNerves kid)
+          , ("increasesNerves", isKidAnnoying kid)
           ]
-        , Events.onMouseDown (Game (CalmDownStarted kid))
-        , Events.onMouseUp (Game (CalmDownEnded))
-        , Events.onMouseOut (Game (CalmDownEnded))
+        , Events.onClick (Game (CalmDownStarted kid))
       ] [
         table [] [
-          tr [] [ td [Attr.colspan 2 ] (
-            let 
-              progress =  
-                case playerActivity of
-                  CalmDownKid calmDownInfo -> 
-                    if calmDownInfo.kidId == kid.id then
-                      calmDownInfo.duration / gameConstants.calmDownDuration
-                    else 
-                      0
-                  _ -> 0
-            in 
-              [horizontalProgress [] (progress)]
-          ) ]         
-          , tr [] [ td [] [ text("Rozjetost: ")], td [] [horizontalProgress [] kid.activity] ]
+          tr [] [ td [] [ text("Rozjetost: ")], td [] [horizontalProgress [] kid.activity] ]
           , tr [] [ td [] [ text("Nálada: ")], td [] [horizontalProgress [] (1 - kid.frustration) ] ]
         ]
         , div [] [text (kid.name)]
@@ -81,18 +88,34 @@ viewKidDialog : Kid -> Html Msg
 viewKidDialog kid =
   td [ Attr.class "dialogCell" ]
   (
-      (
-        if kid.kidDialogCooldown > 0 then
-          [ div [Attr.class "kidDialog"] [ text ( kid.shownKidDialog Texts.Cz ) ] ]
-        else []
-      )
-      ++
-      (
-        if kid.playerDialogCooldown > 0 then
-          [ div [Attr.class "playerDialog"] [ text ( kid.shownPlayerDialog Texts.Cz ) ] ]
-        else []
-      )
+    if kid.kidDialogCooldown > 0 then
+      [ div [Attr.class "kidDialog"] (viewEmojiSentence kid.kidDialogCooldown kid.shownKidDialog) ]
+    else []
   )
+
+viewPlayerDialog : Kid -> Html Msg
+viewPlayerDialog kid =
+  td [ Attr.class "dialogCell" ]
+  (
+    if kid.playerDialogCooldown > 0 then
+      [ div [Attr.class "playerDialog"] (viewEmojiSentence kid.playerDialogCooldown kid.shownPlayerDialog) ]
+    else []
+  )
+
+viewPlayerNextToKid : Model -> Kid -> Html Msg
+viewPlayerNextToKid model kid =
+  let 
+    playerHere = 
+      case model.playerActivity of 
+        CalmDownKid calmDownInfo ->
+          calmDownInfo.kidId == kid.id
+        _ ->
+          False
+  in 
+    if playerHere then
+      td [ Attr.class "playerAtKid" ] [ text ("(tu sedíš)")]
+    else
+      td [][] 
 
 view : Model -> Html Msg
 view model =
@@ -102,6 +125,8 @@ view model =
     table [] [
       Keyed.node "tr" [] (List.map (viewKid model.playerActivity) model.kids)
       , tr [] (List.map viewKidDialog model.kids)
+      , tr [] (List.map viewPlayerDialog model.kids)
+      , tr [ Attr.class "playerRow" ] (List.map (viewPlayerNextToKid model) model.kids)
     ]
     , div
        (
@@ -137,7 +162,7 @@ view model =
         Attr.classList [
             ("takeDeepBreath", True)
             , ("active", model.playerActivity == DeepBreath)
-            , ("highlighted", not (model.playerActivity == DeepBreath) && model.nerves > 1 - gameConstants.calmDownNervesGrowth)
+            , ("highlighted", not (model.playerActivity == DeepBreath) && model.nerves > 0.9)
             ]
         , Events.onMouseDown (Game DeepBreathStarted)
         , Events.onMouseUp (Game DeepBreathEnded)
@@ -145,6 +170,15 @@ view model =
       ] [
         text ("Zhluboka dýchej")
       ]
+      , (
+        case model.playerActivity of 
+          CalmDownKid _ ->
+            div [Attr.class "noPlayer"] []
+          DeepBreath ->
+            div [Attr.class "player"] [ text "(tu vydechuješ)"]
+          None ->
+            div [Attr.class "player"] [ text "(tu stojíš)"]
+      )
       ,
       table [] [
         tr [] [

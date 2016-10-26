@@ -12,13 +12,13 @@ module Model exposing (
   , isStateLost
   , isMuted
   , isKidHighActivity
-  , isKidIncreasingNerves
+  , isKidAnnoying
   , isActiveOutburst
   , setState
   )
 
 import GameConstants exposing (..)
-import Texts
+import Emojis
 
 type alias OutburstParams =
   {
@@ -36,9 +36,9 @@ type alias Kid =
     , activity: Float
     , frustration: Float
     , mutedCooldown: Float
-    , shownKidDialog : Texts.DialogString
+    , shownKidDialog : Emojis.Sentence
     , kidDialogCooldown: Float
-    , shownPlayerDialog : Texts.DialogString
+    , shownPlayerDialog : Emojis.Sentence
     , playerDialogCooldown: Float
     , timeSinceLastOutburst : Float
     , scheduledOutburst : OutburstParams
@@ -60,9 +60,9 @@ defaultKid =
   , activity = 0
   , frustration = 0
   , mutedCooldown = 0
-  , shownKidDialog = Texts.noDialogString
+  , shownKidDialog = Emojis.nothing
   , kidDialogCooldown = 0
-  , shownPlayerDialog = Texts.noDialogString
+  , shownPlayerDialog = Emojis.nothing
   , playerDialogCooldown = 0
   , timeSinceLastOutburst = 0
   , scheduledOutburst = emptyOutburstParams
@@ -127,9 +127,9 @@ isMuted : Kid -> Bool
 isMuted kid =
   kid.mutedCooldown > 0
 
-isKidIncreasingNerves : Kid -> Bool
-isKidIncreasingNerves kid =
-   not (isMuted kid) && kid.activity > gameConstants.nervesActivityGrowthThreshold
+isKidAnnoying : Kid -> Bool
+isKidAnnoying kid =
+   not (isMuted kid) && kid.activity > gameConstants.annoyingActivityThreshold
 
 
 isKidHighActivity : Kid -> Bool

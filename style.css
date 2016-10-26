@@ -133,16 +133,41 @@ td {
 
 .dialogCell
 {
-    height: 50px;
+    height: 65px;
 }
 
 .kidDialog
 {
     background-color: white;
+    height:60px;
 }
 
 .playerDialog
 {
     font-style: italic;
     background-color: lightyellow;
+    height:60px;
+}
+
+.playerRow td, .player, .noPlayer
+{
+    height:30px;
+}
+
+.player, .noPlayer
+{
+    margin:5px;
+    width: 200px;
+    text-align:center;
+}
+
+
+.playerRow td.playerAtKid, .player
+{
+    background-color: lightgreen;
+}
+
+.emoji 
+{
+    max-height:40px;
 }
