@@ -115,16 +115,35 @@ kidCalmDownActivityRecovery kid =
 
 updateKidCalmDown : CalmDownInfo -> Float -> Kid -> ( Kid, Maybe (Cmd Msg) )
 updateKidCalmDown calmDownInfo deltaSeconds kid =
-    ( { kid
-        | activity = defaultClamp (kid.activity - deltaSeconds * (kidCalmDownActivityRecovery kid))
-        , frustration = defaultClamp (kid.frustration - deltaSeconds * (calmDownFrustrationRecovery calmDownInfo.duration kid.frustration))
-        , mutedCooldown =
-            gameConstants.calmDownMutedTime
-            --always reset the cooldown
-      }
-        |> (updateKidDialogs deltaSeconds)
-    , Nothing
-    )
+    let
+        frustrationRecoveryStarts =
+            (calmDownInfo.duration < gameConstants.calmDownFrustrationRecoveryStart)
+                && (calmDownInfo.duration + deltaSeconds >= gameConstants.calmDownFrustrationRecoveryStart)
+
+        newPlayerDialog =
+            if frustrationRecoveryStarts then
+                Emojis.frustrationRecovery kid.frustration
+            else
+                kid.shownPlayerDialog
+
+        newPlayerDialogCooldown =
+            if frustrationRecoveryStarts then
+                gameConstants.dialogCooldown
+            else
+                kid.playerDialogCooldown
+    in
+        ( { kid
+            | activity = defaultClamp (kid.activity - deltaSeconds * (kidCalmDownActivityRecovery kid))
+            , frustration = defaultClamp (kid.frustration - deltaSeconds * (calmDownFrustrationRecovery calmDownInfo.duration kid.frustration))
+            , mutedCooldown =
+                gameConstants.calmDownMutedTime
+                --always reset the cooldown
+            , shownPlayerDialog = newPlayerDialog
+            , playerDialogCooldown = newPlayerDialogCooldown
+          }
+            |> (updateKidDialogs deltaSeconds)
+        , Nothing
+        )
 
 
 updateSingleKid : PlayerActivity -> Float -> Kid -> ( Kid, Maybe (Cmd Msg) )
