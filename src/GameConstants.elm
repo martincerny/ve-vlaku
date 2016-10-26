@@ -7,7 +7,7 @@ gameConstants =
     , activityFrustrationGrowthThreshold = 0.5 --frustration over this threshold forces activity to grow
     , activityFrustrationGrowth = 0.05 --per second at max frustration
 
-    , nervesBaseRecovery = 0.05 -- per second
+    , nervesBaseRecovery = 0.00 -- per second
     , nervesActivityGrowth = 0.00 -- growth per second per kid at maximal kid activity
 
     , deepBreathNervesRecovery = 0.4 --per second
@@ -17,21 +17,21 @@ gameConstants =
     , calmDownNervesGrowthCoefficient = 0.2--0.17
     , calmDownActivityRecoveryHalfTime = 0.45 -- seconds
 
-    , calmDownDurationFrustrationRecovery = 0.1 --per second
-    , calmDownFrustrationRecoveryStart = 0.7 -- seconds
+    , calmDownDurationFrustrationRecovery = 0.09 --per second
+    , calmDownFrustrationRecoveryStart = 1.1 -- seconds
     , calmDownMutedTime = 0.1 -- seconds
-    , calmDownFrustrationGrowthMax = 0.2 --growth at max nerves
-    , calmDownFrustrationGrowthMin = 0.2 --growth at min nerves
+    , calmDownFrustrationGrowthMax = 0.3 --growth at max nerves
+    , calmDownFrustrationGrowthMin = 0.3 --growth at min nerves
     , calmDownFrustrationGrowthExponent = 0.8
 
-    , frustrationRecovery = 0.00 -- when nothing happens, per second
+    , frustrationRecovery = 0.01 -- when nothing happens, per second
 
     , dialogCooldown = 3 -- seconds
 
     , highActivityScoreToLose = 1
     , highActivityScoreIncreasePerKid = 0.11 -- per kid and second
     , highActivityThreshold = 0.9
-    , highActivityScoreRecovery = 0.2 -- per second
+    , highActivityScoreRecovery = 0.15 -- per second
 
 
     , minOutburstInterval = 2 --minimal time between two outbursts (seconds)
