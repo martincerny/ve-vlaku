@@ -171,3 +171,9 @@ td {
 {
     max-height:40px;
 }
+
+.newKidsContainer 
+{
+    font-size: 14;
+    font-weight:bold;    
+}

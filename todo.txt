@@ -1,3 +1,5 @@
+- Na začátku mise randomizovat rozjetost
+
 - Zlobení - rozjeté dítě může excitovat (jednorázově) souseda
 - Generovat děti + délku cesty
 - Kampaň: Děti mi zůstávají.
@@ -6,9 +8,22 @@
   - Ty děti, které skončily s vysokou naštvaností mají šanci, že odejdou z oddílu
   - Pokud mě nevyhodili z vlaku a maximální naštvanost byla malá, přijde mi nové dítě
 
+- Generovat cíl cesty + stanice po cestě
+
 - Fast forward (mezerník ?)
 
 - ZVážit: průvodčí varuje než oddíl vyhodí (to by ale muselo na chvíli zastavit růst nervů průvodčího).
   - Taky by šlo vyřešit tak, že průvodčí sprdne při varování děti a ty se uklidní, a výměnou vyrostou nervy hráče (něco jako na půl cesty mezi aktuálními nervy a 1)
 
 - Přesuny dětí - rozjeté děti se mohou přesouvat
+
+
+
+- Náladu zlepšovat skokově se smajlíkem
+- Nervy dát k hráči
+- Blikat nervy
+- Nervy vyplňovat
+- Zdůraznit že rozjetost se snižuje postupně a ne naráz
+- Rozdíly ve zlobivosti by měly vést k větším rozdílům v chování
+- Uklidnění sníží rozjetost vždy na nula (ale nervy rostou postupně)
+

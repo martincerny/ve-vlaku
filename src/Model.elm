@@ -100,10 +100,12 @@ type alias Model =
     , kids : List Kid
     , playerActivity : PlayerActivity
     , highActivityScore : Float
-    , timeToOutburst : Float
     , timeToWin : Float
     , state : GameState
     , transitionInactivity : Float
+    , nextKidId: Int
+    , newlyAddedKids : List Kid
+    , firstRun : Bool
     }
 
 

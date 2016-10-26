@@ -1,25 +1,30 @@
 module Init exposing (init)
 
-import Model exposing (..)
-import Msg exposing (..)
+import Model 
+import Msg 
+import Random
+import KidGenerator
+import RandomGenerators
 
+initialKids : Int
+initialKids = 4
 
-init : ( Model, Cmd Msg )
+init : ( Model.Model, Cmd Msg.Msg )
 init =
-    ( { nerves = 0
-      , kids =
-            [ { defaultKid | id = 1, name = "Adam", waywardness = 1, activity = 0.21 }
-            , { defaultKid | id = 2, name = "Bara", waywardness = 0.8, activity = 0.15 }
-            , { defaultKid | id = 3, name = "Cochtan", waywardness = 0.6, activity = 0.17 }
-            , { defaultKid | id = 4, name = "David", waywardness = 0.4, activity = 0.05 }
-            , { defaultKid | id = 5, name = "Eva", waywardness = 0.2 }
-            ]
-      , playerActivity = None
+     { nerves = 0
+      , kids = []
+      , playerActivity = Model.None
       , highActivityScore = 0
       , timeToWin = 90
-      , state = Paused
+      , state = Model.Paused
       , transitionInactivity = 0
-      , timeToOutburst = 1
+      , nextKidId = 0
+      , newlyAddedKids = []
+      , firstRun = True
       }
-    , Cmd.none
-    )
+    ! 
+    [
+      Random.generate (Msg.metaGameMsg Msg.AddKids) (Random.list initialKids KidGenerator.generator)
+      , Random.generate (Msg.metaGameMsg Msg.SetTimeToWin) (RandomGenerators.timeToWin initialKids)
+    ]
+    

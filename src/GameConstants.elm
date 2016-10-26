@@ -78,4 +78,9 @@ gameConstants =
     , transitionInactivity =
         0.5
         -- GUI parameter (how long to prevent clicks after a transition)
+    , maximalMeanFrustrationToAddKid =
+        0.5
+    , maximalChanceOfAddingKid =
+        0.9
+        --at 0 mean frustration
     }

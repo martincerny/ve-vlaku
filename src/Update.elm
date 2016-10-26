@@ -1,10 +1,10 @@
 module Update exposing (update)
 
 import Time
-import Msg exposing (..)
-import Model exposing (..)
+import Msg 
+import Model 
 import GameConstants exposing (gameConstants)
-import Init exposing (init)
+import Init
 import Emojis
 import Random
 import RandomGenerators
@@ -16,7 +16,7 @@ defaultClamp =
     clamp 0 1
 
 
-updateKidDialogs : Float -> Kid -> Kid
+updateKidDialogs : Float -> Model.Kid -> Model.Kid
 updateKidDialogs deltaSeconds kid =
     { kid
         | kidDialogCooldown = max (kid.kidDialogCooldown - deltaSeconds) 0
@@ -24,16 +24,16 @@ updateKidDialogs deltaSeconds kid =
     }
 
 
-scheduleOutburstCmd : Kid -> Cmd Msg
+scheduleOutburstCmd : Model.Kid -> Cmd Msg.Msg
 scheduleOutburstCmd kid =
-    Random.generate (gameMsg ScheduleOutburst) (RandomGenerators.outburstParams kid.id kid.waywardness)
+    Random.generate (Msg.gameMsg Msg.ScheduleOutburst) (RandomGenerators.outburstParams kid.id kid.waywardness)
 
 
-updateKidOutburst : Kid -> ( Kid, Maybe (Cmd Msg) )
+updateKidOutburst : Model.Kid -> ( Model.Kid, Maybe (Cmd Msg.Msg) )
 updateKidOutburst kid =
     let
         outburstActive =
-            isActiveOutburst kid.scheduledOutburst
+            Model.isActiveOutburst kid.scheduledOutburst
     in
         if kid.timeSinceLastOutburst < kid.scheduledOutburst.interval && outburstActive then
             ( kid, Nothing )
@@ -56,13 +56,13 @@ updateKidOutburst kid =
                         , shownKidDialog = Emojis.outburst intensity
                         , kidDialogCooldown = gameConstants.dialogCooldown
                         , timeSinceLastOutburst = 0
-                        , scheduledOutburst = emptyOutburstParams
+                        , scheduledOutburst = Model.emptyOutburstParams
                     }
                 , Just (scheduleOutburstCmd kid)
                 )
 
 
-updateKidDefault : Float -> Kid -> ( Kid, Maybe (Cmd Msg) )
+updateKidDefault : Float -> Model.Kid -> ( Model.Kid, Maybe (Cmd Msg.Msg) )
 updateKidDefault deltaSeconds kid =
     let
         usefulDelta =
@@ -108,12 +108,12 @@ calmDownFrustrationRecovery calmDownDuration oldFrustration =
         gameConstants.calmDownDurationFrustrationRecovery
 
 
-kidCalmDownActivityRecovery : Kid -> Float
+kidCalmDownActivityRecovery : Model.Kid -> Float
 kidCalmDownActivityRecovery kid =
     (kid.activity / (2 * gameConstants.calmDownActivityRecoveryHalfTime))
 
 
-updateKidCalmDown : CalmDownInfo -> Float -> Kid -> ( Kid, Maybe (Cmd Msg) )
+updateKidCalmDown : Model.CalmDownInfo -> Float -> Model.Kid -> ( Model.Kid, Maybe (Cmd Msg.Msg) )
 updateKidCalmDown calmDownInfo deltaSeconds kid =
     let
         frustrationRecoveryStarts =
@@ -146,10 +146,10 @@ updateKidCalmDown calmDownInfo deltaSeconds kid =
         )
 
 
-updateSingleKid : PlayerActivity -> Float -> Kid -> ( Kid, Maybe (Cmd Msg) )
+updateSingleKid : Model.PlayerActivity -> Float -> Model.Kid -> ( Model.Kid, Maybe (Cmd Msg.Msg) )
 updateSingleKid playerActivity deltaSeconds kid =
     case playerActivity of
-        CalmDownKid calmDownInfo ->
+        Model.CalmDownKid calmDownInfo ->
             if calmDownInfo.kidId == kid.id then
                 updateKidCalmDown calmDownInfo deltaSeconds kid
             else
@@ -173,7 +173,7 @@ addPairWithMaybeToListOfPairs ( x, maybeY ) ( listOfXs, listOfYs ) =
         ( x :: listOfXs, newListOfYs )
 
 
-updateKids : PlayerActivity -> Float -> List Kid -> { kids : List Kid, kidsMessages : List (Cmd Msg) }
+updateKids : Model.PlayerActivity -> Float -> List Model.Kid -> { kids : List Model.Kid, kidsMessages : List (Cmd Msg.Msg) }
 updateKids playerActivity deltaSeconds kids =
     let
         ( updatedKids, kidsMessages ) =
@@ -187,21 +187,16 @@ updateKids playerActivity deltaSeconds kids =
         { kids = updatedKids, kidsMessages = kidsMessages }
 
 
-updateNerves : Float -> Model -> Float
-
-
-
 --return new nerves
-
-
+updateNerves : Float -> Model.Model -> Float
 updateNerves deltaSeconds model =
     let
         deltaPerSecond =
             case model.playerActivity of
-                DeepBreath ->
+                Model.DeepBreath ->
                     -gameConstants.deepBreathNervesRecovery
 
-                CalmDownKid calmDownInfo ->
+                Model.CalmDownKid calmDownInfo ->
                     (List.filter (\kid -> kid.id == calmDownInfo.kidId) model.kids
                         --the filtered list will always have one member, but it is easier to handle as a list
                         |>
@@ -216,41 +211,56 @@ updateNerves deltaSeconds model =
         defaultClamp (model.nerves + deltaPerSecond * deltaSeconds)
 
 
-updateActivity : Float -> Model -> Model
+updateActivity : Float -> Model.Model -> Model.Model
 updateActivity deltaSeconds model =
     case model.playerActivity of
-        CalmDownKid calmDownInfo ->
+        Model.CalmDownKid calmDownInfo ->
             let
                 newCalmDownDuration =
                     calmDownInfo.duration + deltaSeconds
             in
                 { model
-                    | playerActivity = CalmDownKid { calmDownInfo | duration = newCalmDownDuration }
+                    | playerActivity = Model.CalmDownKid { calmDownInfo | duration = newCalmDownDuration }
                 }
 
+        --ignoring deepBreath here as it is handled in updateNerves
         _ ->
             model
 
 
+commandsForStateChange: Model.GameState -> Model.Model -> List (Cmd Msg.Msg)
+commandsForStateChange oldState model =
+    if oldState == model.state then
+        []
+    else
+        case model.state of 
+            Model.Won ->
+                [
+                    Random.generate (Msg.metaGameMsg Msg.AddKids) (RandomGenerators.addKidAfterWin model)
+                    , Random.generate (Msg.metaGameMsg Msg.SetTimeToWin) (RandomGenerators.timeToWin (List.length model.kids))
+                ]
+            _ ->
+                []
 
---ignoring deepBreath here as it is handled in updateNerves
 
-
-updateGameFrame : Float -> Model -> ( Model, Cmd Msg )
+updateGameFrame : Float -> Model.Model -> ( Model.Model, Cmd Msg.Msg )
 updateGameFrame deltaSeconds oldModel =
     let
         model =
-            setState oldModel
+            Model.setState oldModel
                 (if oldModel.highActivityScore >= gameConstants.highActivityScoreToLose then
-                    Lost Activity
+                    Model.Lost Model.Activity
                  else if oldModel.nerves >= 1 then
-                    Lost Nerves
-                 else if not (isStateLost oldModel.state) && oldModel.timeToWin <= 0 then
-                    Won
+                    Model.Lost Model.Nerves
+                 else if not (Model.isStateLost oldModel.state) && oldModel.timeToWin <= 0 then
+                    Model.Won
                  else
                     oldModel.state
                 )
-                |> updateActivity deltaSeconds
+             |> updateActivity deltaSeconds
+
+        additionalCommands =
+            commandsForStateChange oldModel.state model                
 
         updatedKids =
             updateKids oldModel.playerActivity deltaSeconds oldModel.kids
@@ -260,20 +270,21 @@ updateGameFrame deltaSeconds oldModel =
             , highActivityScore =
                 let
                     numHighActivityKids =
-                        List.filter isKidHighActivity model.kids |> List.length
+                        List.filter Model.isKidHighActivity model.kids |> List.length
                 in
                     if numHighActivityKids > 0 then
                         model.highActivityScore + deltaSeconds * (toFloat numHighActivityKids) * gameConstants.highActivityScoreIncreasePerKid
                     else
                         max 0 (model.highActivityScore - deltaSeconds * gameConstants.highActivityScoreRecovery)
             , timeToWin = max 0 (model.timeToWin - deltaSeconds)
-            , timeToOutburst = max 0 (model.timeToOutburst - deltaSeconds)
             , kids = updatedKids.kids
         }
-            ! updatedKids.kidsMessages
+            ! (
+                updatedKids.kidsMessages
+                ++ additionalCommands ) 
 
 
-updateKidById : Int -> (Kid -> Kid) -> List Kid -> List Kid
+updateKidById : Int -> (Model.Kid -> Model.Kid) -> List Model.Kid -> List Model.Kid
 updateKidById kidId updateFunction kids =
     let
         mapFunction =
@@ -286,20 +297,20 @@ updateKidById kidId updateFunction kids =
         List.map mapFunction kids
 
 
-kidCalmDownFunction : Float -> Kid -> Kid
+kidCalmDownFunction : Float -> Model.Kid -> Model.Kid
 kidCalmDownFunction nerves kid =
     let
         baseUpdatedKid =
             { kid
                 | mutedCooldown = gameConstants.calmDownMutedTime
                 , scheduledOutburst =
-                    emptyOutburstParams
+                    Model.emptyOutburstParams
                     --reset outburst
                 , shownPlayerDialog = Emojis.calmDown kid.activity
                 , playerDialogCooldown = gameConstants.dialogCooldown
             }
     in
-        if isKidAnnoying kid then
+        if Model.isKidAnnoying kid then
             { baseUpdatedKid
                 | frustration =
                     defaultClamp
@@ -314,33 +325,40 @@ kidCalmDownFunction nerves kid =
             baseUpdatedKid
 
 
-updateUIFrame : Float -> Model -> Model
+updateUIFrame : Float -> Model.Model -> Model.Model
 updateUIFrame deltaSeconds model =
     if model.transitionInactivity > 0 then
         { model | transitionInactivity = max 0 (model.transitionInactivity - deltaSeconds) }
     else
         model
 
+startGame : Model.Model -> Model.Model
+startGame model=
+    {model | 
+        kids = List.map (\kid -> {kid | activity = 0.5 * kid.waywardness }) model.kids
+        , playerActivity = Model.None
+        , newlyAddedKids = []
+        , firstRun = False
+    }
 
-processUIMessage : UIMessage -> Model -> ( Model, Cmd Msg )
+processUIMessage : Msg.UIMessage -> Model.Model -> ( Model.Model, Cmd Msg.Msg )
 processUIMessage msg model =
     if model.transitionInactivity > 0 then
         model ! []
     else
         (case msg of
-            ResumeGame ->
-                (setState model Running) ! []
-
-            RestartGame ->
-                init
+            Msg.ResumeGame ->
+                (Model.setState (startGame model) Model.Running) ! []
+            Msg.RestartGame ->
+                Init.init
         )
 
 
-endActiveCalmDown : Model -> ( Model, Cmd Msg )
+endActiveCalmDown : Model.Model -> ( Model.Model, Cmd Msg.Msg )
 endActiveCalmDown model =
     case model.playerActivity of
-        CalmDownKid calmDownInfo ->
-            { model | playerActivity = None }
+        Model.CalmDownKid calmDownInfo ->
+            { model | playerActivity = Model.None }
                 ! (List.filter (\kid -> kid.id == calmDownInfo.kidId) model.kids
                     --reschedule outburst once calm down has ended
                     |>
@@ -351,66 +369,87 @@ endActiveCalmDown model =
             model ! []
 
 
-processGameMessage : GameMessage -> Model -> ( Model, Cmd Msg )
+processGameMessage : Msg.GameMessage -> Model.Model -> ( Model.Model, Cmd Msg.Msg )
 processGameMessage msg model =
-    if not (shouldUpdateGame model) then
+    if not (Model.shouldUpdateGame model) then
         ( model, Cmd.none )
     else
         case msg of
-            DeepBreathStarted ->
+            Msg.DeepBreathStarted ->
                 let
                     ( newModel, cmd ) =
                         endActiveCalmDown model
                 in
-                    ( { newModel | playerActivity = DeepBreath }
+                    ( { newModel | playerActivity = Model.DeepBreath }
                     , cmd
                     )
 
-            DeepBreathEnded ->
-                (if model.playerActivity == DeepBreath then
-                    { model | playerActivity = None }
+            Msg.DeepBreathEnded ->
+                (if model.playerActivity == Model.DeepBreath then
+                    { model | playerActivity = Model.None }
                  else
                     model
                 )
                     ! []
 
-            CalmDownStarted kid ->
+            Msg.CalmDownStarted kid ->
                 let
                     ( newModel, cmd ) =
                         endActiveCalmDown model
                 in
                     ( { model
-                        | playerActivity = CalmDownKid { duration = 0, kidId = kid.id, nervesAtStart = model.nerves }
+                        | playerActivity = Model.CalmDownKid { duration = 0, kidId = kid.id, nervesAtStart = model.nerves }
                         , kids = updateKidById kid.id (kidCalmDownFunction model.nerves) model.kids
                       }
                     , cmd
                     )
 
-            CalmDownEnded ->
+            Msg.CalmDownEnded ->
                 endActiveCalmDown model
 
-            ScheduleOutburst outburstParams ->
+            Msg.ScheduleOutburst outburstParams ->
                 { model
-                    | kids = updateKidById outburstParams.targetKidId (\kid -> { kid | scheduledOutburst = Debug.log "Outburst: " outburstParams }) model.kids
+                    | kids = updateKidById outburstParams.targetKidId (\kid -> { kid | scheduledOutburst = outburstParams }) model.kids
                 }
                     ! []
 
+processMetaGameMessage : Msg.MetaGameMessage -> Model.Model -> (Model.Model, Cmd Msg.Msg)
+processMetaGameMessage msg model =
+    (
+    case msg of
+        Msg.SetTimeToWin time ->
+            {model | timeToWin = time}
+        Msg.AddKids newKids ->
+            let
+              newKidsWithIds = List.indexedMap (\order kid -> {kid | id = model.nextKidId + order}) newKids
+            in              
+                {model |
+                    kids = model.kids ++ newKidsWithIds
+                    , nextKidId = model.nextKidId + (List.length newKids)
+                    , newlyAddedKids = newKidsWithIds
+                }
+        _ ->
+            Debug.crash "Unexpected message" model
+    ) ! []
 
-update : Msg -> Model -> ( Model, Cmd Msg )
+update : Msg.Msg -> Model.Model -> ( Model.Model, Cmd Msg.Msg )
 update msg model =
     case msg of
-        UI uiMsg ->
+        Msg.UI uiMsg ->
             processUIMessage uiMsg model
 
-        Game gameMsg ->
+        Msg.Game gameMsg ->
             processGameMessage gameMsg model
 
-        Frame delta ->
+        Msg.Meta metaMsg ->
+            processMetaGameMessage metaMsg model
+
+        Msg.Frame delta ->
             let
                 deltaSeconds =
                     delta / Time.second
             in
-                if shouldUpdateGame model then
+                if Model.shouldUpdateGame model then
                     updateGameFrame deltaSeconds model
                 else
                     (updateUIFrame deltaSeconds model) ! []
