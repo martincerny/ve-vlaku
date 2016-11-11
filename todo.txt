@@ -19,11 +19,10 @@
 
 
 
-- Náladu zlepšovat skokově se smajlíkem
 - Nervy dát k hráči
 - Blikat nervy
 - Nervy vyplňovat
 - Zdůraznit že rozjetost se snižuje postupně a ne naráz
-- Rozdíly ve zlobivosti by měly vést k větším rozdílům v chování
+- Rozdíly ve zlobivosti by měly vést k větším rozdílům v chování + textový popis zlobivosti
 - Uklidnění sníží rozjetost vždy na nula (ale nervy rostou postupně)
 

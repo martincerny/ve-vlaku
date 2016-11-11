@@ -3,6 +3,7 @@ module RandomGenerators
         ( outburstParams
         , addKidAfterWin
         , timeToWin
+        , frustrationRecoveryInterval
         )
 
 import GameConstants exposing (..)
@@ -25,12 +26,18 @@ exponentialInverseCDF mean y =
     -mean * logBase e (1 - y)
 
 
+exponentialGenerator : Float -> Float -> Random.Generator Float
+exponentialGenerator minimum mean =
+    let
+        distributionMean =
+            mean - minimum
+    in
+        Random.map (exponentialInverseCDF distributionMean >> (+) minimum) (Random.float 0 1)
+
+
 outburstInterval : Float -> Random.Generator Float
 outburstInterval waywardness =
     let
-        totalMinInterval =
-            gameConstants.minOutburstInterval
-
         minMeanInterval =
             gameConstants.meanOutburstIntervalMin
 
@@ -39,9 +46,8 @@ outburstInterval waywardness =
 
         actualMeanInterval =
             (minMeanInterval + (1 - waywardness) * (maxMeanInterval - minMeanInterval))
-                - totalMinInterval
     in
-        Random.map (exponentialInverseCDF actualMeanInterval >> (+) 2) (Random.float 0 1)
+        exponentialGenerator gameConstants.minOutburstInterval actualMeanInterval
 
 
 outburstIntensity : Random.Generator Float
@@ -55,6 +61,11 @@ outburstParams kidId waywardness =
         (\interval intensity -> { targetKidId = kidId, interval = interval, intensity = intensity })
         (outburstInterval waywardness)
         outburstIntensity
+
+
+frustrationRecoveryInterval : Random.Generator Float
+frustrationRecoveryInterval =
+    exponentialGenerator gameConstants.calmDownFrustrationRecoveryMinInterval gameConstants.calmDownFrustrationRecoveryMeanInterval
 
 
 shouldKidBeAddedAfterWin : Model.Model -> Float -> Bool
@@ -88,9 +99,10 @@ addKidAfterWin model =
                     fixedGenerator []
             )
 
+
 timeToWin : Int -> Random.Generator Float
 timeToWin numKids =
     if numKids < 4 then
         Random.float 30 60
-    else 
+    else
         Random.float 45 90

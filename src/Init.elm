@@ -12,6 +12,7 @@ initialKids = 4
 init : ( Model.Model, Cmd Msg.Msg )
 init =
      { nerves = 0
+      , nervesTarget = 0
       , kids = []
       , playerActivity = Model.None
       , highActivityScore = 0

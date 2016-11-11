@@ -4,6 +4,7 @@ module Model
         , OutburstParams
         , Model
         , CalmDownInfo
+        , ScheduledEvent(..)
         , PlayerActivity(..)
         , GameState(..)
         , LostCause(..)
@@ -29,6 +30,10 @@ type alias OutburstParams =
     }
 
 
+type ScheduledEvent =
+    Unscheduled
+    | Scheduled Float
+
 type alias Kid =
     { id : Int
     , name : String
@@ -42,6 +47,7 @@ type alias Kid =
     , playerDialogCooldown : Float
     , timeSinceLastOutburst : Float
     , scheduledOutburst : OutburstParams
+    , frustrationRecoveryEvent: ScheduledEvent 
     }
 
 
@@ -67,6 +73,7 @@ defaultKid =
     , playerDialogCooldown = 0
     , timeSinceLastOutburst = 0
     , scheduledOutburst = emptyOutburstParams
+    , frustrationRecoveryEvent = Unscheduled
     }
 
 
@@ -97,6 +104,7 @@ type PlayerActivity
 
 type alias Model =
     { nerves : Float
+    , nervesTarget : Float
     , kids : List Kid
     , playerActivity : PlayerActivity
     , highActivityScore : Float

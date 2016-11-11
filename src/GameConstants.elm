@@ -15,6 +15,9 @@ gameConstants =
     , nervesBaseRecovery =
         0.0
         -- per second
+    , nervesTargetFollowingHalfTime =
+        0.4
+        --per second
     , nervesActivityGrowth =
         0.0
         -- growth per second per kid at maximal kid activity
@@ -27,15 +30,18 @@ gameConstants =
     , calmDownNervesGrowthCoefficient =
         0.2
         --0.17
-    , calmDownActivityRecoveryHalfTime =
-        0.45
-        -- seconds
-    , calmDownDurationFrustrationRecovery =
-        0.09
-        --per second
+    , calmDownFrustrationRecovery =
+        0.18
+        --per each recovery event
     , calmDownFrustrationRecoveryStart =
         1.1
         -- seconds
+    , calmDownFrustrationRecoveryMinInterval =
+        0.7
+        -- seconds
+    , calmDownFrustrationRecoveryMeanInterval =
+        2
+        --seconds
     , calmDownMutedTime =
         0.1
         -- seconds

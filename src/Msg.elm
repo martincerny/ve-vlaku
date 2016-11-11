@@ -20,6 +20,7 @@ type GameMessage
     | CalmDownStarted Model.Kid
     | CalmDownEnded
     | ScheduleOutburst Model.OutburstParams
+    | ScheduleFrustrationRecovery Model.Kid Float 
 
 type MetaGameMessage
     = AddKids (List Model.Kid)

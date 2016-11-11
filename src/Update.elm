@@ -99,50 +99,54 @@ updateKidDefault deltaSeconds kid =
             |> (updateKidDialogs deltaSeconds)
             |> updateKidOutburst
 
-
-calmDownFrustrationRecovery : Float -> Float -> Float
-calmDownFrustrationRecovery calmDownDuration oldFrustration =
-    if calmDownDuration <= gameConstants.calmDownFrustrationRecoveryStart then
-        0
-    else
-        gameConstants.calmDownDurationFrustrationRecovery
-
-
-kidCalmDownActivityRecovery : Model.Kid -> Float
-kidCalmDownActivityRecovery kid =
-    (kid.activity / (2 * gameConstants.calmDownActivityRecoveryHalfTime))
-
-
 updateKidCalmDown : Model.CalmDownInfo -> Float -> Model.Kid -> ( Model.Kid, Maybe (Cmd Msg.Msg) )
 updateKidCalmDown calmDownInfo deltaSeconds kid =
     let
-        frustrationRecoveryStarts =
-            (calmDownInfo.duration < gameConstants.calmDownFrustrationRecoveryStart)
-                && (calmDownInfo.duration + deltaSeconds >= gameConstants.calmDownFrustrationRecoveryStart)
+        (doFrustrationRecovery, newFrustrationRecoveryEvent) =
+            case kid.frustrationRecoveryEvent of
+                Model.Unscheduled -> 
+                    (False, Model.Unscheduled)
+                Model.Scheduled time ->
+                    if (time <= 0) then
+                        (True, Model.Unscheduled)
+                    else 
+                        (False, Model.Scheduled (time - deltaSeconds))
+
+        newFrustration =
+            if doFrustrationRecovery then
+                defaultClamp (kid.frustration - gameConstants.calmDownFrustrationRecovery)
+            else
+                kid.frustration
 
         newPlayerDialog =
-            if frustrationRecoveryStarts then
+            if doFrustrationRecovery then
                 Emojis.frustrationRecovery kid.frustration
             else
                 kid.shownPlayerDialog
 
         newPlayerDialogCooldown =
-            if frustrationRecoveryStarts then
+            if doFrustrationRecovery then
                 gameConstants.dialogCooldown
             else
                 kid.playerDialogCooldown
+        
+        msg =
+            if doFrustrationRecovery then
+                Just (Random.generate (Msg.gameMsg (Msg.ScheduleFrustrationRecovery kid)) RandomGenerators.frustrationRecoveryInterval)
+            else
+                Nothing
     in
         ( { kid
-            | activity = defaultClamp (kid.activity - deltaSeconds * (kidCalmDownActivityRecovery kid))
-            , frustration = defaultClamp (kid.frustration - deltaSeconds * (calmDownFrustrationRecovery calmDownInfo.duration kid.frustration))
+            | frustration = newFrustration
             , mutedCooldown =
                 gameConstants.calmDownMutedTime
                 --always reset the cooldown
             , shownPlayerDialog = newPlayerDialog
             , playerDialogCooldown = newPlayerDialogCooldown
+            , frustrationRecoveryEvent = newFrustrationRecoveryEvent
           }
             |> (updateKidDialogs deltaSeconds)
-        , Nothing
+        , msg
         )
 
 
@@ -188,27 +192,18 @@ updateKids playerActivity deltaSeconds kids =
 
 
 --return new nerves
-updateNerves : Float -> Model.Model -> Float
-updateNerves deltaSeconds model =
+updateNervesTarget : Float -> Model.Model -> Float
+updateNervesTarget deltaSeconds model =
     let
         deltaPerSecond =
             case model.playerActivity of
                 Model.DeepBreath ->
                     -gameConstants.deepBreathNervesRecovery
 
-                Model.CalmDownKid calmDownInfo ->
-                    (List.filter (\kid -> kid.id == calmDownInfo.kidId) model.kids
-                        --the filtered list will always have one member, but it is easier to handle as a list
-                        |>
-                            List.map kidCalmDownActivityRecovery
-                        |> List.sum
-                    )
-                        * gameConstants.calmDownNervesGrowthCoefficient
-
                 _ ->
                     -gameConstants.nervesBaseRecovery
     in
-        defaultClamp (model.nerves + deltaPerSecond * deltaSeconds)
+        defaultClamp (model.nervesTarget + deltaPerSecond * deltaSeconds)
 
 
 updateActivity : Float -> Model.Model -> Model.Model
@@ -266,7 +261,8 @@ updateGameFrame deltaSeconds oldModel =
             updateKids oldModel.playerActivity deltaSeconds oldModel.kids
     in
         { model
-            | nerves = updateNerves deltaSeconds model
+            | nervesTarget = updateNervesTarget deltaSeconds model
+            , nerves = model.nerves + (((model.nervesTarget - model.nerves) / gameConstants.nervesTargetFollowingHalfTime) * deltaSeconds)
             , highActivityScore =
                 let
                     numHighActivityKids =
@@ -306,8 +302,10 @@ kidCalmDownFunction nerves kid =
                 , scheduledOutburst =
                     Model.emptyOutburstParams
                     --reset outburst
+                , frustrationRecoveryEvent = Model.Scheduled gameConstants.calmDownFrustrationRecoveryStart
                 , shownPlayerDialog = Emojis.calmDown kid.activity
                 , playerDialogCooldown = gameConstants.dialogCooldown
+                , activity = 0
             }
     in
         if Model.isKidAnnoying kid then
@@ -400,6 +398,7 @@ processGameMessage msg model =
                     ( { model
                         | playerActivity = Model.CalmDownKid { duration = 0, kidId = kid.id, nervesAtStart = model.nerves }
                         , kids = updateKidById kid.id (kidCalmDownFunction model.nerves) model.kids
+                        , nervesTarget = defaultClamp (newModel.nervesTarget + kid.activity * gameConstants.calmDownNervesGrowthCoefficient)
                       }
                     , cmd
                     )
@@ -410,6 +409,12 @@ processGameMessage msg model =
             Msg.ScheduleOutburst outburstParams ->
                 { model
                     | kids = updateKidById outburstParams.targetKidId (\kid -> { kid | scheduledOutburst = outburstParams }) model.kids
+                }
+                    ! []
+
+            Msg.ScheduleFrustrationRecovery targetKid time ->
+                { model
+                    | kids = updateKidById targetKid.id (\kid -> { kid | frustrationRecoveryEvent = Model.Scheduled time }) model.kids
                 }
                     ! []
 
