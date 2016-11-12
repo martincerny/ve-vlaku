@@ -1,7 +1,7 @@
 - Nervy dát k hráči
 - Blikat nervy
 - Nervy vyplňovat
-
+- Sirka - polibek: 670px
 
 - Statitstiky: nováčků, odejitých dětí, výchovné působení (celkové zklidnění)
 
@@ -20,3 +20,4 @@
 - Napsat na Elm-list kvůli exposing
 - Navrhnout rozsireni Basics o List.get (dle indexu)
 - Navrhnout rozsireni Random o fixedGenerator a permutationGenerator
+
