@@ -1,6 +1,7 @@
 module KidGenerator
     exposing
         ( generator
+        , initGenerator
         , Gender(..)
         )
 
@@ -45,7 +46,7 @@ nicknameGenerator gender =
 
 waywardnessGenerator : Random.Generator Float
 waywardnessGenerator =
-    Random.float 0.3 1
+    Random.float 0.5 1
 
 
 kidFromProperties : String -> Float -> Model.Kid
@@ -64,3 +65,8 @@ generatorKnownGender gender =
 generator : Random.Generator Model.Kid
 generator =
     Random.andThen genderGenerator generatorKnownGender
+
+initGenerator : Random.Generator Model.Kid
+initGenerator =
+    Random.map (\kid -> {kid | waywardness = kid.waywardness * 0.66}) generator
+

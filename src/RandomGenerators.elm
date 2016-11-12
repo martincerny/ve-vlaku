@@ -84,35 +84,42 @@ frustrationRecoveryInterval =
     exponentialGenerator gameConstants.calmDownFrustrationRecoveryMinInterval gameConstants.calmDownFrustrationRecoveryMeanInterval
 
 
-shouldKidBeAddedAfterWin : Model.Model -> Float -> Bool
-shouldKidBeAddedAfterWin model randomValue =
+numKidsToBeAddedAfterWin : Model.Model -> Float -> Int
+numKidsToBeAddedAfterWin model randomValue =
     let
         meanFrustration =
             model.kids |> List.map .frustration |> Utils.avg
     in
         if meanFrustration < metaGameConstants.maximalMeanFrustrationToAddKid then
             let
-                chance =
+                baseChance =
                     (1 - (meanFrustration / metaGameConstants.maximalMeanFrustrationToAddKid))
-                        * metaGameConstants.maximalChanceOfAddingKid
+
+                oneKidChance =
+                    baseChance * metaGameConstants.maximalChanceOfAddingKid
+
+                twoKidChance =
+                    baseChance * metaGameConstants.maximalChanceOfAddingTwoKids
             in
-                randomValue <= chance
+                if randomValue <= twoKidChance then
+                    2
+                else if randomValue <= oneKidChance then
+                    1
+                else
+                    0
         else
-            False
+            0
 
 
 addKidAfterWin : Model.Model -> Random.Generator (List Model.Kid)
 addKidAfterWin model =
     let
-        shouldBeAddedGenerator =
-            Random.map (shouldKidBeAddedAfterWin model) (Random.float 0 1)
+        numKidsGenerator =
+            Random.map (numKidsToBeAddedAfterWin model) (Random.float 0 1)
     in
-        Random.andThen (shouldBeAddedGenerator)
-            (\shouldBeAdded ->
-                if shouldBeAdded then
-                    Random.list 1 KidGenerator.generator
-                else
-                    fixedGenerator []
+        Random.andThen (numKidsGenerator)
+            (\numKids ->
+                Random.list numKids KidGenerator.generator
             )
 
 
@@ -146,7 +153,10 @@ numKidsToBeRemovedAfterMissionFail model =
         |> Random.map round
 
 
+
 --the lower the waywardness, the more likely is the kid to be chosen
+
+
 chooseKidsByWaywardnessTarget : List Model.Kid -> List Float -> List Model.Kid
 chooseKidsByWaywardnessTarget kids targets =
     case kids of
@@ -154,7 +164,7 @@ chooseKidsByWaywardnessTarget kids targets =
             let
                 reducedTargets =
                     List.map (\x -> x - (1 - head.waywardness)) targets
-                    |> List.filter (\x -> x >= 0)
+                        |> List.filter (\x -> x >= 0)
 
                 recursiveResult =
                     chooseKidsByWaywardnessTarget tail reducedTargets
@@ -182,8 +192,12 @@ removeKidsAfterMissionFail model =
 
 shouldKidHaveWaywardnessReduced : Model.Kid -> Random.Generator Bool
 shouldKidHaveWaywardnessReduced kid =
-    if kid.frustration < metaGameConstants.maxFrustrationToConsiderReducingWaywardness
-     && kid.waywardness > metaGameConstants.minimalWaywardness then
+    if
+        kid.frustration
+            < metaGameConstants.maxFrustrationToConsiderReducingWaywardness
+            && kid.waywardness
+            > metaGameConstants.minimalWaywardness
+    then
         let
             chanceToReduce =
                 ((metaGameConstants.maxFrustrationToConsiderReducingWaywardness - kid.frustration) / (metaGameConstants.maxFrustrationToConsiderReducingWaywardness))
@@ -207,15 +221,18 @@ reduceWaywardness model =
 
 timeToWin : Int -> Random.Generator Float
 timeToWin numKids =
-    if numKids <= 5 then
-        Random.float 30 60
-    else
-        Random.float 45 90
+    let 
+        minimum = max metaGameConstants.minTimeToWin ((toFloat numKids) * metaGameConstants.minTimeToWinPerKid)
+        maximum = (toFloat numKids) * metaGameConstants.maxTimeToWinPerKid
+    in        
+        Random.float minimum maximum
+
 
 frustrationInit : Model.Kid -> Random.Generator Float
 frustrationInit _ =
     Random.float 0 1
 
+
 activityInit : Model.Kid -> Random.Generator Float
 activityInit kid =
-    Random.float 0 (min (gameConstants.highActivityThreshold - 0.1)  kid.waywardness)
+    Random.float 0 (min (gameConstants.highActivityThreshold - 0.1) kid.waywardness)

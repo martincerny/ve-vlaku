@@ -1,28 +1,17 @@
 - Nervy dát k hráči
 - Blikat nervy
 - Nervy vyplňovat
-- Rozdíly ve zlobivosti by měly vést k větším rozdílům v chování + textový popis zlobivosti
 
-- Generovat waywardness tak, abych na začátku měl hodně různě zlobivé děti
 
-- Na začátku mise randomizovat rozjetost
+- Statitstiky: nováčků, odejitých dětí, výchovné působení (celkové zklidnění)
 
-- Zlobení - rozjeté dítě může excitovat (jednorázově) souseda
-- Generovat děti + délku cesty
-- Kampaň: Děti mi zůstávají.
-  - Failnuté mise (nervy) lze hrát znovu ze stejného výchozího stavu. Failnuté přes průvodčího se neopakují (aby se tím ladila obtížnost)
-  - Při failnutí může odejíž dítě z oddílu - častěji odcházejí ty poslušnější
-  - Ty děti, kterým celou hru nestoupla naštvanost nad určitou mez mají šanci, že jim klesne neposlušnost.
-  - Ty děti, které skončily s vysokou naštvaností mají šanci, že odejdou z oddílu
-  - Pokud mě nevyhodili z vlaku a maximální naštvanost byla malá, přijde mi nové dítě
 
 - Generovat cíl cesty + stanice po cestě
 
 - Fast forward (mezerník ?)
 
-- ZVážit: průvodčí varuje než oddíl vyhodí (to by ale muselo na chvíli zastavit růst nervů průvodčího).
-  - Taky by šlo vyřešit tak, že průvodčí sprdne při varování děti a ty se uklidní, a výměnou vyrostou nervy hráče (něco jako na půl cesty mezi aktuálními nervy a 1)
 
+- Zlobení - rozjeté dítě může excitovat (jednorázově) souseda
 - Přesuny dětí - rozjeté děti se mohou přesouvat
 
 

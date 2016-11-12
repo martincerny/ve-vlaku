@@ -50,10 +50,7 @@ missionSummary model =
                                 meanFrustration =
                                     model.kids |> List.map .frustration |> Utils.avg
                             in
-                                if meanFrustration < metaGameConstants.maximalMeanFrustrationToAddKid then                                            
-                                    "Žádné nové děti. Nové děti mohou přijít, když oddíl skončí výlet s lepší celkovou náladou."
-                                else
-                                    "Žádné nové děti. Oddíl měl dobrou náladu, jen to holt nevyšlo."
+                                "Žádné nové děti. Nové děti občas přijdou, když oddíl skončí výlet s dobrou celkovou náladou."
                     )
                 ]
              else

@@ -10,8 +10,8 @@ gameConstants =
         0.5
         --frustration over this threshold forces activity to grow
     , activityFrustrationGrowth =
-        0.07
-        --per second at max frustration
+        0.12
+        --per second at max frustration and max waywardness
     , nervesBaseRecovery =
         0.0
         -- per second
@@ -65,7 +65,7 @@ gameConstants =
         2
         --minimal time between two outbursts (seconds)
     , meanOutburstIntervalMax =
-        45.0
+        30.0
         --mean outburst at 0 waywardness
     , meanOutburstIntervalMin =
         3.0
@@ -89,8 +89,11 @@ uiConstants =
 metaGameConstants =
     { maximalMeanFrustrationToAddKid =
         0.5
+    , maximalChanceOfAddingTwoKids =
+        0.3
+        --at 0 mean frustration
     , maximalChanceOfAddingKid =
-        0.9
+        1.2
         --at 0 mean frustration
     , minFrustrationToConsiderRemovingKid =
         0.7
@@ -99,9 +102,9 @@ metaGameConstants =
     , numKidsFor50PercentChanceRemovalAfterMissionFail =
         4
     , minKidsToKeep =
-        3
+        2
     , maxFrustrationToConsiderReducingWaywardness =
-        0.2
+        0.3
     , maxChanceOfReducingWaywardness =
         0.8
     , waywardnessReduction =
@@ -109,4 +112,10 @@ metaGameConstants =
         --The reduction after the kid completes with little frustration
     , minimalWaywardness =
         0.2
+    , minTimeToWin =
+        25.0 --seconds
+    , minTimeToWinPerKid =
+        7.0 --seconds
+    , maxTimeToWinPerKid =
+        15.0    
     }

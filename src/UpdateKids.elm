@@ -121,6 +121,7 @@ updateKidDefault deltaSeconds kid =
                             + if kid.frustration > frustrationThreshold then
                                 gameConstants.activityFrustrationGrowth
                                     * ((kid.frustration - frustrationThreshold) / (1 - frustrationThreshold))
+                                    * kid.waywardness
                               else
                                 0
                           )
