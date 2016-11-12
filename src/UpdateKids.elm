@@ -1,4 +1,11 @@
-module UpdateKids exposing (update, calmDownFunction, scheduleOutburstCmd)
+module UpdateKids
+    exposing
+        ( update
+        , calmDownFunction
+        , scheduleOutburstCmd
+        , startGame
+        , scheduleOutburst
+        )
 
 import Model
 import Msg
@@ -22,6 +29,7 @@ calmDownFunction nerves kid =
                 , shownPlayerDialog = Emojis.calmDown kid.activity
                 , playerDialogCooldown = gameConstants.dialogCooldown
                 , activity = 0
+                , numCalmDowns = kid.numCalmDowns + 1
             }
     in
         if Model.isKidAnnoying kid then
@@ -50,6 +58,15 @@ updateKidDialogs deltaSeconds kid =
 scheduleOutburstCmd : Model.Kid -> Cmd Msg.Msg
 scheduleOutburstCmd kid =
     Random.generate (Msg.gameMsg Msg.ScheduleOutburst) (RandomGenerators.outburstParams kid.id kid.waywardness)
+
+
+scheduleOutburst : Model.OutburstParams -> Model.Kid -> Model.Kid
+scheduleOutburst outburstParams kid =
+    { kid
+        | scheduledOutburst = outburstParams
+        , numScheduledOutbursts = kid.numScheduledOutbursts + 1
+        , sumOutburstIntervals = kid.sumOutburstIntervals + outburstParams.interval
+    }
 
 
 updateKidOutburst : Model.Kid -> ( Model.Kid, Maybe (Cmd Msg.Msg) )
@@ -214,3 +231,22 @@ update playerActivity deltaSeconds kids =
                    )
     in
         { kids = updatedKids, kidsMessages = kidsMessages }
+
+
+startGame : Model.Kid -> Model.Kid
+startGame kid =
+    { kid
+        | activity = 0.5 * kid.waywardness
+        , frustration = 0
+        , mutedCooldown = 0
+        , shownKidDialog = Emojis.nothing
+        , kidDialogCooldown = 0
+        , shownPlayerDialog = Emojis.nothing
+        , playerDialogCooldown = 0
+        , timeSinceLastOutburst = 0
+        , scheduledOutburst = Model.emptyOutburstParams
+        , frustrationRecoveryEvent = Model.Unscheduled
+        , numCalmDowns = 0
+        , numScheduledOutbursts = 0
+        , sumOutburstIntervals = 0
+    }

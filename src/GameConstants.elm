@@ -10,13 +10,13 @@ gameConstants =
         0.5
         --frustration over this threshold forces activity to grow
     , activityFrustrationGrowth =
-        0.05
+        0.07
         --per second at max frustration
     , nervesBaseRecovery =
         0.0
         -- per second
     , nervesTargetFollowingHalfTime =
-        0.4
+        0.2
         --per second
     , nervesActivityGrowth =
         0.0
@@ -70,16 +70,16 @@ gameConstants =
         2
         --minimal time between two outbursts (seconds)
     , meanOutburstIntervalMax =
-        20.0
+        30.0
         --mean outburst at 0 waywardness
     , meanOutburstIntervalMin =
-        5.0
+        3.0
         --mean outburst interval at max waywardness (has to be bigger than minOutburstInterval)
     , outburstMinActivityGrowth =
-        0.2
+        0.1
         --activity growth at min outburst intensity or waywardness
     , outburstMaxActivityGrowth =
-        0.8
+        0.9
         --activity growth at max outburst intensity and max waywardness
     , transitionInactivity =
         0.5

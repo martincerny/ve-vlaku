@@ -4,6 +4,7 @@ module RandomGenerators
         , addKidAfterWin
         , timeToWin
         , frustrationRecoveryInterval
+        , exponentialGenerator
         )
 
 import GameConstants exposing (..)
@@ -14,11 +15,8 @@ import KidGenerator
 
 fixedGenerator : a -> Random.Generator a
 fixedGenerator value =
+    --I do not consume the bool, but there is no way to create my own primitive generator
     Random.map (\_ -> value) Random.bool
-
-
-
---I do not consume the bool, but there is no way to create my own primitive generator
 
 
 exponentialInverseCDF : Float -> Float -> Float

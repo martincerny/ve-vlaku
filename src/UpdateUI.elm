@@ -1,6 +1,7 @@
 module UpdateUI exposing (frame, message)
 
 import Model
+import UpdateGame
 import Msg
 import Init
 
@@ -13,15 +14,6 @@ frame deltaSeconds model =
         model
 
 
-startGame : Model.Model -> Model.Model
-startGame model =
-    { model
-        | kids = List.map (\kid -> { kid | activity = 0.5 * kid.waywardness }) model.kids
-        , playerActivity = Model.None
-        , newlyAddedKids = []
-        , firstRun = False
-    }
-
 
 message : Msg.UIMessage -> Model.Model -> ( Model.Model, Cmd Msg.Msg )
 message msg model =
@@ -30,7 +22,7 @@ message msg model =
     else
         (case msg of
             Msg.ResumeGame ->
-                (Model.setState (startGame model) Model.Running) ! []
+                (Model.setState (UpdateGame.startGame model) Model.Running) ! []
 
             Msg.RestartGame ->
                 Init.init

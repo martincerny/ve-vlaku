@@ -1,4 +1,4 @@
-module UpdateGame exposing (frame, message)
+module UpdateGame exposing (frame, message, startGame)
 
 import Msg
 import Model
@@ -82,7 +82,7 @@ frame deltaSeconds oldModel =
     in
         { model
             | nervesTarget = updateNervesTarget deltaSeconds model
-            , nerves = model.nerves + (((model.nervesTarget - model.nerves) / gameConstants.nervesTargetFollowingHalfTime) * deltaSeconds)
+            , nerves = UpdateUtils.followTargetValue model.nervesTarget gameConstants.nervesTargetFollowingHalfTime deltaSeconds model.nerves  
             , highActivityScore =
                 let
                     numHighActivityKids =
@@ -169,7 +169,7 @@ message msg model =
 
             Msg.ScheduleOutburst outburstParams ->
                 { model
-                    | kids = updateKidById outburstParams.targetKidId (\kid -> { kid | scheduledOutburst = outburstParams }) model.kids
+                    | kids = updateKidById outburstParams.targetKidId (UpdateKids.scheduleOutburst outburstParams) model.kids
                 }
                     ! []
 
@@ -178,3 +178,14 @@ message msg model =
                     | kids = updateKidById targetKid.id (\kid -> { kid | frustrationRecoveryEvent = Model.Scheduled time }) model.kids
                 }
                     ! []
+
+startGame : Model.Model -> Model.Model
+startGame model =
+    { model
+        | kids = List.map UpdateKids.startGame model.kids
+        , playerActivity = Model.None
+        , nerves = 0
+        , nervesTarget = 0
+        , newlyAddedKids = []
+        , firstRun = False
+    }

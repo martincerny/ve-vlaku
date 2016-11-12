@@ -30,9 +30,10 @@ type alias OutburstParams =
     }
 
 
-type ScheduledEvent =
-    Unscheduled
+type ScheduledEvent
+    = Unscheduled
     | Scheduled Float
+
 
 type alias Kid =
     { id : Int
@@ -47,7 +48,10 @@ type alias Kid =
     , playerDialogCooldown : Float
     , timeSinceLastOutburst : Float
     , scheduledOutburst : OutburstParams
-    , frustrationRecoveryEvent: ScheduledEvent 
+    , frustrationRecoveryEvent : ScheduledEvent
+    , numCalmDowns : Int
+    , numScheduledOutbursts : Int
+    , sumOutburstIntervals : Float
     }
 
 
@@ -74,6 +78,9 @@ defaultKid =
     , timeSinceLastOutburst = 0
     , scheduledOutburst = emptyOutburstParams
     , frustrationRecoveryEvent = Unscheduled
+    , numCalmDowns = 0
+    , numScheduledOutbursts = 0
+    , sumOutburstIntervals = 0
     }
 
 
@@ -111,7 +118,7 @@ type alias Model =
     , timeToWin : Float
     , state : GameState
     , transitionInactivity : Float
-    , nextKidId: Int
+    , nextKidId : Int
     , newlyAddedKids : List Kid
     , firstRun : Bool
     }
