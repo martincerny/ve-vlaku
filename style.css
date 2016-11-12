@@ -187,3 +187,47 @@ td {
 {
     text-decoration: line-through;
 } 
+
+.kidGraphicsContainer
+{
+    position:relative;
+    width:48px;
+    height:64px;
+    /*
+    transform-origin: 0 0;
+    transform: scale(2);
+    -webkit-transform-origin: 0 0;
+    -webkit-transform: scale(2);
+    -ms-transform-origin: 0 0;
+    -ms-transform: scale(2);
+    */
+}
+
+.kidGraphicsContainer img {
+    position:absolute;
+    top:0px;
+    left:0px;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: pixelated;
+    -ms-interpolation-mode: nearest-neighbor;    
+}
+
+.kidGraphicsContainer .kidScarf {
+    top: 16px;
+}
+
+.kidGraphicsContainer .kidBody {
+    top: 20px;
+    left:-2px;
+}
+
+.kidGraphicsContainer .kidArmLeft {
+    transform: scaleX(-1);
+    top: 24px;
+    left: -10px; 
+}
+
+.kidGraphicsContainer .kidArmRight {
+    top: 24px;
+    left: 6px;
+}

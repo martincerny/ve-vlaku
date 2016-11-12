@@ -1,4 +1,4 @@
-module ViewGame exposing (view)
+module ViewGame exposing (view, viewKidGraphics)
 
 import Model exposing (..)
 import GameConstants exposing (..)
@@ -72,6 +72,39 @@ viewEmojiSentence coolDown sentence =
                 coolDown / easeInBorder
     in
         List.map (viewEmoji opacity) sentence
+
+
+viewKidGraphics : Bool -> Model.KidMouthState -> Model.KidGraphics -> Html a
+viewKidGraphics angry mouthState g =
+    let
+        eyes =
+            if angry then
+                g.eyesAngry
+            else
+                g.eyes
+
+        mouth =
+            case mouthState of
+                Happy ->
+                    g.mouthHappy
+
+                Sad ->
+                    g.mouthSad
+
+                Neutral ->
+                    g.mouthNeutral
+    in
+        div [ Attr.class "kidGraphicsContainer" ]
+            [ 
+            img [ Attr.class "kidArmLeft", Attr.src ("img/kids/arms/" ++ g.arm ++ ".png") ] []
+            , img [ Attr.class "kidBody", Attr.src ("img/kids/body/" ++ g.body ++ ".png") ] []
+            , img [ Attr.class "kidArmRight", Attr.src ("img/kids/arms/" ++ g.arm ++ ".png") ] []
+            , img [ Attr.class "kidScarf", Attr.src ("img/kids/scarf/" ++ g.scarf ++ ".png") ] []
+            , img [ Attr.class "kidHead", Attr.src ("img/kids/head/" ++ g.head ++ ".png") ] []
+            , img [ Attr.class "kidEyes", Attr.src ("img/kids/eyes/" ++ eyes ++ ".png") ] []
+            , img [ Attr.class "kidMouth", Attr.src ("img/kids/mouth/" ++ mouth ++ ".png") ] []
+            , img [ Attr.class "kidHair", Attr.src ("img/kids/hair/" ++ g.hair ++ ".png") ] []
+            ]
 
 
 viewKid : PlayerActivity -> Kid -> ( String, Html Msg )
@@ -210,7 +243,7 @@ view model =
                             ++ Utils.fixedWidthNumberFormat 2 ((round model.timeToWin) % 60)
                         )
                     ]
-                    , td [] [ horizontalProgress [] (1 - (model.kids |> List.map .frustration |> Utils.avg)) ]
+                , td [] [ horizontalProgress [] (1 - (model.kids |> List.map .frustration |> Utils.avg)) ]
                 ]
             ]
         ]

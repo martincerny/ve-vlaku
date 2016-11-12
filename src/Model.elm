@@ -1,6 +1,8 @@
 module Model
     exposing
         ( Kid
+        , KidGraphics
+        , KidMouthState(..)
         , OutburstParams
         , Model
         , CalmDownInfo
@@ -9,6 +11,7 @@ module Model
         , GameState(..)
         , LostCause(..)
         , emptyOutburstParams
+        , emptyKidGraphics
         , defaultKid
         , shouldUpdateGame
         , isStateLost
@@ -35,6 +38,21 @@ type ScheduledEvent
     | Scheduled Float
 
 
+type alias KidGraphics =
+    { head : String
+    , eyes : String
+    , eyesAngry : String
+    , mouthHappy : String
+    , mouthSad : String
+    , mouthNeutral : String
+    , hair:String
+    , body : String
+    , scarf : String
+    , arm : String
+    }
+
+type KidMouthState = Happy | Sad | Neutral
+
 type alias Kid =
     { id : Int
     , name : String
@@ -60,6 +78,21 @@ emptyOutburstParams =
     { targetKidId = -1
     , interval = 1 / 0
     , intensity = 0
+    }
+
+
+emptyKidGraphics : KidGraphics
+emptyKidGraphics =
+    { head = ""
+    , eyes = ""
+    , eyesAngry = ""
+    , mouthHappy = ""
+    , mouthSad = ""
+    , mouthNeutral = ""
+    , hair = ""
+    , body = ""
+    , scarf = ""
+    , arm = ""
     }
 
 

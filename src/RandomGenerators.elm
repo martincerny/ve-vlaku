@@ -4,7 +4,6 @@ module RandomGenerators
         , addKidAfterWin
         , timeToWin
         , frustrationRecoveryInterval
-        , exponentialGenerator
         , removeKidsWithBadMood
         , removeKidsAfterMissionFail
         , reduceWaywardness
@@ -17,38 +16,8 @@ import Random
 import Model
 import KidGenerator
 import Utils
+import RandomUtils
 
-
-fixedGenerator : a -> Random.Generator a
-fixedGenerator value =
-    --I do not consume the bool, but there is no way to create my own primitive generator
-    Random.map (\_ -> value) Random.bool
-
-
-listOfGeneratorsToGeneratorOfList : List (Random.Generator a) -> Random.Generator (List a)
-listOfGeneratorsToGeneratorOfList listOfGenerators =
-    case listOfGenerators of
-        head :: tail ->
-            Random.andThen
-                (listOfGeneratorsToGeneratorOfList tail)
-                (\list -> Random.map (\x -> x :: list) head)
-
-        [] ->
-            fixedGenerator []
-
-
-exponentialInverseCDF : Float -> Float -> Float
-exponentialInverseCDF mean y =
-    -mean * logBase e (1 - y)
-
-
-exponentialGenerator : Float -> Float -> Random.Generator Float
-exponentialGenerator minimum mean =
-    let
-        distributionMean =
-            mean - minimum
-    in
-        Random.map (exponentialInverseCDF distributionMean >> (+) minimum) (Random.float 0 1)
 
 
 outburstInterval : Float -> Random.Generator Float
@@ -63,7 +32,7 @@ outburstInterval waywardness =
         actualMeanInterval =
             (minMeanInterval + (1 - waywardness) * (maxMeanInterval - minMeanInterval))
     in
-        exponentialGenerator gameConstants.minOutburstInterval actualMeanInterval
+        RandomUtils.exponentialGenerator gameConstants.minOutburstInterval actualMeanInterval
 
 
 outburstIntensity : Random.Generator Float
@@ -81,7 +50,7 @@ outburstParams kidId waywardness =
 
 frustrationRecoveryInterval : Random.Generator Float
 frustrationRecoveryInterval =
-    exponentialGenerator gameConstants.calmDownFrustrationRecoveryMinInterval gameConstants.calmDownFrustrationRecoveryMeanInterval
+    RandomUtils.exponentialGenerator gameConstants.calmDownFrustrationRecoveryMinInterval gameConstants.calmDownFrustrationRecoveryMeanInterval
 
 
 numKidsToBeAddedAfterWin : Model.Model -> Float -> Int
@@ -133,7 +102,7 @@ shouldKidBeRemovedForBadMood kid =
         in
             Random.map (\x -> x < chanceToRemove) (Random.float 0 1)
     else
-        fixedGenerator False
+        RandomUtils.fixedGenerator False
 
 
 removeKidsWithBadMood : Model.Model -> Random.Generator (List Model.Kid)
@@ -142,7 +111,7 @@ removeKidsWithBadMood model =
         listOfChoicesGenerator =
             model.kids
                 |> List.map shouldKidBeRemovedForBadMood
-                |> listOfGeneratorsToGeneratorOfList
+                |> RandomUtils.listOfGeneratorsToGeneratorOfList
     in
         Random.map (\boolList -> Utils.chooseByBoolList boolList model.kids) listOfChoicesGenerator
 
@@ -205,7 +174,7 @@ shouldKidHaveWaywardnessReduced kid =
         in
             Random.map (\x -> x < chanceToReduce) (Random.float 0 1)
     else
-        fixedGenerator False
+        RandomUtils.fixedGenerator False
 
 
 reduceWaywardness : Model.Model -> Random.Generator (List Model.Kid)
@@ -214,17 +183,20 @@ reduceWaywardness model =
         listOfChoicesGenerator =
             model.kids
                 |> List.map shouldKidHaveWaywardnessReduced
-                |> listOfGeneratorsToGeneratorOfList
+                |> RandomUtils.listOfGeneratorsToGeneratorOfList
     in
         Random.map (\boolList -> Utils.chooseByBoolList boolList model.kids) listOfChoicesGenerator
 
 
 timeToWin : Int -> Random.Generator Float
 timeToWin numKids =
-    let 
-        minimum = max metaGameConstants.minTimeToWin ((toFloat numKids) * metaGameConstants.minTimeToWinPerKid)
-        maximum = (toFloat numKids) * metaGameConstants.maxTimeToWinPerKid
-    in        
+    let
+        minimum =
+            max metaGameConstants.minTimeToWin ((toFloat numKids) * metaGameConstants.minTimeToWinPerKid)
+
+        maximum =
+            (toFloat numKids) * metaGameConstants.maxTimeToWinPerKid
+    in
         Random.float minimum maximum
 
 
