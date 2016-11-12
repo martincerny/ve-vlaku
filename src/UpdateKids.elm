@@ -37,10 +37,7 @@ calmDownFunction nerves kid =
                 | frustration =
                     UpdateUtils.defaultClamp
                         (kid.frustration
-                            + gameConstants.calmDownFrustrationGrowthMin
-                            + ((gameConstants.calmDownFrustrationGrowthMax - gameConstants.calmDownFrustrationGrowthMin)
-                                * (nerves ^ gameConstants.calmDownFrustrationGrowthExponent)
-                              )
+                            + gameConstants.calmDownFrustrationGrowth
                         )
             }
         else
@@ -236,7 +233,7 @@ update playerActivity deltaSeconds kids =
 startGame : Model.Kid -> Model.Kid
 startGame kid =
     { kid
-        | activity = 0.5 * kid.waywardness
+        | activity = 0
         , frustration = 0
         , mutedCooldown = 0
         , shownKidDialog = Emojis.nothing

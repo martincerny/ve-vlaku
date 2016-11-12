@@ -98,6 +98,7 @@ message msg model =
                                 else
                                     kid
                             )
+                   , kidsWithReducedWaywardness = kidsToReduce
                 }
     )
         ! []

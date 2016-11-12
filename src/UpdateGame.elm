@@ -6,7 +6,8 @@ import GameConstants exposing (gameConstants)
 import UpdateUtils
 import UpdateKids
 import UpdateMetaGame
-
+import RandomGenerators
+import Random
 
 --return new nerves
 
@@ -162,11 +163,23 @@ message msg model =
                     | kids = updateKidById targetKid.id (\kid -> { kid | frustrationRecoveryEvent = Model.Scheduled time }) model.kids
                 }
                     ! []
+            
+            Msg.InitFrustration targetKid frustration ->
+                { model
+                    | kids = updateKidById targetKid.id (\kid -> { kid | frustration = frustration }) model.kids
+                }
+                    ! []
+
+            Msg.InitActivity targetKid activity ->
+                { model
+                    | kids = updateKidById targetKid.id (\kid -> { kid | activity = activity }) model.kids
+                }
+                    ! []
 
 
-startGame : Model.Model -> Model.Model
+startGame : Model.Model -> (Model.Model, List (Cmd Msg.Msg))
 startGame model =
-    { model
+    ({ model
         | nerves = 0
         , nervesTarget = 0
         , kids = List.map UpdateKids.startGame model.kids
@@ -177,4 +190,18 @@ startGame model =
         , removedKidsAfterMissionFail = []
         , kidsWithReducedWaywardness = []
         , firstRun = False
-    }
+    }, 
+    (List.map 
+        (\kid -> 
+            Random.generate (Msg.gameMsg (Msg.InitFrustration kid)) (RandomGenerators.frustrationInit kid) 
+            ) 
+        model.kids
+    )
+     ++
+    (List.map 
+        (\kid -> 
+            Random.generate (Msg.gameMsg (Msg.InitActivity kid)) (RandomGenerators.activityInit kid) 
+            ) 
+        model.kids
+    )
+    )

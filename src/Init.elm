@@ -9,7 +9,7 @@ import RandomGenerators
 
 initialKids : Int
 initialKids =
-    10
+    4
 
 
 init : ( Model.Model, Cmd Msg.Msg )

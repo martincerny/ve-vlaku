@@ -45,15 +45,10 @@ gameConstants =
     , calmDownMutedTime =
         0.1
         -- seconds
-    , calmDownFrustrationGrowthMax =
+    , calmDownFrustrationGrowth =
         0.5
-        --growth at max nerves
-    , calmDownFrustrationGrowthMin =
-        0.5
-        --growth at min nerves
-    , calmDownFrustrationGrowthExponent = 0.8
     , frustrationRecovery =
-        0.01
+        0.00
         -- when nothing happens, per second
     , dialogCooldown =
         3

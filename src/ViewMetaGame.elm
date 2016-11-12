@@ -46,7 +46,14 @@ missionSummary model =
                             "Výprava se nevydařila, žádné nové děti nepřijdou."
 
                         _ ->
-                            "Žádné nové děti. Nové děti přijdou, když oddíl skončí výlet s dobrou náladou."
+                            let
+                                meanFrustration =
+                                    model.kids |> List.map .frustration |> Utils.avg
+                            in
+                                if meanFrustration < metaGameConstants.maximalMeanFrustrationToAddKid then                                            
+                                    "Žádné nové děti. Nové děti mohou přijít, když oddíl skončí výlet s lepší celkovou náladou."
+                                else
+                                    "Žádné nové děti. Oddíl měl dobrou náladu, jen to holt nevyšlo."
                     )
                 ]
              else

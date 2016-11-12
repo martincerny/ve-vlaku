@@ -8,6 +8,8 @@ module RandomGenerators
         , removeKidsWithBadMood
         , removeKidsAfterMissionFail
         , reduceWaywardness
+        , frustrationInit
+        , activityInit
         )
 
 import GameConstants exposing (..)
@@ -86,7 +88,7 @@ shouldKidBeAddedAfterWin : Model.Model -> Float -> Bool
 shouldKidBeAddedAfterWin model randomValue =
     let
         meanFrustration =
-            (model.kids |> List.map .frustration |> List.sum) / (toFloat (List.length model.kids))
+            model.kids |> List.map .frustration |> Utils.avg
     in
         if meanFrustration < metaGameConstants.maximalMeanFrustrationToAddKid then
             let
@@ -180,7 +182,8 @@ removeKidsAfterMissionFail model =
 
 shouldKidHaveWaywardnessReduced : Model.Kid -> Random.Generator Bool
 shouldKidHaveWaywardnessReduced kid =
-    if kid.frustration < metaGameConstants.maxFrustrationToConsiderReducingWaywardness then
+    if kid.frustration < metaGameConstants.maxFrustrationToConsiderReducingWaywardness
+     && kid.waywardness > metaGameConstants.minimalWaywardness then
         let
             chanceToReduce =
                 ((metaGameConstants.maxFrustrationToConsiderReducingWaywardness - kid.frustration) / (metaGameConstants.maxFrustrationToConsiderReducingWaywardness))
@@ -204,7 +207,15 @@ reduceWaywardness model =
 
 timeToWin : Int -> Random.Generator Float
 timeToWin numKids =
-    if numKids < 4 then
+    if numKids <= 5 then
         Random.float 30 60
     else
         Random.float 45 90
+
+frustrationInit : Model.Kid -> Random.Generator Float
+frustrationInit _ =
+    Random.float 0 1
+
+activityInit : Model.Kid -> Random.Generator Float
+activityInit kid =
+    Random.float 0 (min (gameConstants.highActivityThreshold - 0.1)  kid.waywardness)
