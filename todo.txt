@@ -1,9 +1,17 @@
+- Nervy dát k hráči
+- Blikat nervy
+- Nervy vyplňovat
+- Rozdíly ve zlobivosti by měly vést k větším rozdílům v chování + textový popis zlobivosti
+
+- Generovat waywardness tak, abych na začátku měl hodně různě zlobivé děti
+
 - Na začátku mise randomizovat rozjetost
 
 - Zlobení - rozjeté dítě může excitovat (jednorázově) souseda
 - Generovat děti + délku cesty
 - Kampaň: Děti mi zůstávají.
   - Failnuté mise (nervy) lze hrát znovu ze stejného výchozího stavu. Failnuté přes průvodčího se neopakují (aby se tím ladila obtížnost)
+  - Při failnutí může odejíž dítě z oddílu - častěji odcházejí ty poslušnější
   - Ty děti, kterým celou hru nestoupla naštvanost nad určitou mez mají šanci, že jim klesne neposlušnost.
   - Ty děti, které skončily s vysokou naštvaností mají šanci, že odejdou z oddílu
   - Pokud mě nevyhodili z vlaku a maximální naštvanost byla malá, přijde mi nové dítě
@@ -19,10 +27,7 @@
 
 
 
-- Nervy dát k hráči
-- Blikat nervy
-- Nervy vyplňovat
-- Zdůraznit že rozjetost se snižuje postupně a ne naráz
-- Rozdíly ve zlobivosti by měly vést k větším rozdílům v chování + textový popis zlobivosti
-- Uklidnění sníží rozjetost vždy na nula (ale nervy rostou postupně)
 
+- Napsat na Elm-list kvůli exposing
+- Navrhnout rozsireni Basics o List.get (dle indexu)
+- Navrhnout rozsireni Random o fixedGenerator a permutationGenerator

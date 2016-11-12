@@ -177,8 +177,13 @@ td {
     max-height:40px;
 }
 
-.newKidsContainer 
+.newKidsContainer, .reducedWaywardnessKidContainer, .removedFrustratedKidsContainer, .removedKidsAfterMissionFailedContainer 
 {
     font-size: 14;
     font-weight:bold;    
 }
+
+.removedKid *
+{
+    text-decoration: line-through;
+} 

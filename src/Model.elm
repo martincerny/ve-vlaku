@@ -120,6 +120,9 @@ type alias Model =
     , transitionInactivity : Float
     , nextKidId : Int
     , newlyAddedKids : List Kid
+    , removedFrustratedKids : List Kid
+    , removedKidsAfterMissionFail : List Kid
+    , kidsWithReducedWaywardness : List Kid
     , firstRun : Bool
     }
 
@@ -136,7 +139,7 @@ setState model state =
             if model.state == state then
                 model.transitionInactivity
             else
-                gameConstants.transitionInactivity
+                uiConstants.transitionInactivity
     }
 
 

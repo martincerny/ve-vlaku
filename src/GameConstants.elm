@@ -1,4 +1,4 @@
-module GameConstants exposing (gameConstants)
+module GameConstants exposing (gameConstants, uiConstants, metaGameConstants)
 
 
 gameConstants =
@@ -46,10 +46,10 @@ gameConstants =
         0.1
         -- seconds
     , calmDownFrustrationGrowthMax =
-        0.3
+        0.5
         --growth at max nerves
     , calmDownFrustrationGrowthMin =
-        0.3
+        0.5
         --growth at min nerves
     , calmDownFrustrationGrowthExponent = 0.8
     , frustrationRecovery =
@@ -70,7 +70,7 @@ gameConstants =
         2
         --minimal time between two outbursts (seconds)
     , meanOutburstIntervalMax =
-        30.0
+        45.0
         --mean outburst at 0 waywardness
     , meanOutburstIntervalMin =
         3.0
@@ -81,12 +81,37 @@ gameConstants =
     , outburstMaxActivityGrowth =
         0.9
         --activity growth at max outburst intensity and max waywardness
-    , transitionInactivity =
+    }
+
+
+uiConstants =
+    { transitionInactivity =
         0.5
         -- GUI parameter (how long to prevent clicks after a transition)
-    , maximalMeanFrustrationToAddKid =
+    }
+
+
+metaGameConstants =
+    { maximalMeanFrustrationToAddKid =
         0.5
     , maximalChanceOfAddingKid =
         0.9
         --at 0 mean frustration
+    , minFrustrationToConsiderRemovingKid =
+        0.7
+    , maxChanceOfRemovingKidForFrustration =
+        0.8
+    , numKidsFor50PercentChanceRemovalAfterMissionFail =
+        4
+    , minKidsToKeep =
+        3
+    , maxFrustrationToConsiderReducingWaywardness =
+        0.2
+    , maxChanceOfReducingWaywardness =
+        0.8
+    , waywardnessReduction =
+        0.2
+        --The reduction after the kid completes with little frustration
+    , minimalWaywardness =
+        0.2
     }

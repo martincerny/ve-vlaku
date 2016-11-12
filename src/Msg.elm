@@ -24,8 +24,9 @@ type GameMessage
 
 type MetaGameMessage
     = AddKids (List Model.Kid)
-    | ReduceWaywardness (List Int) --the parameter is list of IDs
-    | RemoveFrustratedKids (List Int) --the parameter is list of IDs
+    | ReduceWaywardness (List Model.Kid) 
+    | RemoveFrustratedKids (List Model.Kid)
+    | RemoveKidsAfterMissionFail (List Model.Kid)
     | SetTimeToWin Float
 
 type UIMessage

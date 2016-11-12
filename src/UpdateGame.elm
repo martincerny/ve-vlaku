@@ -4,9 +4,8 @@ import Msg
 import Model
 import GameConstants exposing (gameConstants)
 import UpdateUtils
-import Random
-import RandomGenerators
 import UpdateKids
+import UpdateMetaGame
 
 
 --return new nerves
@@ -43,21 +42,6 @@ updateActivity deltaSeconds model =
             model
 
 
-commandsForStateChange : Model.GameState -> Model.Model -> List (Cmd Msg.Msg)
-commandsForStateChange oldState model =
-    if oldState == model.state then
-        []
-    else
-        case model.state of
-            Model.Won ->
-                [ Random.generate (Msg.metaGameMsg Msg.AddKids) (RandomGenerators.addKidAfterWin model)
-                , Random.generate (Msg.metaGameMsg Msg.SetTimeToWin) (RandomGenerators.timeToWin (List.length model.kids))
-                ]
-
-            _ ->
-                []
-
-
 frame : Float -> Model.Model -> ( Model.Model, Cmd Msg.Msg )
 frame deltaSeconds oldModel =
     let
@@ -75,14 +59,14 @@ frame deltaSeconds oldModel =
                 |> updateActivity deltaSeconds
 
         additionalCommands =
-            commandsForStateChange oldModel.state model
+            UpdateMetaGame.commandsForStateChange oldModel.state model
 
         updatedKids =
             UpdateKids.update oldModel.playerActivity deltaSeconds oldModel.kids
     in
         { model
             | nervesTarget = updateNervesTarget deltaSeconds model
-            , nerves = UpdateUtils.followTargetValue model.nervesTarget gameConstants.nervesTargetFollowingHalfTime deltaSeconds model.nerves  
+            , nerves = UpdateUtils.followTargetValue model.nervesTarget gameConstants.nervesTargetFollowingHalfTime deltaSeconds model.nerves
             , highActivityScore =
                 let
                     numHighActivityKids =
@@ -179,13 +163,18 @@ message msg model =
                 }
                     ! []
 
+
 startGame : Model.Model -> Model.Model
 startGame model =
     { model
-        | kids = List.map UpdateKids.startGame model.kids
-        , playerActivity = Model.None
-        , nerves = 0
+        | nerves = 0
         , nervesTarget = 0
+        , kids = List.map UpdateKids.startGame model.kids
+        , playerActivity = Model.None
+        , highActivityScore = 0
         , newlyAddedKids = []
+        , removedFrustratedKids = []
+        , removedKidsAfterMissionFail = []
+        , kidsWithReducedWaywardness = []
         , firstRun = False
     }

@@ -38,7 +38,7 @@ nicknameGenerator gender =
                 Female ->
                     Nicknames.femaleNicknames
     in
-        Random.int 0 (Array.length nicknames)
+        Random.int 0 ((Array.length nicknames) - 1)
             |> Random.map (\index -> Array.get index nicknames)
             |> Random.map (Maybe.withDefault "N/A")
 
