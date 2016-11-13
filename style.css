@@ -3,38 +3,19 @@ font-size: 20;
 font-variant: bold;
 }
 
+img {
+    image-rendering: -moz-crisp-edges;
+    image-rendering: pixelated;
+    -ms-interpolation-mode: nearest-neighbor;    
+}
+
 td {
     text-align:center;
 }
 
 .kid
 {
-    padding:10px;
-    margin:10px;
-    border: 3px white solid;
-}
-
-.kid.increasesNerves
-{
-    border: 3px yellow solid;
-}
-
-.kid.highActivity
-{
-    border: 3px red solid;
-}
-
-.muted
-{
-    border: 3px gray solid;
-    text-decoration: line-through;
-    background-color: #CCCCCC;
-    color: #505050;
-}
-
-.muted *
-{
-    text-decoration: line-through;
+   position:absolute; 
 }
 
 .nervesDisplay
@@ -115,7 +96,7 @@ td {
 
 .kid .horizontalProgressContainer
 {
-    width : 50px;
+    width : 32px;
 }
 
 .kid .small *
@@ -203,31 +184,92 @@ td {
     */
 }
 
-.kidGraphicsContainer img {
+.kidGraphicsContainer img, .playerContainer img {
     position:absolute;
     top:0px;
     left:0px;
-    image-rendering: -moz-crisp-edges;
-    image-rendering: pixelated;
-    -ms-interpolation-mode: nearest-neighbor;    
 }
 
-.kidGraphicsContainer .kidScarf {
+.kidGraphicsContainer .scarf {
     top: 16px;
 }
 
-.kidGraphicsContainer .kidBody {
+.kidGraphicsContainer .body {
     top: 20px;
     left:-2px;
 }
 
-.kidGraphicsContainer .kidArmLeft {
+.flip, .armLeft, .legRight {
     transform: scaleX(-1);
+}
+
+.kidGraphicsContainer .armLeft {
     top: 24px;
     left: -10px; 
 }
 
-.kidGraphicsContainer .kidArmRight {
+.kidGraphicsContainer .armRight {
     top: 24px;
     left: 6px;
+}
+
+.allKidsContainer {
+    position:absolute;
+    width:100%;
+    height:100%;
+}
+
+.train {
+    position:absolute;
+    width:100%;
+    height:100%;
+    pointer-events: none;
+}
+
+.train * 
+{
+    pointer-events: none;    
+}
+
+.train .window {
+    position:absolute;
+}
+
+.playerContainer {
+    position : absolute;
+}
+
+.playerContainer .head {
+    top: 2px;
+    left: 2px;
+}
+
+.playerContainer .scarf {
+    top: 18px;
+    left: 2px;
+}
+
+.playerContainer .body {
+    top: 22px;
+    left:0px;
+}
+
+.playerContainer .armLeft {
+    top: 26px;
+    left: -8px; 
+}
+
+.playerContainer .armRight {
+    top: 26px;
+    left: 8px;
+}
+
+.playerContainer .legLeft {
+    top: 48px;
+    left: -4px;
+}
+
+.playerContainer .legRight {
+    top: 48px;
+    left: 4px;
 }

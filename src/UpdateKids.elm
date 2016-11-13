@@ -61,8 +61,6 @@ scheduleOutburst : Model.OutburstParams -> Model.Kid -> Model.Kid
 scheduleOutburst outburstParams kid =
     { kid
         | scheduledOutburst = outburstParams
-        , numScheduledOutbursts = kid.numScheduledOutbursts + 1
-        , sumOutburstIntervals = kid.sumOutburstIntervals + outburstParams.interval
     }
 
 
@@ -245,6 +243,4 @@ startGame kid =
         , scheduledOutburst = Model.emptyOutburstParams
         , frustrationRecoveryEvent = Model.Unscheduled
         , numCalmDowns = 0
-        , numScheduledOutbursts = 0
-        , sumOutburstIntervals = 0
     }

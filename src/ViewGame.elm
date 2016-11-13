@@ -11,6 +11,25 @@ import Utils
 import Emojis
 
 
+kidPositions : List ( Int, Int )
+kidPositions =
+    let
+        baseY =
+            42
+    in
+        [ ( 24, baseY ), ( 72, baseY ), ( 152, baseY ), ( 200, baseY ) ]
+
+
+windowPositions : List ( Int, Int )
+windowPositions =
+    [ ( 0, 0 ), ( 128, 0 ) ]
+
+
+positionToStyle : ( Int, Int ) -> List ( String, String )
+positionToStyle ( x, y ) =
+    [ ( "top", toString y ++ "px" ), ( "left", toString x ++ "px" ) ]
+
+
 valueToStyle : Float -> ( String, String )
 valueToStyle value =
     ( "background-color", "rgb(" ++ (toString (144 + round (112 * value))) ++ ",200,200)" )
@@ -95,49 +114,70 @@ viewKidGraphics angry mouthState g =
                     g.mouthNeutral
     in
         div [ Attr.class "kidGraphicsContainer" ]
-            [ 
-            img [ Attr.class "kidArmLeft", Attr.src ("img/kids/arms/" ++ g.arm ++ ".png") ] []
-            , img [ Attr.class "kidBody", Attr.src ("img/kids/body/" ++ g.body ++ ".png") ] []
-            , img [ Attr.class "kidArmRight", Attr.src ("img/kids/arms/" ++ g.arm ++ ".png") ] []
-            , img [ Attr.class "kidScarf", Attr.src ("img/kids/scarf/" ++ g.scarf ++ ".png") ] []
-            , img [ Attr.class "kidHead", Attr.src ("img/kids/head/" ++ g.head ++ ".png") ] []
-            , img [ Attr.class "kidEyes", Attr.src ("img/kids/eyes/" ++ eyes ++ ".png") ] []
-            , img [ Attr.class "kidMouth", Attr.src ("img/kids/mouth/" ++ mouth ++ ".png") ] []
-            , img [ Attr.class "kidHair", Attr.src ("img/kids/hair/" ++ g.hair ++ ".png") ] []
+            [ img [ Attr.class "armLeft", Attr.src ("img/kids/arms/" ++ g.arm ++ ".png") ] []
+            , img [ Attr.class "body", Attr.src ("img/kids/body/" ++ g.body ++ ".png") ] []
+            , img [ Attr.class "armRight", Attr.src ("img/kids/arms/" ++ g.arm ++ ".png") ] []
+            , img [ Attr.class "scarf", Attr.src ("img/kids/scarf/" ++ g.scarf ++ ".png") ] []
+            , img [ Attr.class "head", Attr.src ("img/kids/head/" ++ g.head ++ ".png") ] []
+            , img [ Attr.class "eyes", Attr.src ("img/kids/eyes/" ++ eyes ++ ".png") ] []
+            , img [ Attr.class "mouth", Attr.src ("img/kids/mouth/" ++ mouth ++ ".png") ] []
+            , img [ Attr.class "hair", Attr.src ("img/kids/hair/" ++ g.hair ++ ".png") ] []
             ]
 
 
-viewKid : PlayerActivity -> Kid -> ( String, Html Msg )
-viewKid playerActivity kid =
-    ( toString kid.id
-    , td
-        [ Attr.style
-            (if isMuted kid then
-                []
-             else
-                [ valueToStyle kid.activity ]
-            )
-        , Attr.classList
-            [ ( "kid", True )
-            , ( "muted", isMuted kid )
-            , ( "highActivity", isKidHighActivity kid )
-            , ( "increasesNerves", isKidAnnoying kid )
-            ]
-        , Events.onClick (Game (CalmDownStarted kid))
-        ]
-        [ table []
-            [ tr [] [ td [] [ text ("Rozjetost: ") ], td [] [ horizontalProgress [] kid.activity ] ]
-            , tr [] [ td [] [ text ("Nálada: ") ], td [] [ horizontalProgress [] (1 - kid.frustration) ] ]
-            , tr [ Attr.class "small" ] [ td [] [ text ("Zlobivost: ") ], td [] [ text (toString (round (kid.waywardness * 10)) ++ "/10") ] ]
-            , tr [ Attr.class "small" ] [ td [] [ text ("Kliků: ") ], td [] [ text (toString kid.numCalmDowns) ] ]
-            , tr [ Attr.class "small" ]
-                [ td [] [ text ("Avg int.: ") ]
-                , td [] [ text (toString (kid.sumOutburstIntervals / (toFloat kid.numScheduledOutbursts))) ]
+viewKid : PlayerActivity -> Int -> Kid -> ( String, Html Msg )
+viewKid playerActivity positionId kid =
+    let
+        ( baseX, baseY ) =
+            Utils.listGet positionId kidPositions
+                |> Maybe.withDefault ( 300, 300 )
+
+        position =
+            case playerActivity of
+                CalmDownKid calmDownInfo ->
+                    if calmDownInfo.kidId == kid.id then
+                        if positionId % 2 == 0 then
+                            ( baseX + 16, baseY )
+                        else
+                            ( baseX - 16, baseY )
+                    else
+                        ( baseX, baseY )
+
+                _ ->
+                    ( baseX, baseY )
+
+        angry =
+            if isMuted kid then
+                False
+            else
+                kid.scheduledOutburst.interval < 1
+
+        mouthState =
+            if kid.frustration > metaGameConstants.minFrustrationToConsiderRemovingKid then
+                Model.Sad
+            else if kid.frustration < metaGameConstants.maxFrustrationToConsiderReducingWaywardness then
+                Model.Happy
+            else
+                Model.Neutral
+    in
+        ( toString kid.id
+        , div
+            [ Attr.classList
+                [ ( "kid", True )
+                , ( "muted", isMuted kid )
+                , ( "highActivity", isKidHighActivity kid )
+                , ( "increasesNerves", isKidAnnoying kid )
                 ]
+            , Attr.style (positionToStyle position)
+            , Events.onClick (Game (CalmDownStarted kid))
             ]
-        , div [] [ text (kid.name) ]
-        ]
-    )
+            [ viewKidGraphics angry mouthState kid.graphics
+            , div [ Attr.class "activityBar" ] [ horizontalProgress [] kid.activity ]
+            , div [ Attr.class "frustrationBar" ] [ horizontalProgress [] (1 - kid.frustration) ]
+              --            , tr [ Attr.class "small" ] [ td [] [ text ("Zlobivost: ") ], td [] [ text (toString (round (kid.waywardness * 10)) ++ "/10") ] ]
+            , div [ Attr.class "kidName" ] [ text (kid.name) ]
+            ]
+        )
 
 
 viewKidDialog : Kid -> Html Msg
@@ -160,21 +200,46 @@ viewPlayerDialog kid =
         )
 
 
-viewPlayerNextToKid : Model -> Kid -> Html Msg
-viewPlayerNextToKid model kid =
+viewPlayer : Model -> Html Msg
+viewPlayer model =
     let
-        playerHere =
+        ( position, flip ) =
             case model.playerActivity of
                 CalmDownKid calmDownInfo ->
-                    calmDownInfo.kidId == kid.id
+                    let
+                        ( offsetX, shouldFlip ) =
+                            if calmDownInfo.kidId % 2 == 0 then
+                                ( 16, True )
+                            else
+                                ( 16, False )
+
+                        ( baseX, baseY ) =
+                            Utils.listGet calmDownInfo.kidId kidPositions
+                                |> Maybe.withDefault ( 300, 300 )
+                    in
+                        ( ( baseX + offsetX, baseY - 16 ), shouldFlip )
 
                 _ ->
-                    False
+                    ( ( 300, 300 ), False )
     in
-        if playerHere then
-            td [ Attr.class "playerAtKid" ] [ text ("(tu sedíš)") ]
-        else
-            td [] []
+        div
+            [ Attr.classList [ ( "playerContainer", True ), ( "flip", flip ) ]
+            , Attr.style (positionToStyle position)
+            ]
+            [ img [ Attr.class "legLeft", Attr.src "img/leader/leg_leader.png" ] []
+            , img [ Attr.class "legRight", Attr.src "img/leader/leg_leader.png" ] []
+            , img [ Attr.class "armLeft", Attr.src "img/leader/arm_leader.png" ] []
+            , img [ Attr.class "body", Attr.src "img/leader/body_leader.png" ] []
+            , img [ Attr.class "armRight", Attr.src "img/leader/arm_leader.png" ] []
+            , img [ Attr.class "scarf", Attr.src "img/leader/scarf_leader.png" ] []
+            , img [ Attr.class "head", Attr.src "img/leader/head_leader.png" ] []
+            , img [ Attr.class "hat", Attr.src "img/leader/hat_leader.png" ] []
+            ]
+
+
+viewWindow : ( Int, Int ) -> Html Msg
+viewWindow position =
+    img [ Attr.class "trainWindow", Attr.style (positionToStyle position), Attr.src "img/train/window.png" ] []
 
 
 view : Model -> Html Msg
@@ -182,11 +247,16 @@ view model =
     div
         [ Attr.style [ nervesToStyle model.nerves ]
         ]
-        [ table []
-            [ Keyed.node "tr" [] (List.map (viewKid model.playerActivity) model.kids)
-            , tr [] (List.map viewKidDialog model.kids)
+        [ Keyed.node "div"
+            [ Attr.class "allKidsContainer" ]
+            (( "player", viewPlayer model )
+                :: (List.indexedMap (viewKid model.playerActivity) model.kids)
+            )
+        , div [ Attr.class "train" ]
+            (List.map viewWindow windowPositions)
+        , table []
+            [ tr [] (List.map viewKidDialog model.kids)
             , tr [] (List.map viewPlayerDialog model.kids)
-            , tr [ Attr.class "playerRow" ] (List.map (viewPlayerNextToKid model) model.kids)
             ]
         , div
             [ Attr.classList

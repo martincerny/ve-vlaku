@@ -51,18 +51,18 @@ waywardnessGenerator =
     Random.float 0.5 1
 
 
-kidFromProperties : String -> Float -> Model.Kid
-kidFromProperties name waywardness =
+kidFromProperties : String -> Float -> Model.KidGraphics -> Model.Kid
+kidFromProperties name waywardness graphics =
     let
         defaultKid =
             Model.defaultKid
     in
-        { defaultKid | name = name, waywardness = waywardness }
+        { defaultKid | name = name, waywardness = waywardness, graphics = graphics }
 
 
 generatorKnownGender : Gender -> Random.Generator Model.Kid
 generatorKnownGender gender =
-    Random.map2 (kidFromProperties) (nicknameGenerator gender) (waywardnessGenerator)
+    Random.map3 (kidFromProperties) (nicknameGenerator gender) (waywardnessGenerator) graphicsGenerator
 
 
 generator : Random.Generator Model.Kid

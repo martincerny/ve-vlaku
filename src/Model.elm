@@ -68,8 +68,7 @@ type alias Kid =
     , scheduledOutburst : OutburstParams
     , frustrationRecoveryEvent : ScheduledEvent
     , numCalmDowns : Int
-    , numScheduledOutbursts : Int
-    , sumOutburstIntervals : Float
+    , graphics: KidGraphics
     }
 
 
@@ -112,8 +111,7 @@ defaultKid =
     , scheduledOutburst = emptyOutburstParams
     , frustrationRecoveryEvent = Unscheduled
     , numCalmDowns = 0
-    , numScheduledOutbursts = 0
-    , sumOutburstIntervals = 0
+    , graphics = emptyKidGraphics
     }
 
 
