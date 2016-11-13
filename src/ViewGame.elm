@@ -113,7 +113,7 @@ viewKidGraphics angry mouthState g =
                 Neutral ->
                     g.mouthNeutral
     in
-        div [ Attr.class "kidGraphicsContainer" ]
+        div [ Attr.classList [("kidGraphicsContainer", True), ("angry", angry) ] ]
             [ img [ Attr.class "armLeft", Attr.src ("img/kids/arms/" ++ g.arm ++ ".png") ] []
             , img [ Attr.class "body", Attr.src ("img/kids/body/" ++ g.body ++ ".png") ] []
             , img [ Attr.class "armRight", Attr.src ("img/kids/arms/" ++ g.arm ++ ".png") ] []
@@ -124,25 +124,26 @@ viewKidGraphics angry mouthState g =
             , img [ Attr.class "hair", Attr.src ("img/kids/hair/" ++ g.hair ++ ".png") ] []
             ]
 
-getKidPosition : PlayerActivity -> Int -> Kid -> (Int, Int)
+
+getKidPosition : PlayerActivity -> Int -> Kid -> ( Int, Int )
 getKidPosition playerActivity positionId kid =
     let
         ( baseX, baseY ) =
             Utils.listGet positionId kidPositions
                 |> Maybe.withDefault ( 300, 300 )
     in
-            case playerActivity of
-                CalmDownKid calmDownInfo ->
-                    if calmDownInfo.kidId == kid.id then
-                        if positionId % 2 == 0 then
-                            ( baseX + 16, baseY )
-                        else
-                            ( baseX - 16, baseY )
+        case playerActivity of
+            CalmDownKid calmDownInfo ->
+                if calmDownInfo.kidId == kid.id then
+                    if positionId % 2 == 0 then
+                        ( baseX + 16, baseY )
                     else
-                        ( baseX, baseY )
-
-                _ ->
+                        ( baseX - 16, baseY )
+                else
                     ( baseX, baseY )
+
+            _ ->
+                ( baseX, baseY )
 
 
 viewKid : PlayerActivity -> Int -> Kid -> ( String, Html Msg )
@@ -154,8 +155,12 @@ viewKid playerActivity positionId kid =
         angry =
             if isMuted kid then
                 False
+            else if (kid.timeSinceLastOutburst < 0.5 && kid.kidDialogCooldown > 0) then
+                True
+            else if (kid.scheduledOutburst.interval - kid.timeSinceLastOutburst) < 0.5 then
+                True
             else
-                kid.scheduledOutburst.interval < 1
+                False
 
         mouthState =
             if kid.frustration > metaGameConstants.minFrustrationToConsiderRemovingKid then
@@ -198,8 +203,7 @@ viewKidUI playerActivity positionId kid =
             , Attr.style (positionToStyle position)
             , Events.onClick (Game (CalmDownStarted kid))
             ]
-            [ 
-            viewKidDialog kid
+            [ viewKidDialog kid
             , div [ Attr.class "activityBar" ] [ horizontalProgress [] kid.activity ]
             , div [ Attr.class "frustrationBar" ] [ horizontalProgress [] (1 - kid.frustration) ]
               --            , tr [ Attr.class "small" ] [ td [] [ text ("Zlobivost: ") ], td [] [ text (toString (round (kid.waywardness * 10)) ++ "/10") ] ]
@@ -207,13 +211,14 @@ viewKidUI playerActivity positionId kid =
             ]
         )
 
+
 viewKidDialog : Kid -> Html Msg
 viewKidDialog kid =
-        (if kid.kidDialogCooldown > 0 then
-            div [ Attr.class "kidDialog" ] (viewEmojiSentence kid.kidDialogCooldown kid.shownKidDialog)
-         else
-            text ""
-        )
+    (if kid.kidDialogCooldown > 0 then
+        div [ Attr.class "kidDialog" ] (viewEmojiSentence kid.kidDialogCooldown kid.shownKidDialog)
+     else
+        text ""
+    )
 
 
 viewPlayerDialog : Kid -> Html Msg
@@ -282,7 +287,7 @@ view model =
             (List.map viewWindow windowPositions)
         , Keyed.node "div"
             [ Attr.class "allKidsUIContainer" ]
-                (List.indexedMap (viewKidUI model.playerActivity) model.kids)
+            (List.indexedMap (viewKidUI model.playerActivity) model.kids)
         , table []
             [ tr [] (List.map viewKidDialog model.kids)
             , tr [] (List.map viewPlayerDialog model.kids)

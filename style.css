@@ -167,6 +167,10 @@ td {
     top: 16px;
 }
 
+.kidGraphicsContainer.angry .head, .kidGraphicsContainer.angry .eyes, .kidGraphicsContainer.angry .hair, .kidGraphicsContainer.angry .mouth {
+    top:1px;
+}
+
 .kidGraphicsContainer .body {
     top: 20px;
     left:-2px;
