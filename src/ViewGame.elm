@@ -124,15 +124,13 @@ viewKidGraphics angry mouthState g =
             , img [ Attr.class "hair", Attr.src ("img/kids/hair/" ++ g.hair ++ ".png") ] []
             ]
 
-
-viewKid : PlayerActivity -> Int -> Kid -> ( String, Html Msg )
-viewKid playerActivity positionId kid =
+getKidPosition : PlayerActivity -> Int -> Kid -> (Int, Int)
+getKidPosition playerActivity positionId kid =
     let
         ( baseX, baseY ) =
             Utils.listGet positionId kidPositions
                 |> Maybe.withDefault ( 300, 300 )
-
-        position =
+    in
             case playerActivity of
                 CalmDownKid calmDownInfo ->
                     if calmDownInfo.kidId == kid.id then
@@ -145,6 +143,13 @@ viewKid playerActivity positionId kid =
 
                 _ ->
                     ( baseX, baseY )
+
+
+viewKid : PlayerActivity -> Int -> Kid -> ( String, Html Msg )
+viewKid playerActivity positionId kid =
+    let
+        position =
+            getKidPosition playerActivity positionId kid
 
         angry =
             if isMuted kid then
@@ -172,6 +177,29 @@ viewKid playerActivity positionId kid =
             , Events.onClick (Game (CalmDownStarted kid))
             ]
             [ viewKidGraphics angry mouthState kid.graphics
+            ]
+        )
+
+
+viewKidUI : PlayerActivity -> Int -> Kid -> ( String, Html Msg )
+viewKidUI playerActivity positionId kid =
+    let
+        position =
+            getKidPosition playerActivity positionId kid
+    in
+        ( toString kid.id
+        , div
+            [ Attr.classList
+                [ ( "kidUI", True )
+                , ( "muted", isMuted kid )
+                , ( "highActivity", isKidHighActivity kid )
+                , ( "increasesNerves", isKidAnnoying kid )
+                ]
+            , Attr.style (positionToStyle position)
+            , Events.onClick (Game (CalmDownStarted kid))
+            ]
+            [ 
+            viewKidDialog kid
             , div [ Attr.class "activityBar" ] [ horizontalProgress [] kid.activity ]
             , div [ Attr.class "frustrationBar" ] [ horizontalProgress [] (1 - kid.frustration) ]
               --            , tr [ Attr.class "small" ] [ td [] [ text ("Zlobivost: ") ], td [] [ text (toString (round (kid.waywardness * 10)) ++ "/10") ] ]
@@ -179,14 +207,12 @@ viewKid playerActivity positionId kid =
             ]
         )
 
-
 viewKidDialog : Kid -> Html Msg
 viewKidDialog kid =
-    td [ Attr.class "dialogCell" ]
         (if kid.kidDialogCooldown > 0 then
-            [ div [ Attr.class "kidDialog" ] (viewEmojiSentence kid.kidDialogCooldown kid.shownKidDialog) ]
+            div [ Attr.class "kidDialog" ] (viewEmojiSentence kid.kidDialogCooldown kid.shownKidDialog)
          else
-            []
+            text ""
         )
 
 
@@ -254,6 +280,9 @@ view model =
             )
         , div [ Attr.class "train" ]
             (List.map viewWindow windowPositions)
+        , Keyed.node "div"
+            [ Attr.class "allKidsUIContainer" ]
+                (List.indexedMap (viewKidUI model.playerActivity) model.kids)
         , table []
             [ tr [] (List.map viewKidDialog model.kids)
             , tr [] (List.map viewPlayerDialog model.kids)

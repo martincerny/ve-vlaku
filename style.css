@@ -13,11 +13,6 @@ td {
     text-align:center;
 }
 
-.kid
-{
-   position:absolute; 
-}
-
 .nervesDisplay
 {
     margin-top:100px;
@@ -88,20 +83,9 @@ td {
 
 .horizontalProgressContainer
 {
-    height: 10px;
+    height: 6px;
     padding:0;
-    margin:5px;
     border: 1px solid black;
-}
-
-.kid .horizontalProgressContainer
-{
-    width : 32px;
-}
-
-.kid .small *
-{
-    font-size: 10;
 }
 
 .horizontalProgress
@@ -112,20 +96,9 @@ td {
     height:100%;
 }
 
-.muted .horizontalProgress
+.kid, .kidUI
 {
-    background-color: black;
-}
-
-.dialogCell
-{
-    height: 65px;
-}
-
-.kidDialog
-{
-    background-color: white;
-    height:60px;
+   position:absolute; 
 }
 
 .playerDialog
@@ -273,3 +246,47 @@ td {
     top: 48px;
     left: 4px;
 }
+
+
+.kidUI .activityBar, .kidUI .frustrationBar 
+{
+    position:absolute;
+    left:4px;
+}
+
+.kidUI .activityBar 
+{
+    top: -16px;
+}
+
+.kidUI .frustrationBar
+{
+    top: -6px;
+}
+
+.kidUI .kidName 
+{
+    position: absolute;
+    font-size: 12px;
+    width:48px;
+    top: 60px;
+    left:-8px;
+    text-align: center;
+}
+
+.kidUI .kidDialog
+{
+    position:absolute;
+    top: 30px;
+}
+
+.kidUI .horizontalProgressContainer
+{
+    width : 32px;    
+}
+
+.muted .horizontalProgress
+{
+    background-color: black;
+}
+
