@@ -55,6 +55,7 @@ type KidMouthState = Happy | Sad | Neutral
 
 type alias Kid =
     { id : Int
+    , positionId : Int
     , name : String
     , waywardness : Float
     , activity : Float
@@ -98,6 +99,7 @@ emptyKidGraphics =
 defaultKid : Kid
 defaultKid =
     { id = -1
+    , positionId = -1
     , name = ""
     , waywardness = 0
     , activity = 0
@@ -121,7 +123,8 @@ type LostCause
 
 
 type GameState
-    = Running
+    = NewGame
+    | Running
     | Paused
     | Lost LostCause
     | Won

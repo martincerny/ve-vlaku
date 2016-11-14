@@ -229,10 +229,11 @@ update playerActivity deltaSeconds kids =
         { kids = updatedKids, kidsMessages = kidsMessages }
 
 
-startGame : Model.Kid -> Model.Kid
-startGame kid =
+startGame : Int -> Model.Kid -> Model.Kid
+startGame positionId kid =
     { kid
         | activity = 0
+        , positionId = positionId
         , frustration = 0
         , mutedCooldown = 0
         , shownKidDialog = Emojis.nothing

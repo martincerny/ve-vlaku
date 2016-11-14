@@ -3,8 +3,11 @@
 - Nervy vyplňovat
 - Sirka - polibek: 670px
 
+- Dát ke kid pozici (randomizovat při startu levelu)
+
 - Statitstiky: nováčků, odejitých dětí, výchovné působení (celkové zklidnění)
 
+- Oddychovací animace při deepbrath
 
 - Generovat cíl cesty + stanice po cestě
 

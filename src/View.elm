@@ -16,7 +16,7 @@ import ViewMetaGame
 view : Model -> Html Msg
 view model =
     div
-        []
+        [Attr.class "topContainer", Attr.style [("transform", "scale(2)")]]
         [ ViewGame.view model
         , div
             ([ Attr.classList
@@ -25,6 +25,9 @@ view model =
                 ]
              ]
                 ++ case model.state of
+                    NewGame ->
+                        [ Events.onClick (UI ResumeGame) ]
+
                     Paused ->
                         [ Events.onClick (UI ResumeGame) ]
 
@@ -38,6 +41,10 @@ view model =
                         []
             )
             ((case model.state of
+                NewGame ->
+                    [ text ("Vyrážíme na výpravu!") 
+                    , ViewMetaGame.newGame model
+                    ]
                 Paused ->
                     [ text ("Klikni pro spuštění") ]
 

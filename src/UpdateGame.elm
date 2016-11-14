@@ -180,9 +180,9 @@ message msg model =
 startGame : Model.Model -> (Model.Model, List (Cmd Msg.Msg))
 startGame model =
     ({ model
-        | nerves = 0
-        , nervesTarget = 0
-        , kids = List.map UpdateKids.startGame model.kids
+        | nerves = 0.1
+        , nervesTarget = 0.1
+        , kids = List.indexedMap UpdateKids.startGame model.kids
         , playerActivity = Model.None
         , highActivityScore = 0
         , newlyAddedKids = []

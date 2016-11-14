@@ -1,6 +1,10 @@
 * {
-font-size: 20;
+font-size: 14pt;
 font-variant: bold;
+}
+
+.topContainer {
+    transform-origin: 0% 0%;
 }
 
 img {
@@ -13,50 +17,34 @@ td {
     text-align:center;
 }
 
-.nervesDisplay
-{
-    margin-top:100px;
-    width:60px;
-    padding:10px;
-}
-
 .takeDeepBreath
 {
-    margin-top:20px;
+    position:absolute;
+    top: 224px;
+    left: 312px;
+    height: 60px;
     width: 200px;
-    padding:30px;
-    background-color:lightgray;
+    padding-top:30px;
+    padding-left:10px;
+    background-color:#e0cf22;
+}
+
+.takeDeepBreath .playerDeepBreath
+{
+    position:absolute;
+    top: 5px;
+    left: 144px;
 }
 
 .takeDeepBreath.highlighted
 {
-    border:3px lightblue solid;
-    background-color: lightgreen;
+    background-color: #880000;
 }
 
 
 .takeDeepBreath.active
 {
-    background-color:lightcoral;
-}
-
-
-.nervesSliderContainer
-{
-    margin:10px;
-    border: 1px green solid;
-    position:relative;
-    height : 100px;
-    width: 30px;
-    margin: 0 50px;
-}
-
-.nervesSlider
-{
-    background-color:red;
-    width : 100%;
-    height : 3px;
-    position:absolute;
+    background-color:#178800;
 }
 
 .gameOverlay
@@ -74,11 +62,10 @@ td {
 .gameOverlay.disableGame
 {
     padding:100px;
-    padding-top: 170px;
-    background-color: gray;
+    padding-top: 100px;
+    background-color: lightgray;
     width: 600px;
     height: 240px;
-    opacity: 0.8;
 }
 
 .horizontalProgressContainer
@@ -92,21 +79,34 @@ td {
 {
     padding: 0;
     margin:0;
-    background-color:red;
+    background-color:#880000;
     height:100%;
 }
+
+.verticalProgressContainer
+{
+    position:relative;
+    width: 32px;
+    padding:0;
+    border: 1px solid black;
+}
+
+.verticalProgress
+{
+    position:absolute;
+    bottom:0px;
+    padding: 0;
+    margin:0;
+    background-color:#880000;
+    width:100%;
+}
+
 
 .kid, .kidUI
 {
    position:absolute; 
 }
 
-.playerDialog
-{
-    font-style: italic;
-    background-color: lightyellow;
-    height:60px;
-}
 
 .playerRow td, .player, .noPlayer
 {
@@ -128,7 +128,7 @@ td {
 
 .emoji 
 {
-    max-height:40px;
+    max-height:16px;
 }
 
 .newKidsContainer, .reducedWaywardnessKidContainer, .removedFrustratedKidsContainer, .removedKidsAfterMissionFailedContainer 
@@ -208,8 +208,17 @@ td {
     pointer-events: none;    
 }
 
-.train .window {
+.train .trainWindow {
+    display: block;
     position:absolute;
+}
+
+.train .filler {
+    position: absolute;
+    top:96px;
+    width: 512px;
+    height:32px;
+    background-color: #dddddd;
 }
 
 .playerContainer {
@@ -255,17 +264,25 @@ td {
 .kidUI .activityBar, .kidUI .frustrationBar 
 {
     position:absolute;
-    left:4px;
+    left:-2px;
 }
 
-.kidUI .activityBar 
+.kidUI .activityIcon, .kidUI .frustrationIcon 
 {
-    top: -16px;
+    display:block;
+    position:absolute;
+    left:28px;
 }
 
-.kidUI .frustrationBar
+
+.kidUI .activityBar, .kidUI .activityIcon 
 {
-    top: -6px;
+    top: -20px;
+}
+
+.kidUI .frustrationBar, .kidUI .frustrationIcon
+{
+    top: -10px;
 }
 
 .kidUI .kidName 
@@ -281,12 +298,23 @@ td {
 .kidUI .kidDialog
 {
     position:absolute;
-    top: 30px;
+    top: 32px;
+}
+
+.kidUI .playerDialog
+{
+    position:absolute;
+    top: 16px;    
+    left: 36px;
+}
+
+.kidUI .playerDialog.left {
+    left: -16px
 }
 
 .kidUI .horizontalProgressContainer
 {
-    width : 32px;    
+    width : 26px;    
 }
 
 .muted .horizontalProgress
@@ -294,3 +322,73 @@ td {
     background-color: black;
 }
 
+.playerNerves, .highActivityScore{
+    position:absolute;
+    top: 16px;
+    height:160px;
+}
+
+
+.playerNerves {
+    left: 532px;
+}
+
+.highActivityScore {
+    left: 596px;
+}
+
+.playerNerves .verticalProgressContainer, .highActivityScore .verticalProgressContainer {
+    height: 100%;
+}
+
+.playerNervesLabel, .highActivityScoreLabel {
+    position:absolute;
+    top: 192px;
+    width: 64px;
+    text-align:center;
+}
+
+.playerNervesLabel {
+    left: 516px;
+}
+
+.highActivityScoreLabel {
+    left: 580px;
+}
+
+.timeToWin {
+    position: absolute;
+    top:240px;
+    left:16px;
+    width:200px; 
+}
+
+.timeToWin td {
+    padding-right:16px;
+}
+
+.overallFrustration {
+    position: absolute;
+    top:272px;
+    left:16px;
+    width:200px;
+}
+
+.overallFrustration .horizontalProgressContainer {
+    width:186px;
+}
+
+.overallFrustration .frustrationIcon {
+    display:block;
+    position:absolute;
+    right:0px;
+    top:0px;
+}
+
+.overallFrustrationLabel {
+    position: absolute;
+    top:284px;
+    left:16px;
+    width:200px;
+    text-align:center;
+}

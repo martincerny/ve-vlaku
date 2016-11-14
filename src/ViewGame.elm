@@ -1,4 +1,4 @@
-module ViewGame exposing (view, viewKidGraphics)
+module ViewGame exposing (view)
 
 import Model exposing (..)
 import GameConstants exposing (..)
@@ -9,120 +9,23 @@ import Html.Events as Events
 import Html.Keyed as Keyed
 import Utils
 import Emojis
+import ViewUtils
+import ViewKid
+
+
+windowPositions : List ( Int, Int )
+windowPositions =
+    List.map (\x -> ( x * 128, 0 )) [0..3]
+        ++ List.map (\x -> ( x * 128, 128 )) [0..3]
 
 
 kidPositions : List ( Int, Int )
 kidPositions =
     let
-        baseY =
-            42
+        positionPairs =
+            List.map (\( x, y ) -> ( ( x + 24, y + 42 ), ( x + 72, y + 42 ) )) windowPositions
     in
-        [ ( 24, baseY ), ( 72, baseY ), ( 152, baseY ), ( 200, baseY ) ]
-
-
-windowPositions : List ( Int, Int )
-windowPositions =
-    [ ( 0, 0 ), ( 128, 0 ) ]
-
-
-positionToStyle : ( Int, Int ) -> List ( String, String )
-positionToStyle ( x, y ) =
-    [ ( "top", toString y ++ "px" ), ( "left", toString x ++ "px" ) ]
-
-
-valueToStyle : Float -> ( String, String )
-valueToStyle value =
-    ( "background-color", "rgb(" ++ (toString (144 + round (112 * value))) ++ ",200,200)" )
-
-
-nervesToStyle : Float -> ( String, String )
-nervesToStyle nerves =
-    let
-        threshold =
-            gameConstants.nervesVisualChangeThreshold
-    in
-        ( "background-color"
-        , if nerves < threshold then
-            "white"
-          else
-            let
-                scale =
-                    (nerves - threshold) / (1 - threshold)
-
-                otherColors =
-                    toString (144 + round (112 * (1 - scale)))
-            in
-                "rgb(255," ++ otherColors ++ "," ++ otherColors ++ ")"
-        )
-
-
-horizontalProgress : List (Attribute Msg) -> Float -> Html Msg
-horizontalProgress attributes progress =
-    div ([ Attr.class "horizontalProgressContainer" ] ++ attributes)
-        [ div [ Attr.class "horizontalProgress", Attr.style [ ( "width", (toString ((progress * 100))) ++ "%" ) ] ]
-            []
-        ]
-
-
-viewEmoji : Float -> String -> Html Msg
-viewEmoji opacity emojiName =
-    img
-        [ Attr.class "emoji"
-        , Attr.src ("img/emoji/" ++ emojiName ++ ".png")
-        , Attr.style [ ( "opacity", toString opacity ) ]
-        ]
-        []
-
-
-viewEmojiSentence : Float -> Emojis.Sentence -> List (Html Msg)
-viewEmojiSentence coolDown sentence =
-    let
-        easeInTime =
-            0.1
-
-        easeInBorder =
-            gameConstants.dialogCooldown - easeInTime
-
-        opacity =
-            if coolDown > easeInBorder then
-                (1 - ((coolDown - easeInBorder) / easeInTime))
-                    |> max 0
-            else
-                coolDown / easeInBorder
-    in
-        List.map (viewEmoji opacity) sentence
-
-
-viewKidGraphics : Bool -> Model.KidMouthState -> Model.KidGraphics -> Html a
-viewKidGraphics angry mouthState g =
-    let
-        eyes =
-            if angry then
-                g.eyesAngry
-            else
-                g.eyes
-
-        mouth =
-            case mouthState of
-                Happy ->
-                    g.mouthHappy
-
-                Sad ->
-                    g.mouthSad
-
-                Neutral ->
-                    g.mouthNeutral
-    in
-        div [ Attr.classList [("kidGraphicsContainer", True), ("angry", angry) ] ]
-            [ img [ Attr.class "armLeft", Attr.src ("img/kids/arms/" ++ g.arm ++ ".png") ] []
-            , img [ Attr.class "body", Attr.src ("img/kids/body/" ++ g.body ++ ".png") ] []
-            , img [ Attr.class "armRight", Attr.src ("img/kids/arms/" ++ g.arm ++ ".png") ] []
-            , img [ Attr.class "scarf", Attr.src ("img/kids/scarf/" ++ g.scarf ++ ".png") ] []
-            , img [ Attr.class "head", Attr.src ("img/kids/head/" ++ g.head ++ ".png") ] []
-            , img [ Attr.class "eyes", Attr.src ("img/kids/eyes/" ++ eyes ++ ".png") ] []
-            , img [ Attr.class "mouth", Attr.src ("img/kids/mouth/" ++ mouth ++ ".png") ] []
-            , img [ Attr.class "hair", Attr.src ("img/kids/hair/" ++ g.hair ++ ".png") ] []
-            ]
+        List.foldr (\( pairA, pairB ) rest -> pairA :: pairB :: rest) [] positionPairs
 
 
 getKidPosition : PlayerActivity -> Int -> Kid -> ( Int, Int )
@@ -146,116 +49,36 @@ getKidPosition playerActivity positionId kid =
                 ( baseX, baseY )
 
 
-viewKid : PlayerActivity -> Int -> Kid -> ( String, Html Msg )
-viewKid playerActivity positionId kid =
+
+playerPositionForCalmDown : Model.CalmDownInfo -> { position : ( Int, Int ), flip : Bool }
+playerPositionForCalmDown calmDownInfo =
     let
-        position =
-            getKidPosition playerActivity positionId kid
-
-        angry =
-            if isMuted kid then
-                False
-            else if (kid.timeSinceLastOutburst < 0.5 && kid.kidDialogCooldown > 0) then
-                True
-            else if (kid.scheduledOutburst.interval - kid.timeSinceLastOutburst) < 0.5 then
-                True
+        ( offsetX, shouldFlip ) =
+            if calmDownInfo.kidId % 2 == 0 then
+                ( 16, True )
             else
-                False
+                ( 16, False )
 
-        mouthState =
-            if kid.frustration > metaGameConstants.minFrustrationToConsiderRemovingKid then
-                Model.Sad
-            else if kid.frustration < metaGameConstants.maxFrustrationToConsiderReducingWaywardness then
-                Model.Happy
-            else
-                Model.Neutral
+        ( baseX, baseY ) =
+            Utils.listGet calmDownInfo.kidId kidPositions
+                |> Maybe.withDefault ( 300, 300 )
     in
-        ( toString kid.id
-        , div
-            [ Attr.classList
-                [ ( "kid", True )
-                , ( "muted", isMuted kid )
-                , ( "highActivity", isKidHighActivity kid )
-                , ( "increasesNerves", isKidAnnoying kid )
-                ]
-            , Attr.style (positionToStyle position)
-            , Events.onClick (Game (CalmDownStarted kid))
-            ]
-            [ viewKidGraphics angry mouthState kid.graphics
-            ]
-        )
+        { position = ( baseX + offsetX, baseY - 16 ), flip = shouldFlip }
 
 
-viewKidUI : PlayerActivity -> Int -> Kid -> ( String, Html Msg )
-viewKidUI playerActivity positionId kid =
-    let
-        position =
-            getKidPosition playerActivity positionId kid
-    in
-        ( toString kid.id
-        , div
-            [ Attr.classList
-                [ ( "kidUI", True )
-                , ( "muted", isMuted kid )
-                , ( "highActivity", isKidHighActivity kid )
-                , ( "increasesNerves", isKidAnnoying kid )
-                ]
-            , Attr.style (positionToStyle position)
-            , Events.onClick (Game (CalmDownStarted kid))
-            ]
-            [ viewKidDialog kid
-            , div [ Attr.class "activityBar" ] [ horizontalProgress [] kid.activity ]
-            , div [ Attr.class "frustrationBar" ] [ horizontalProgress [] (1 - kid.frustration) ]
-              --            , tr [ Attr.class "small" ] [ td [] [ text ("Zlobivost: ") ], td [] [ text (toString (round (kid.waywardness * 10)) ++ "/10") ] ]
-            , div [ Attr.class "kidName" ] [ text (kid.name) ]
-            ]
-        )
-
-
-viewKidDialog : Kid -> Html Msg
-viewKidDialog kid =
-    (if kid.kidDialogCooldown > 0 then
-        div [ Attr.class "kidDialog" ] (viewEmojiSentence kid.kidDialogCooldown kid.shownKidDialog)
-     else
-        text ""
-    )
-
-
-viewPlayerDialog : Kid -> Html Msg
-viewPlayerDialog kid =
-    td [ Attr.class "dialogCell" ]
-        (if kid.playerDialogCooldown > 0 then
-            [ div [ Attr.class "playerDialog" ] (viewEmojiSentence kid.playerDialogCooldown kid.shownPlayerDialog) ]
-         else
-            []
-        )
-
-
-viewPlayer : Model -> Html Msg
-viewPlayer model =
+viewPlayer : { position : ( Int, Int ), flip : Bool } -> List String -> Html Msg
+viewPlayer data additionalClasses =
     let
         ( position, flip ) =
-            case model.playerActivity of
-                CalmDownKid calmDownInfo ->
-                    let
-                        ( offsetX, shouldFlip ) =
-                            if calmDownInfo.kidId % 2 == 0 then
-                                ( 16, True )
-                            else
-                                ( 16, False )
+            ( data.position, data.flip )
 
-                        ( baseX, baseY ) =
-                            Utils.listGet calmDownInfo.kidId kidPositions
-                                |> Maybe.withDefault ( 300, 300 )
-                    in
-                        ( ( baseX + offsetX, baseY - 16 ), shouldFlip )
-
-                _ ->
-                    ( ( 300, 300 ), False )
+        classList =
+            [ ( "playerContainer", True ), ( "flip", flip ) ]
+                ++ (List.map (\x -> ( x, True )) additionalClasses)
     in
         div
-            [ Attr.classList [ ( "playerContainer", True ), ( "flip", flip ) ]
-            , Attr.style (positionToStyle position)
+            [ Attr.classList classList
+            , Attr.style (ViewUtils.positionToStyle position)
             ]
             [ img [ Attr.class "legLeft", Attr.src "img/leader/leg_leader.png" ] []
             , img [ Attr.class "legRight", Attr.src "img/leader/leg_leader.png" ] []
@@ -270,84 +93,71 @@ viewPlayer model =
 
 viewWindow : ( Int, Int ) -> Html Msg
 viewWindow position =
-    img [ Attr.class "trainWindow", Attr.style (positionToStyle position), Attr.src "img/train/window.png" ] []
+    img [ Attr.class "trainWindow", Attr.style (ViewUtils.positionToStyle position), Attr.src "img/train/window.png" ] []
 
 
 view : Model -> Html Msg
 view model =
     div
-        [ Attr.style [ nervesToStyle model.nerves ]
-        ]
+        [ ]
         [ Keyed.node "div"
             [ Attr.class "allKidsContainer" ]
-            (( "player", viewPlayer model )
-                :: (List.indexedMap (viewKid model.playerActivity) model.kids)
+            ((case model.playerActivity of
+                CalmDownKid calmDownInfo ->
+                    ( "player", viewPlayer (playerPositionForCalmDown calmDownInfo) [] )
+
+                _ ->
+                    ( "noPlayer", text ("") )
+             )
+                :: (List.indexedMap (\id kid -> ViewKid.viewKid model.playerActivity (getKidPosition model.playerActivity id kid) kid) model.kids)
             )
         , div [ Attr.class "train" ]
-            (List.map viewWindow windowPositions)
+            (div [ Attr.class "filler" ] [] :: (List.map viewWindow windowPositions))
         , Keyed.node "div"
             [ Attr.class "allKidsUIContainer" ]
-            (List.indexedMap (viewKidUI model.playerActivity) model.kids)
-        , table []
-            [ tr [] (List.map viewKidDialog model.kids)
-            , tr [] (List.map viewPlayerDialog model.kids)
-            ]
+            (List.indexedMap (\id kid -> ViewKid.viewKidUI model.playerActivity (getKidPosition model.playerActivity id kid) kid) model.kids)        
         , div
             [ Attr.classList
                 [ ( "takeDeepBreath", True )
                 , ( "active", model.playerActivity == DeepBreath )
-                , ( "highlighted", not (model.playerActivity == DeepBreath) && model.nerves > 0.9 )
+                , ( "highlighted", not (model.playerActivity == DeepBreath) && model.nerves > 0.9 && (round (model.timeToWin * 4) % 2 == 0) )
                 ]
             , Events.onMouseDown (Game DeepBreathStarted)
             , Events.onMouseUp (Game DeepBreathEnded)
             , Events.onMouseOut (Game DeepBreathEnded)
             ]
             [ text ("Zhluboka dýchej")
+            , div [ Attr.class "small" ] [ text "(Klikni sem a drž)" ]
+            , (case model.playerActivity of
+                CalmDownKid _ ->
+                    text ("")
+
+                _ ->
+                    div [ Attr.class "playerDeepBreath" ] [ viewPlayer { position = ( 0, 0 ), flip = False } [] ]
+              )
             ]
-        , (case model.playerActivity of
-            CalmDownKid _ ->
-                div [ Attr.class "noPlayer" ] []
-
-            DeepBreath ->
-                div [ Attr.class "player" ] [ text "(tu vydechuješ)" ]
-
-            None ->
-                div [ Attr.class "player" ] [ text "(tu stojíš)" ]
-          )
-        , table []
-            [ tr []
-                [ td []
-                    [ div [ Attr.class "nervesSliderContainer" ]
-                        [ div
-                            [ Attr.class "nervesSlider"
-                            , Attr.style [ ( "bottom", (toString ((model.nerves * 100))) ++ "%" ) ]
-                            ]
-                            []
+        , div [ Attr.classList [ ( "playerNerves", True ), ( "highlight", model.nerves > 0.8 ) ] ] [ ViewUtils.verticalProgress [] model.nerves ]
+        , div [ Attr.class "playerNervesLabel" ] [ text "Tvoje nervy" ]
+        , div [ Attr.classList [ ( "highActivityScore", True ), ( "highlight", model.highActivityScore > 0.8 ) ] ]
+            [ ViewUtils.verticalProgress [] model.highActivityScore ]
+        , div [ Attr.class "highActivityScoreLabel" ] [ text "Nervy průvodčího" ]
+        , div [ Attr.class "timeToWin" ]
+            [ table []
+                [ tr []
+                    [ td [] [ text ("Čas do cílové stanice") ]
+                    , td []
+                        [ text
+                            (toString ((round model.timeToWin) // 60)
+                                ++ ":"
+                                ++ Utils.fixedWidthNumberFormat 2 ((round model.timeToWin) % 60)
+                            )
                         ]
                     ]
-                , td []
-                    [ div [ Attr.class "nervesSliderContainer" ]
-                        [ div
-                            [ Attr.class "nervesSlider"
-                            , Attr.style [ ( "bottom", (toString ((model.highActivityScore * 100) / gameConstants.highActivityScoreToLose)) ++ "%" ) ]
-                            ]
-                            []
-                        ]
-                    ]
-                , td [] [ text ("Čas do cílové stanice") ]
-                , td [] [ text ("Celková nálada") ]
-                ]
-            , tr []
-                [ td [] [ text ("Tvoje nervy") ]
-                , td [] [ text ("Nervy průvodčího") ]
-                , td []
-                    [ text
-                        (toString ((round model.timeToWin) // 60)
-                            ++ ":"
-                            ++ Utils.fixedWidthNumberFormat 2 ((round model.timeToWin) % 60)
-                        )
-                    ]
-                , td [] [ horizontalProgress [] (1 - (model.kids |> List.map .frustration |> Utils.avg)) ]
                 ]
             ]
+        , div [ Attr.class "overallFrustration" ]
+            [ ViewUtils.horizontalProgress [] (1 - (model.kids |> List.map .frustration |> Utils.avg))
+            , img [ Attr.class "frustrationIcon", Attr.src "img/ui/frustration_icon.png" ] []
+            ]
+        , div [ Attr.class "overallFrustrationLabel" ] [ text "Celková nálada" ]
         ]

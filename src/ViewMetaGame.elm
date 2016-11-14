@@ -1,4 +1,4 @@
-module ViewMetaGame exposing (missionSummary)
+module ViewMetaGame exposing (missionSummary, newGame)
 
 import Model
 import GameConstants exposing (..)
@@ -35,6 +35,16 @@ viewRemovedKid kid =
         ]
 
 
+newGame : Model.Model -> Html Msg.Msg
+newGame model =
+    div [ Attr.class "newKidsContainer" ]
+        [ text "Toto je tvůj oddíl:"
+        , table [ Attr.class "changedKidsTable" ]
+            [ tr [] (List.map viewNewlyAddedKid model.newlyAddedKids)
+            ]
+        ]
+
+
 missionSummary : Model.Model -> Html Msg.Msg
 missionSummary model =
     div [ Attr.class "missionSummary" ]
@@ -54,12 +64,7 @@ missionSummary model =
                     )
                 ]
              else
-                [ text
-                    (if model.firstRun then
-                        "Tohle je tvůj oddíl:"
-                     else
-                        "Děti měly dobrou náladu a přivedly do oddílu nováčky: "
-                    )
+                [ text "Děti měly dobrou náladu a přivedly do oddílu nováčky: "
                 , table [ Attr.class "changedKidsTable" ]
                     [ tr [] (List.map viewNewlyAddedKid model.newlyAddedKids)
                     ]
