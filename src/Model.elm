@@ -132,6 +132,7 @@ type GameState
 
 type alias CalmDownInfo =
     { kidId : Int
+    , positionId : Int
     , duration : Float
     , nervesAtStart : Float
     }

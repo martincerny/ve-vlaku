@@ -142,7 +142,7 @@ message msg model =
                         endActiveCalmDown model
                 in
                     ( { model
-                        | playerActivity = Model.CalmDownKid { duration = 0, kidId = kid.id, nervesAtStart = model.nerves }
+                        | playerActivity = Model.CalmDownKid { duration = 0, kidId = kid.id, positionId = kid.positionId, nervesAtStart = model.nerves }
                         , kids = updateKidById kid.id (UpdateKids.calmDownFunction model.nerves) model.kids
                         , nervesTarget = UpdateUtils.defaultClamp (newModel.nervesTarget + kid.activity * gameConstants.calmDownNervesGrowthCoefficient)
                       }

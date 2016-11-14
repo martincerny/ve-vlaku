@@ -28,20 +28,26 @@ kidPositions =
         List.foldr (\( pairA, pairB ) rest -> pairA :: pairB :: rest) [] positionPairs
 
 
-getKidPosition : PlayerActivity -> Int -> Kid -> ( Int, Int )
-getKidPosition playerActivity positionId kid =
+
+
+getKidPosition : PlayerActivity -> Kid -> ( Int, Int )
+getKidPosition playerActivity kid =
     let
         ( baseX, baseY ) =
-            Utils.listGet positionId kidPositions
+            Utils.listGet kid.positionId kidPositions
                 |> Maybe.withDefault ( 300, 300 )
     in
         case playerActivity of
             CalmDownKid calmDownInfo ->
-                if calmDownInfo.kidId == kid.id then
-                    if positionId % 2 == 0 then
+                if calmDownInfo.positionId == kid.positionId then
+                    if kid.positionId % 2 == 0 then
                         ( baseX + 16, baseY )
                     else
                         ( baseX - 16, baseY )
+                else if kid.positionId % 2 == 0 && calmDownInfo.positionId == kid.positionId + 1 then
+                        ( baseX - 8, baseY )
+                else if kid.positionId % 2 == 1 && calmDownInfo.positionId == kid.positionId - 1 then
+                        ( baseX + 8, baseY )
                 else
                     ( baseX, baseY )
 
@@ -109,13 +115,13 @@ view model =
                 _ ->
                     ( "noPlayer", text ("") )
              )
-                :: (List.indexedMap (\id kid -> ViewKid.viewKid model.playerActivity (getKidPosition model.playerActivity id kid) kid) model.kids)
+                :: (List.map (\kid -> ViewKid.viewKid model.playerActivity (getKidPosition model.playerActivity kid) kid) model.kids)
             )
         , div [ Attr.class "train" ]
             (div [ Attr.class "filler" ] [] :: (List.map viewWindow windowPositions))
         , Keyed.node "div"
             [ Attr.class "allKidsUIContainer" ]
-            (List.indexedMap (\id kid -> ViewKid.viewKidUI model.playerActivity (getKidPosition model.playerActivity id kid) kid) model.kids)        
+            (List.map (\kid -> ViewKid.viewKidUI model.playerActivity (getKidPosition model.playerActivity kid) kid) model.kids)        
         , div
             [ Attr.classList
                 [ ( "takeDeepBreath", True )

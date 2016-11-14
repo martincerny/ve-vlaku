@@ -42,10 +42,30 @@ viewKidGraphics angry mouthState g =
             , img [ Attr.class "hair", Attr.src ("img/kids/hair/" ++ g.hair ++ ".png") ] []
             ]
 
-viewKid : PlayerActivity -> (Int, Int) -> Kid -> ( String, Html Msg )
+
+viewKidWaywardness : Kid -> Html Msg
+viewKidWaywardness kid =
+    let
+        numIcons =
+            round (kid.waywardness / 0.2)
+    in
+        div [ Attr.class "waywardness" ]
+            (List.map
+                (\id ->
+                    img
+                        [ Attr.src "img/ui/waywardness_icon2.png"
+                        , Attr.class "waywardnessIcon"
+                        , Attr.style (ViewUtils.positionToStyle ( id * 10, 0 ))
+                        ]
+                        []
+                )
+                [1..numIcons]
+            )
+
+
+viewKid : PlayerActivity -> ( Int, Int ) -> Kid -> ( String, Html Msg )
 viewKid playerActivity position kid =
     let
-
         angry =
             if isMuted kid then
                 False
@@ -88,38 +108,39 @@ viewKidDialog kid =
         text ""
     )
 
+
 viewPlayerDialog : Kid -> Html Msg
 viewPlayerDialog kid =
-        (if kid.playerDialogCooldown > 0 then
-            div [ Attr.classList [("playerDialog", True), ("left", kid.positionId % 2 == 0)] ] (ViewUtils.viewEmojiSentence kid.playerDialogCooldown kid.shownPlayerDialog) 
-         else
-            text ""
-        )
-    
+    (if kid.playerDialogCooldown > 0 then
+        div [ Attr.classList [ ( "playerDialog", True ), ( "left", kid.positionId % 2 == 0 ) ] ] (ViewUtils.viewEmojiSentence kid.playerDialogCooldown kid.shownPlayerDialog)
+     else
+        text ""
+    )
 
-viewKidUI : PlayerActivity -> (Int,Int) -> Kid -> ( String, Html Msg )
+
+viewKidUI : PlayerActivity -> ( Int, Int ) -> Kid -> ( String, Html Msg )
 viewKidUI playerActivity position kid =
-        ( toString kid.id
-        , div
-            [ Attr.classList
-                [ ( "kidUI", True )
-                , ( "muted", isMuted kid )
-                , ( "highActivity", isKidHighActivity kid )
-                , ( "increasesNerves", isKidAnnoying kid )
-                ]
-            , Attr.style (ViewUtils.positionToStyle position)
-            , Events.onClick (Game (CalmDownStarted kid))
+    ( toString kid.id
+    , div
+        [ Attr.classList
+            [ ( "kidUI", True )
+            , ( "muted", isMuted kid )
+            , ( "highActivity", isKidHighActivity kid )
+            , ( "annoying", isKidAnnoying kid && not (isKidHighActivity kid) )
+            , ( "sad", kid.frustration > metaGameConstants.minFrustrationToConsiderRemovingKid )
+            , ( "happy", kid.frustration < metaGameConstants.maxFrustrationToConsiderReducingWaywardness )
             ]
-            [ viewKidDialog kid
-            , div [ Attr.class "activityBar" ] [ ViewUtils.horizontalProgress [] kid.activity ]
-            , img [ Attr.class "activityIcon", Attr.src "img/ui/activity_icon.png" ] []
-            , div [ Attr.class "frustrationBar" ] [ ViewUtils.horizontalProgress [] (1 - kid.frustration) ]
-            , img [ Attr.class "frustrationIcon", Attr.src "img/ui/frustration_icon.png" ] []
-              --            , tr [ Attr.class "small" ] [ td [] [ text ("Zlobivost: ") ], td [] [ text (toString (round (kid.waywardness * 10)) ++ "/10") ] ]
-            , div [ Attr.class "kidName" ] [ text (kid.name) ]
-            , viewKidDialog kid
-            , viewPlayerDialog kid
-            ]
-        )
-
-
+        , Attr.style (ViewUtils.positionToStyle position)
+        , Events.onClick (Game (CalmDownStarted kid))
+        ]
+        [ viewKidDialog kid
+        , div [ Attr.class "activityBar" ] [ ViewUtils.horizontalProgress [] kid.activity ]
+        , img [ Attr.class "activityIcon", Attr.src "img/ui/activity_icon.png" ] []
+        , div [ Attr.class "frustrationBar" ] [ ViewUtils.horizontalProgress [] (1 - kid.frustration) ]
+        , img [ Attr.class "frustrationIcon", Attr.src "img/ui/frustration_icon.png" ] []
+        , viewKidWaywardness kid
+        , div [ Attr.class "kidName" ] [ text (kid.name) ]
+        , viewKidDialog kid
+        , viewPlayerDialog kid
+        ]
+    )

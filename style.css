@@ -295,6 +295,20 @@ td {
     text-align: center;
 }
 
+.kidUI .waywardness 
+{
+    position:absolute;
+    top: 50px;
+    left: -8px;
+} 
+
+.waywardness .waywardnessIcon
+{
+    display:block;
+    position:absolute;
+}
+
+
 .kidUI .kidDialog
 {
     position:absolute;
@@ -317,10 +331,22 @@ td {
     width : 26px;    
 }
 
-.muted .horizontalProgress
+.kidUI .activityBar .horizontalProgress 
 {
-    background-color: black;
+    background-color: #178800;
 }
+
+
+.kidUI.highActivity .activityBar .horizontalProgress 
+{
+    background-color: #880000;
+}
+
+.kidUI.annoying .activityBar .horizontalProgress 
+{
+    background-color: #e0cf22;
+}
+
 
 .playerNerves, .highActivityScore{
     position:absolute;
