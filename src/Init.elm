@@ -1,4 +1,4 @@
-module Init exposing (init)
+module Init exposing (init, initGame)
 
 import Model
 import Msg
@@ -12,24 +12,41 @@ initialKids =
     4
 
 
-init : ( Model.Model, Cmd Msg.Msg )
-init =
+initGame : ( Model.GameModel, Cmd Msg.Msg )
+initGame =
     { nerves = 0
     , nervesTarget = 0
     , kids = []
     , playerActivity = Model.None
     , highActivityScore = 0
     , timeToWin = 90
-    , state = Model.NewGame
-    , transitionInactivity = 0
-    , scale = 2
+    , state = Model.Running
     , nextKidId = 0
-    , newlyAddedKids = []
-    , removedFrustratedKids = []
-    , removedKidsAfterMissionFail = []
-    , kidsWithReducedWaywardness = []
-    , firstRun = True
+    , numMissions = 0
+    , numFailures = 0
+    , numKidsAdded = 0
+    , numKidsRemoved = 0
+    , numKidsReducedWaywardness = 0
     }
         ! [ Random.generate (Msg.metaGameMsg Msg.AddKids) (Random.list initialKids KidGenerator.initGenerator)
           , Random.generate (Msg.metaGameMsg Msg.SetTimeToWin) (RandomGenerators.timeToWin initialKids)
           ]
+
+
+init : ( Model.Model, Cmd Msg.Msg )
+init =
+    let
+        ( gameModel, cmd ) =
+            initGame
+    in
+        ( { uiState = Model.MainMenu
+          , transitionInactivity = 0
+          , scale = 2
+          , newlyAddedKids = []
+          , removedFrustratedKids = []
+          , removedKidsAfterMissionFail = []
+          , kidsWithReducedWaywardness = []
+          , gameModel = gameModel
+          }
+        , cmd
+        )

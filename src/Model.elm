@@ -5,10 +5,12 @@ module Model
         , KidMouthState(..)
         , OutburstParams
         , Model
+        , GameModel
         , CalmDownInfo
         , ScheduledEvent(..)
         , PlayerActivity(..)
         , GameState(..)
+        , UIState(..)
         , LostCause(..)
         , emptyOutburstParams
         , emptyKidGraphics
@@ -19,7 +21,7 @@ module Model
         , isKidHighActivity
         , isKidAnnoying
         , isActiveOutburst
-        , setState
+        , setUIState
         )
 
 import GameConstants exposing (..)
@@ -123,12 +125,16 @@ type LostCause
 
 
 type GameState
-    = NewGame
-    | Running
-    | Paused
+    = Running
     | Lost LostCause
     | Won
 
+type UIState
+    = MainMenu
+    | BeforeMission
+    | RunningGame
+    | PausedGame
+    | MissionSummary
 
 type alias CalmDownInfo =
     { kidId : Int
@@ -144,7 +150,7 @@ type PlayerActivity
     | CalmDownKid CalmDownInfo
 
 
-type alias Model =
+type alias GameModel =
     { nerves : Float
     , nervesTarget : Float
     , kids : List Kid
@@ -152,26 +158,34 @@ type alias Model =
     , highActivityScore : Float
     , timeToWin : Float
     , state : GameState
-    , transitionInactivity : Float
-    , scale : Int
     , nextKidId : Int
+    , numMissions : Int
+    , numFailures : Int
+    , numKidsAdded : Int
+    , numKidsRemoved : Int
+    , numKidsReducedWaywardness : Int    
+    }
+
+type alias Model = 
+    { gameModel : GameModel
     , newlyAddedKids : List Kid
     , removedFrustratedKids : List Kid
     , removedKidsAfterMissionFail : List Kid
-    , kidsWithReducedWaywardness : List Kid
-    , firstRun : Bool    
+    , kidsWithReducedWaywardness : List Kid    
+    , uiState : UIState 
+    , transitionInactivity : Float
+    , scale : Int
     }
-
 
 -- Complex modifiers
 
 
-setState : Model -> GameState -> Model
-setState model state =
+setUIState : Model -> UIState -> Model
+setUIState model state =
     { model
-        | state = state
+        | uiState = state
         , transitionInactivity =
-            if model.state == state then
+            if model.uiState == state then
                 model.transitionInactivity
             else
                 uiConstants.transitionInactivity
@@ -184,7 +198,7 @@ setState model state =
 
 shouldUpdateGame : Model -> Bool
 shouldUpdateGame model =
-    model.state == Running
+    model.uiState == RunningGame
 
 
 isStateLost : GameState -> Bool

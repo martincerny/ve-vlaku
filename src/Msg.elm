@@ -32,9 +32,11 @@ type MetaGameMessage
     | SetTimeToWin Float
 
 type UIMessage
-    =  
-    ResumeGame
-    | RestartGame
+    = StartNewGame
+    | StartMission
+    | PauseMission 
+    | ResumeMission
+    | ShowMainMenu
     | SetScale Int
 
 

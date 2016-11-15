@@ -7,7 +7,7 @@ import RandomGenerators
 import GameConstants exposing (metaGameConstants)
 
 
-commandsForStateChange : Model.GameState -> Model.Model -> List (Cmd Msg.Msg)
+commandsForStateChange : Model.GameState -> Model.GameModel -> List (Cmd Msg.Msg)
 commandsForStateChange oldState model =
     if oldState == model.state then
         []
@@ -21,84 +21,105 @@ commandsForStateChange oldState model =
                 ]
 
             Model.Lost _ ->
-                [
-                    Random.generate (Msg.metaGameMsg Msg.RemoveKidsAfterMissionFail) (RandomGenerators.removeKidsAfterMissionFail model)
+                [ Random.generate (Msg.metaGameMsg Msg.RemoveKidsAfterMissionFail) (RandomGenerators.removeKidsAfterMissionFail model)
+                , Random.generate (Msg.metaGameMsg Msg.SetTimeToWin) (RandomGenerators.timeToWin (List.length model.kids))
                 ]
+
             _ ->
                 []
 
 
 message : Msg.MetaGameMessage -> Model.Model -> ( Model.Model, Cmd Msg.Msg )
 message msg model =
-    (case msg of
-        Msg.SetTimeToWin time ->
-            { model | timeToWin = time }
+    let
+        gameModel =
+            model.gameModel
+    in
+        (case msg of
+            Msg.SetTimeToWin time ->
+                { model | gameModel = { gameModel | timeToWin = time } }
 
-        Msg.AddKids newKids ->
-            let
-                newKidsWithIds =
-                    List.indexedMap (\order kid -> { kid | id = model.nextKidId + order }) newKids
-            in
-                { model
-                    | kids = model.kids ++ newKidsWithIds
-                    , nextKidId = model.nextKidId + (List.length newKids)
-                    , newlyAddedKids = newKidsWithIds
-                }
+            Msg.AddKids newKids ->
+                let
+                    newKidsWithIds =
+                        List.indexedMap (\order kid -> { kid | id = gameModel.nextKidId + order }) newKids
+                in
+                    { model
+                        | gameModel =
+                            { gameModel
+                                | kids = gameModel.kids ++ newKidsWithIds
+                                , numKidsAdded = gameModel.numKidsAdded + List.length newKids
+                                , nextKidId = gameModel.nextKidId + (List.length newKids)
+                            }
+                        , newlyAddedKids = newKidsWithIds
+                    }
 
-        Msg.RemoveFrustratedKids kidsToRemove ->
-            let
-                newLength =
-                    (List.length model.kids) - (List.length kidsToRemove)
+            Msg.RemoveFrustratedKids kidsToRemove ->
+                let
+                    newLength =
+                        (List.length gameModel.kids) - (List.length kidsToRemove)
 
-                kidsToRemoveChecked =
-                    if newLength >= metaGameConstants.minKidsToKeep then
-                        kidsToRemove
-                    else
-                        List.take (List.length model.kids - metaGameConstants.minKidsToKeep) kidsToRemove
+                    kidsToRemoveChecked =
+                        if newLength >= metaGameConstants.minKidsToKeep then
+                            kidsToRemove
+                        else
+                            List.take (List.length gameModel.kids - metaGameConstants.minKidsToKeep) kidsToRemove
 
-                idsToRemove =
-                    List.map .id kidsToRemoveChecked
-            in
-                { model
-                    | kids = List.filter (\kid -> not (List.member kid.id idsToRemove)) model.kids
-                    , removedFrustratedKids = kidsToRemoveChecked
-                }
+                    idsToRemove =
+                        List.map .id kidsToRemoveChecked
+                in
+                    { model
+                        | gameModel =
+                            { gameModel
+                                | kids = List.filter (\kid -> not (List.member kid.id idsToRemove)) gameModel.kids
+                                , numKidsRemoved = gameModel.numKidsRemoved + List.length kidsToRemoveChecked
+                            }
+                        , removedFrustratedKids = kidsToRemoveChecked
+                    }
 
-        Msg.RemoveKidsAfterMissionFail kidsToRemove ->
-            let
-                newLength =
-                    (List.length model.kids) - (List.length kidsToRemove)
+            Msg.RemoveKidsAfterMissionFail kidsToRemove ->
+                let
+                    newLength =
+                        (List.length gameModel.kids) - (List.length kidsToRemove)
 
-                kidsToRemoveChecked =
-                    if newLength >= metaGameConstants.minKidsToKeep then
-                        kidsToRemove
-                    else
-                        List.take (List.length model.kids - metaGameConstants.minKidsToKeep) kidsToRemove
+                    kidsToRemoveChecked =
+                        if newLength >= metaGameConstants.minKidsToKeep then
+                            kidsToRemove
+                        else
+                            List.take (List.length gameModel.kids - metaGameConstants.minKidsToKeep) kidsToRemove
 
-                idsToRemove =
-                    List.map .id kidsToRemoveChecked
-            in
-                { model
-                    | kids = List.filter (\kid -> not (List.member kid.id idsToRemove)) model.kids
-                    , removedKidsAfterMissionFail = kidsToRemoveChecked
-                }
+                    idsToRemove =
+                        List.map .id kidsToRemoveChecked
+                in
+                    { model
+                        | gameModel =
+                            { gameModel
+                                | kids = List.filter (\kid -> not (List.member kid.id idsToRemove)) gameModel.kids
+                                , numKidsRemoved = gameModel.numKidsRemoved + List.length kidsToRemoveChecked
+                            }
+                        , removedKidsAfterMissionFail = kidsToRemoveChecked
+                    }
 
-        Msg.ReduceWaywardness kidsToReduce ->
-            let
-                idsToReduce =
-                    List.map .id kidsToReduce
-            in
-                { model
-                    | kids =
-                        model.kids
-                        |> List.map
-                            (\kid ->
-                                if List.member kid.id idsToReduce then
-                                    { kid | waywardness = max metaGameConstants.minimalWaywardness (kid.waywardness - metaGameConstants.waywardnessReduction) }
-                                else
-                                    kid
-                            )
-                   , kidsWithReducedWaywardness = kidsToReduce
-                }
-    )
-        ! []
+            Msg.ReduceWaywardness kidsToReduce ->
+                let
+                    idsToReduce =
+                        List.map .id kidsToReduce
+                in
+                    { model
+                        | gameModel =
+                            { gameModel
+                                | kids =
+                                    gameModel.kids
+                                        |> List.map
+                                            (\kid ->
+                                                if List.member kid.id idsToReduce then
+                                                    { kid | waywardness = max metaGameConstants.minimalWaywardness (kid.waywardness - metaGameConstants.waywardnessReduction) }
+                                                else
+                                                    kid
+                                            )
+                                , numKidsReducedWaywardness = gameModel.numKidsReducedWaywardness + List.length kidsToReduce
+                            }
+                        , kidsWithReducedWaywardness = kidsToReduce
+                    }
+        )
+            ! []

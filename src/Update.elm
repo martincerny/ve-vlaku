@@ -18,7 +18,11 @@ update msg model =
             UpdateUI.message uiMsg model
 
         Msg.Game gameMsg ->
-            UpdateGame.message gameMsg model
+            let
+                ( newGameModel, cmd ) =
+                    UpdateGame.message gameMsg model.gameModel
+            in
+                ( { model | gameModel = newGameModel }, cmd )
 
         Msg.Meta metaMsg ->
             UpdateMetaGame.message metaMsg model
@@ -29,6 +33,24 @@ update msg model =
                     delta / Time.second
             in
                 if Model.shouldUpdateGame model then
-                    UpdateGame.frame deltaSeconds model
+                    let
+                        (updatedGameModel, cmd) =
+                            UpdateGame.frame deltaSeconds model.gameModel
+                    in
+                        (
+                        { model
+                            | gameModel = updatedGameModel
+                            , uiState =
+                                case updatedGameModel.state of
+                                    Model.Lost _ ->
+                                        Model.MissionSummary
+
+                                    Model.Won ->
+                                        Model.MissionSummary
+
+                                    _ ->
+                                        model.uiState
+                        }, cmd )
+                    
                 else
                     (UpdateUI.frame deltaSeconds model) ! []

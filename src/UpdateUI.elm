@@ -20,16 +20,43 @@ message msg model =
         model ! []
     else
         (case msg of
-            Msg.ResumeGame ->
+            Msg.StartNewGame ->
                 let
-                    ( newModel, startMessages ) =
-                        UpdateGame.startGame model
-                in
-                    (Model.setState newModel Model.Running) ! startMessages
+                    ( newGameModel, msgs ) =
+                        Init.initGame
 
-            Msg.RestartGame ->
-                Init.init
-            
+                    modelWithNewGame =
+                        { model
+                            | gameModel = newGameModel
+                        }
+                in
+                    ((Model.setUIState modelWithNewGame Model.BeforeMission) , msgs)
+
+            Msg.PauseMission ->
+                (Model.setUIState model Model.PausedGame) ! []
+
+            Msg.ResumeMission ->
+                (Model.setUIState model Model.RunningGame) ! []
+
+            Msg.ShowMainMenu ->
+                (Model.setUIState model Model.MainMenu) ! []
+
+            Msg.StartMission ->
+                let
+                    ( newGameModel, startMessages ) =
+                        UpdateGame.startGame model.gameModel
+
+                    newModel =
+                        { model
+                            | gameModel = newGameModel
+                            , newlyAddedKids = []
+                            , removedFrustratedKids = []
+                            , removedKidsAfterMissionFail = []
+                            , kidsWithReducedWaywardness = []
+                        }
+                in
+                    (Model.setUIState newModel Model.RunningGame) ! startMessages
+
             Msg.SetScale scale ->
-                { model | scale = scale} ! []
+                { model | scale = scale } ! []
         )

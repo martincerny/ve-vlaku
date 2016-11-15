@@ -1,7 +1,10 @@
-module ViewUtils exposing (positionToStyle, horizontalProgress, verticalProgress, viewEmoji, viewEmojiSentence)
+module ViewUtils exposing (positionToStyle, horizontalProgress, verticalProgress, viewEmoji, 
+    viewEmojiSentence
+    ,viewBasicUI)
 
 import Html exposing (..)
 import Html.Attributes as Attr
+import Html.Events as Events
 import Msg
 import Emojis
 import GameConstants exposing(..)
@@ -54,3 +57,12 @@ viewEmojiSentence coolDown sentence =
                 coolDown / easeInBorder
     in
         List.map (viewEmoji opacity) sentence
+
+viewBasicUI : {mainMessage : String, mainAction : Msg.UIMessage, mainActionTitle : String, mainMenuActionTitle : String} -> Html Msg.Msg
+viewBasicUI data =
+    div [] 
+    [ div [Attr.class "mainMessage"] [text data.mainMessage]
+    , div [Attr.class "mainButton", Events.onClick (Msg.UI data.mainAction)] [text data.mainActionTitle]
+    , div [Attr.class "toMainMenu", Events.onClick (Msg.UI Msg.ShowMainMenu)] [ text data.mainMenuActionTitle]
+    ]
+

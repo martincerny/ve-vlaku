@@ -1,8 +1,8 @@
 module ViewGame exposing (view)
 
-import Model exposing (..)
+import Model 
 import GameConstants exposing (..)
-import Msg exposing (..)
+import Msg 
 import Html exposing (..)
 import Html.Attributes as Attr
 import Html.Events as Events
@@ -30,7 +30,7 @@ kidPositions =
 
 
 
-getKidPosition : PlayerActivity -> Kid -> ( Int, Int )
+getKidPosition : Model.PlayerActivity -> Model.Kid -> ( Int, Int )
 getKidPosition playerActivity kid =
     let
         ( baseX, baseY ) =
@@ -38,7 +38,7 @@ getKidPosition playerActivity kid =
                 |> Maybe.withDefault ( 300, 300 )
     in
         case playerActivity of
-            CalmDownKid calmDownInfo ->
+            Model.CalmDownKid calmDownInfo ->
                 if calmDownInfo.positionId == kid.positionId then
                     if kid.positionId % 2 == 0 then
                         ( baseX + 16, baseY )
@@ -72,7 +72,7 @@ playerPositionForCalmDown calmDownInfo =
         { position = ( baseX + offsetX, baseY - 16 ), flip = shouldFlip }
 
 
-viewPlayer : { position : ( Int, Int ), flip : Bool } -> List String -> Html Msg
+viewPlayer : { position : ( Int, Int ), flip : Bool } -> List String -> Html Msg.Msg
 viewPlayer data additionalClasses =
     let
         ( position, flip ) =
@@ -97,19 +97,19 @@ viewPlayer data additionalClasses =
             ]
 
 
-viewWindow : ( Int, Int ) -> Html Msg
+viewWindow : ( Int, Int ) -> Html Msg.Msg
 viewWindow position =
     img [ Attr.class "trainWindow", Attr.style (ViewUtils.positionToStyle position), Attr.src "img/train/window.png" ] []
 
 
-view : Model -> Html Msg
+view : Model.GameModel -> Html Msg.Msg
 view model =
     div
         [ ]
         [ Keyed.node "div"
             [ Attr.class "allKidsContainer" ]
             ((case model.playerActivity of
-                CalmDownKid calmDownInfo ->
+                Model.CalmDownKid calmDownInfo ->
                     ( "player", viewPlayer (playerPositionForCalmDown calmDownInfo) [] )
 
                 _ ->
@@ -125,17 +125,17 @@ view model =
         , div
             [ Attr.classList
                 [ ( "takeDeepBreath", True )
-                , ( "active", model.playerActivity == DeepBreath )
-                , ( "highlighted", not (model.playerActivity == DeepBreath) && model.nerves > 0.9 && (round (model.timeToWin * 4) % 2 == 0) )
+                , ( "active", model.playerActivity == Model.DeepBreath )
+                , ( "highlighted", not (model.playerActivity == Model.DeepBreath) && model.nerves > 0.9 && (round (model.timeToWin * 4) % 2 == 0) )
                 ]
-            , Events.onMouseDown (Game DeepBreathStarted)
-            , Events.onMouseUp (Game DeepBreathEnded)
-            , Events.onMouseOut (Game DeepBreathEnded)
+            , Events.onMouseDown (Msg.Game Msg.DeepBreathStarted)
+            , Events.onMouseUp (Msg.Game Msg.DeepBreathEnded)
+            , Events.onMouseOut (Msg.Game Msg.DeepBreathEnded)
             ]
             [ text ("Zhluboka dýchej")
             , div [ Attr.class "small" ] [ text "(Klikni sem a drž)" ]
             , (case model.playerActivity of
-                CalmDownKid _ ->
+                Model.CalmDownKid _ ->
                     text ("")
 
                 _ ->

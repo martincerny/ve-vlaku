@@ -53,7 +53,7 @@ frustrationRecoveryInterval =
     RandomUtils.exponentialGenerator gameConstants.calmDownFrustrationRecoveryMinInterval gameConstants.calmDownFrustrationRecoveryMeanInterval
 
 
-numKidsToBeAddedAfterWin : Model.Model -> Float -> Int
+numKidsToBeAddedAfterWin : Model.GameModel -> Float -> Int
 numKidsToBeAddedAfterWin model randomValue =
     let
         meanFrustration =
@@ -80,7 +80,7 @@ numKidsToBeAddedAfterWin model randomValue =
             0
 
 
-addKidAfterWin : Model.Model -> Random.Generator (List Model.Kid)
+addKidAfterWin : Model.GameModel -> Random.Generator (List Model.Kid)
 addKidAfterWin model =
     let
         numKidsGenerator =
@@ -105,7 +105,7 @@ shouldKidBeRemovedForBadMood kid =
         RandomUtils.fixedGenerator False
 
 
-removeKidsWithBadMood : Model.Model -> Random.Generator (List Model.Kid)
+removeKidsWithBadMood : Model.GameModel -> Random.Generator (List Model.Kid)
 removeKidsWithBadMood model =
     let
         listOfChoicesGenerator =
@@ -116,7 +116,7 @@ removeKidsWithBadMood model =
         Random.map (\boolList -> Utils.chooseByBoolList boolList model.kids) listOfChoicesGenerator
 
 
-numKidsToBeRemovedAfterMissionFail : Model.Model -> Random.Generator Int
+numKidsToBeRemovedAfterMissionFail : Model.GameModel -> Random.Generator Int
 numKidsToBeRemovedAfterMissionFail model =
     Random.float 0 ((toFloat (List.length model.kids)) / metaGameConstants.numKidsFor50PercentChanceRemovalAfterMissionFail)
         |> Random.map round
@@ -147,7 +147,7 @@ chooseKidsByWaywardnessTarget kids targets =
             []
 
 
-removeKidsAfterMissionFail : Model.Model -> Random.Generator (List Model.Kid)
+removeKidsAfterMissionFail : Model.GameModel -> Random.Generator (List Model.Kid)
 removeKidsAfterMissionFail model =
     let
         waywardnessSum =
@@ -177,7 +177,7 @@ shouldKidHaveWaywardnessReduced kid =
         RandomUtils.fixedGenerator False
 
 
-reduceWaywardness : Model.Model -> Random.Generator (List Model.Kid)
+reduceWaywardness : Model.GameModel -> Random.Generator (List Model.Kid)
 reduceWaywardness model =
     let
         listOfChoicesGenerator =
