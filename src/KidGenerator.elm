@@ -76,7 +76,7 @@ initGenerator numKids =
         aggresiveKidGenerator = 
             Random.map (\kid -> { kid | waywardness = 0.9 }) generator
         calmKidGenerator = 
-            Random.map (\kid -> { kid | waywardness = kid.waywardness * 0.66 }) generator
+            Random.map (\kid -> { kid | waywardness = kid.waywardness * 0.5 }) generator
     in
     Random.map2 (::) aggresiveKidGenerator (Random.list (numKids - 1) calmKidGenerator) 
 

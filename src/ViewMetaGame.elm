@@ -11,15 +11,20 @@ import Utils
 import Emojis
 import ViewGame
 import ViewUtils
+import ViewKid
 
+viewKidMedaillon : Model.Kid -> Html Msg.Msg
+viewKidMedaillon kid =
+    div [Attr.class "kidMedaillon"] [
+        ViewKid.viewKidGraphics False Model.Neutral kid.graphics
+        , ViewKid.viewKidWaywardness kid
+        , div [Attr.class "kidName"] [text kid.name]
+    ]
 
 viewNewlyAddedKid : Model.Kid -> Html Msg.Msg
 viewNewlyAddedKid kid =
     td [ Attr.class "newKid" ]
-        [ text (kid.name)
-        , br [] []
-        , text ("Zlobivost: " ++ toString (round (kid.waywardness * 10)) ++ "/10")
-        ]
+        [ viewKidMedaillon kid ]
 
 
 viewWaywardnessReducedKid : Model.Kid -> Html Msg.Msg
@@ -30,9 +35,7 @@ viewWaywardnessReducedKid kid =
 viewRemovedKid : Model.Kid -> Html Msg.Msg
 viewRemovedKid kid =
     td [ Attr.class "removedKid" ]
-        [ text (kid.name)
-        , br [] []
-        , text ("Zlobivost: " ++ toString (round (kid.waywardness * 10)) ++ "/10")
+        [  viewKidMedaillon kid 
         ]
 
 
@@ -48,7 +51,7 @@ beforeMission model =
         , div [ Attr.class "newKidsContainer" ]
             [ table
                 [ Attr.class "kidsTable" ]
-                [ tr [] (List.map viewNewlyAddedKid model.newlyAddedKids)
+                [ tr [] (List.map viewNewlyAddedKid model.gameModel.kids)
                 ]
             ]
         ]

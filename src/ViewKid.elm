@@ -1,4 +1,4 @@
-module ViewKid exposing (viewKid, viewKidGraphics, viewKidUI)
+module ViewKid exposing (viewKid, viewKidGraphics, viewKidUI, viewKidWaywardness)
 
 import Model exposing (..)
 import Msg exposing (..)

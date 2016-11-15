@@ -137,6 +137,10 @@ td {
     font-weight:bold;    
 }
 
+.kidMedaillon .waywardness {
+    position: static;
+} 
+
 .removedKid *
 {
     text-decoration: line-through;
