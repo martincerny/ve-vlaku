@@ -1,4 +1,4 @@
-module UpdateMetaGame exposing (message, commandsForStateChange)
+module UpdateMetaGame exposing (message, commandsForMissionEnd)
 
 import Msg
 import Model
@@ -7,26 +7,21 @@ import RandomGenerators
 import GameConstants exposing (metaGameConstants)
 
 
-commandsForStateChange : Model.GameState -> Model.GameModel -> List (Cmd Msg.Msg)
-commandsForStateChange oldState model =
-    if oldState == model.state then
-        []
-    else
-        case model.state of
-            Model.Won ->
-                [ Random.generate (Msg.metaGameMsg Msg.AddKids) (RandomGenerators.addKidAfterWin model)
-                , Random.generate (Msg.metaGameMsg Msg.SetTimeToWin) (RandomGenerators.timeToWin (List.length model.kids))
-                , Random.generate (Msg.metaGameMsg Msg.RemoveFrustratedKids) (RandomGenerators.removeKidsWithBadMood model)
-                , Random.generate (Msg.metaGameMsg Msg.ReduceWaywardness) (RandomGenerators.reduceWaywardness model)
-                ]
+commandsForMissionEnd : Model.GameModel -> List (Cmd Msg.Msg)
+commandsForMissionEnd model =
+    case model.state of
+        Model.Won ->
+            [ Random.generate (Msg.metaGameMsg Msg.AddKids) (RandomGenerators.addKidAfterWin model)
+            , Random.generate (Msg.metaGameMsg Msg.RemoveFrustratedKids) (RandomGenerators.removeKidsWithBadMood model)
+            , Random.generate (Msg.metaGameMsg Msg.ReduceWaywardness) (RandomGenerators.reduceWaywardness model)
+            ]
 
-            Model.Lost _ ->
-                [ Random.generate (Msg.metaGameMsg Msg.RemoveKidsAfterMissionFail) (RandomGenerators.removeKidsAfterMissionFail model)
-                , Random.generate (Msg.metaGameMsg Msg.SetTimeToWin) (RandomGenerators.timeToWin (List.length model.kids))
-                ]
+        Model.Lost _ ->
+            [ Random.generate (Msg.metaGameMsg Msg.RemoveKidsAfterMissionFail) (RandomGenerators.removeKidsAfterMissionFail model)
+            ]
 
-            _ ->
-                []
+        _ ->
+            []
 
 
 message : Msg.MetaGameMessage -> Model.Model -> ( Model.Model, Cmd Msg.Msg )

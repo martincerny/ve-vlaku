@@ -21,6 +21,12 @@ viewMainMenu model =
         [ div [ Attr.class "newGame", Events.onClick (Msg.UI Msg.StartNewGame) ]
             [ text "Nová hra"
             ]
+        , if model.gameModel.numMissions > 0 then
+            div [ Attr.class "continueGame", Events.onClick (Msg.UI Msg.StartMission) ]
+                [ text "Pokračovat"
+                ]
+          else
+            text ""
         ]
 
 

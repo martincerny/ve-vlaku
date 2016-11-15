@@ -28,7 +28,7 @@ initGame =
     , numKidsRemoved = 0
     , numKidsReducedWaywardness = 0
     }
-        ! [ Random.generate (Msg.metaGameMsg Msg.AddKids) (Random.list initialKids KidGenerator.initGenerator)
+        ! [ Random.generate (Msg.metaGameMsg Msg.AddKids) (KidGenerator.initGenerator initialKids)
           , Random.generate (Msg.metaGameMsg Msg.SetTimeToWin) (RandomGenerators.timeToWin initialKids)
           ]
 

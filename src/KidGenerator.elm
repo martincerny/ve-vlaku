@@ -70,9 +70,15 @@ generator =
     Random.andThen genderGenerator generatorKnownGender
 
 
-initGenerator : Random.Generator Model.Kid
-initGenerator =
-    Random.map (\kid -> { kid | waywardness = kid.waywardness * 0.66 }) generator
+initGenerator : Int -> Random.Generator (List Model.Kid)
+initGenerator numKids =    
+    let 
+        aggresiveKidGenerator = 
+            Random.map (\kid -> { kid | waywardness = 0.9 }) generator
+        calmKidGenerator = 
+            Random.map (\kid -> { kid | waywardness = kid.waywardness * 0.66 }) generator
+    in
+    Random.map2 (::) aggresiveKidGenerator (Random.list (numKids - 1) calmKidGenerator) 
 
 
 graphicsGenerator : Random.Generator Model.KidGraphics

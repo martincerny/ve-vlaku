@@ -1,4 +1,4 @@
-module UpdateGame exposing (frame, message, startGame)
+module UpdateGame exposing (frame, message, startGame, beforeMission)
 
 import Msg
 import Model
@@ -50,23 +50,22 @@ frame deltaSeconds oldModel =
         model =
             updateActivity deltaSeconds oldModel
 
-        additionalCommands =
-            UpdateMetaGame.commandsForStateChange oldModel.state model
+        newState =
+            (if oldModel.highActivityScore >= gameConstants.highActivityScoreToLose then
+                Model.Lost Model.Activity
+             else if oldModel.nerves >= 1 then
+                Model.Lost Model.Nerves
+             else if not (Model.isStateLost oldModel.state) && oldModel.timeToWin <= 0 then
+                Model.Won
+             else
+                oldModel.state
+            )
 
         updatedKids =
             UpdateKids.update oldModel.playerActivity deltaSeconds oldModel.kids
     in
         { model
-            | state =
-                (if oldModel.highActivityScore >= gameConstants.highActivityScoreToLose then
-                    Model.Lost Model.Activity
-                 else if oldModel.nerves >= 1 then
-                    Model.Lost Model.Nerves
-                 else if not (Model.isStateLost oldModel.state) && oldModel.timeToWin <= 0 then
-                    Model.Won
-                 else
-                    oldModel.state
-                )
+            | state = newState
             , nervesTarget = updateNervesTarget deltaSeconds model
             , nerves = UpdateUtils.followTargetValue model.nervesTarget gameConstants.nervesTargetFollowingHalfTime deltaSeconds model.nerves
             , highActivityScore =
@@ -81,9 +80,7 @@ frame deltaSeconds oldModel =
             , timeToWin = max 0 (model.timeToWin - deltaSeconds)
             , kids = updatedKids.kids
         }
-            ! (updatedKids.kidsMessages
-                ++ additionalCommands
-              )
+            ! updatedKids.kidsMessages
 
 
 updateKidById : Int -> (Model.Kid -> Model.Kid) -> List Model.Kid -> List Model.Kid
@@ -198,3 +195,8 @@ startGame model =
                 model.kids
            )
     )
+
+
+beforeMission : Model.GameModel -> Cmd Msg.Msg
+beforeMission model =
+    Random.generate (Msg.metaGameMsg Msg.SetTimeToWin) (RandomGenerators.timeToWin (List.length model.kids))

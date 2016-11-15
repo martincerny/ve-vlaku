@@ -3,7 +3,9 @@
 - Nervy vyplňovat
 - Sirka - polibek: 670px
 
-- Dát ke kid pozici (randomizovat při startu levelu)
+- Dát jednomu děcku při initu vysokou zlobivost
+
+- Randomizovat pozici při startu levelu ?
 
 - Statitstiky: nováčků, odejitých dětí, výchovné působení (celkové zklidnění)
 

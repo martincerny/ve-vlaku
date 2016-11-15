@@ -22,7 +22,7 @@ message msg model =
         (case msg of
             Msg.StartNewGame ->
                 let
-                    ( newGameModel, msgs ) =
+                    ( newGameModel, cmd ) =
                         Init.initGame
 
                     modelWithNewGame =
@@ -30,13 +30,18 @@ message msg model =
                             | gameModel = newGameModel
                         }
                 in
-                    ((Model.setUIState modelWithNewGame Model.BeforeMission) , msgs)
+                    (Model.setUIState modelWithNewGame Model.BeforeMission)
+                        ! [ (UpdateGame.beforeMission model.gameModel), cmd ]
 
             Msg.PauseMission ->
                 (Model.setUIState model Model.PausedGame) ! []
 
             Msg.ResumeMission ->
                 (Model.setUIState model Model.RunningGame) ! []
+
+            Msg.EndMission ->
+                (Model.setUIState model Model.BeforeMission)
+                    ! [ (UpdateGame.beforeMission model.gameModel) ]
 
             Msg.ShowMainMenu ->
                 (Model.setUIState model Model.MainMenu) ! []

@@ -34,23 +34,31 @@ update msg model =
             in
                 if Model.shouldUpdateGame model then
                     let
-                        (updatedGameModel, cmd) =
+                        ( updatedGameModel, cmd ) =
                             UpdateGame.frame deltaSeconds model.gameModel
+
+                        ( missionEnded, numFailures ) =
+                            case updatedGameModel.state of
+                                Model.Lost _ ->
+                                    ( True, 1 )
+
+                                Model.Won ->
+                                    ( True, 0 )
+
+                                _ ->
+                                    ( False, 0 )
                     in
-                        (
-                        { model
-                            | gameModel = updatedGameModel
-                            , uiState =
-                                case updatedGameModel.state of
-                                    Model.Lost _ ->
-                                        Model.MissionSummary
-
-                                    Model.Won ->
-                                        Model.MissionSummary
-
-                                    _ ->
-                                        model.uiState
-                        }, cmd )
-                    
+                        if missionEnded then
+                            { model
+                                | gameModel =
+                                    { updatedGameModel
+                                        | numMissions = updatedGameModel.numMissions + 1
+                                        , numFailures = updatedGameModel.numFailures + numFailures
+                                    }
+                                , uiState = Model.MissionSummary
+                            }
+                                ! (cmd :: UpdateMetaGame.commandsForMissionEnd updatedGameModel)
+                        else
+                            ( { model | gameModel = updatedGameModel }, cmd )
                 else
                     (UpdateUI.frame deltaSeconds model) ! []

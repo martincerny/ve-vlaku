@@ -38,15 +38,18 @@ viewRemovedKid kid =
 
 beforeMission : Model.Model -> Html Msg.Msg
 beforeMission model =
-    div [ Attr.class "newKidsContainer" ]
+    div [ Attr.class "uiPage" ]
         [ ViewUtils.viewBasicUI
             { mainMessage = "Jedeme na výpravu!"
             , mainAction = Msg.StartMission
             , mainActionTitle = "Do vlaku!"
             , mainMenuActionTitle = "Zpět do menu"
             }
-        , table [ Attr.class "kidsTable" ]
-            [ tr [] (List.map viewNewlyAddedKid model.newlyAddedKids)
+        , div [ Attr.class "newKidsContainer" ]
+            [ table
+                [ Attr.class "kidsTable" ]
+                [ tr [] (List.map viewNewlyAddedKid model.newlyAddedKids)
+                ]
             ]
         ]
 
@@ -70,10 +73,10 @@ missionSummary model =
                 _ ->
                     "Cosi je shnilého..."
     in
-        div [ Attr.class "missionSummary" ]
+        div [ Attr.class "uiPage" ]
             [ ViewUtils.viewBasicUI
                 { mainMessage = mainMessage
-                , mainAction = Msg.StartMission
+                , mainAction = Msg.EndMission
                 , mainActionTitle = "Další výprava"
                 , mainMenuActionTitle = "Zpět do menu"
                 }
