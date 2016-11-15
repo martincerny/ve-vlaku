@@ -22,6 +22,7 @@ init =
     , timeToWin = 90
     , state = Model.NewGame
     , transitionInactivity = 0
+    , scale = 2
     , nextKidId = 0
     , newlyAddedKids = []
     , removedFrustratedKids = []

@@ -29,4 +29,7 @@ message msg model =
 
             Msg.RestartGame ->
                 Init.init
+            
+            Msg.SetScale scale ->
+                { model | scale = scale} ! []
         )

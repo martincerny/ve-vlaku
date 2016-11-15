@@ -11,12 +11,12 @@ import Utils
 import Emojis
 import ViewGame
 import ViewMetaGame
-
+import Preload
 
 view : Model -> Html Msg
 view model =
     div
-        [Attr.class "topContainer", Attr.style [("transform", "scale(2)")]]
+        [Attr.class "topContainer", Attr.style [("transform", "scale(" ++ (toString model.scale) ++ ")")]]
         [ ViewGame.view model
         , div
             ([ Attr.classList
@@ -72,4 +72,11 @@ view model =
              )
 
             )
+        , div [Attr.class "zoomButton"] [
+            if model.scale == 1 then a [Events.onClick (Msg.UI (Msg.SetScale 2))] [ text "Zvětšit"]
+            else  a [Events.onClick (Msg.UI (Msg.SetScale 1))] [ text "Zmenšit"]
+        ]
+        , div [Attr.style [("display","none")]] (
+            List.map (\x -> img [Attr.src x] []) Preload.images
+        )
         ]

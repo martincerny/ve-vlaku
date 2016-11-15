@@ -153,14 +153,14 @@ type alias Model =
     , timeToWin : Float
     , state : GameState
     , transitionInactivity : Float
+    , scale : Int
     , nextKidId : Int
     , newlyAddedKids : List Kid
     , removedFrustratedKids : List Kid
     , removedKidsAfterMissionFail : List Kid
     , kidsWithReducedWaywardness : List Kid
-    , firstRun : Bool
+    , firstRun : Bool    
     }
-
 
 
 -- Complex modifiers

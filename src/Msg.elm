@@ -35,6 +35,7 @@ type UIMessage
     =  
     ResumeGame
     | RestartGame
+    | SetScale Int
 
 
 type Msg

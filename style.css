@@ -347,6 +347,23 @@ td {
     background-color: #e0cf22;
 }
 
+.kidUI .frustrationBar .horizontalProgress 
+{
+    background-color: #004f88;
+}
+
+
+.kidUI.sad .frustrationBar .horizontalProgress 
+{
+    background-color: #880000;
+}
+
+.kidUI.happy .frustrationBar .horizontalProgress 
+{
+    background-color: #d14ba7;
+}
+
+
 
 .playerNerves, .highActivityScore{
     position:absolute;
@@ -417,4 +434,12 @@ td {
     left:16px;
     width:200px;
     text-align:center;
+}
+
+.zoomButton {
+    position:fixed;
+    left:0;
+    top:95%;
+    height:1.2em;
+    width:10em;
 }
