@@ -1,5 +1,5 @@
 * {
-font-size: 14pt;
+font-size: 8pt;
 font-variant: bold;
 }
 
@@ -133,12 +133,53 @@ td {
 
 .newKidsContainer, .reducedWaywardnessKidContainer, .removedFrustratedKidsContainer, .removedKidsAfterMissionFailedContainer 
 {
-    font-size: 14;
-    font-weight:bold;    
+    font-size:6pt;
+    position:absolute;
+}
+
+.kidsTable td 
+{
+    width:50px;
+}
+
+.newKidsContainer 
+{
+    top:120px;
+    left:50px;
+}
+
+.reducedWaywardnessKidContainer
+{
+    top:120px;
+    left:350px;     
+}
+
+.removedFrustratedKidsContainer
+{
+    top:170px;
+    left:50px; 
+}
+
+.removedKidsAfterMissionFailedContainer
+{
+    top:170px;
+    left:350px;     
+}
+
+.kidMedaillon
+{
+    position:relative;
+}
+
+.kidMedaillon .kidName
+{
+    position:absolute;
+    top:62px;
 }
 
 .kidMedaillon .waywardness {
-    position: static;
+    position: absolute;
+    top:50px;
 } 
 
 .removedKid *
@@ -286,18 +327,19 @@ td {
 */
 
 
-.kidUI .frustrationSlider .sliderLine {
+.frustrationSlider .sliderLine {
     position:absolute;
     height:2px;
     top: 3px;
     left: 10px;
-    width:17px;
     background-color: black;
 }
 
+.kidUI .frustrationSlider .sliderLine {
+    width:17px;
+}
 
-
-.kidUI .frustrationSlider .sliderMarker {
+.frustrationSlider .sliderMarker {
     position:absolute;
     height:6px;
     width:2px;
@@ -349,7 +391,7 @@ td {
 {
     position:absolute;
     top: 50px;
-    left: -8px;
+    left: -3px;
 } 
 
 .waywardness .waywardnessIcon
@@ -485,16 +527,32 @@ td {
     width:200px;
 }
 
-.overallFrustration .horizontalProgressContainer {
+.overallFrustration .frustrationSlider .sliderLine {
+    width: 176px;   
+}
+
+.overallFrustration .frustrationSlider .sliderMarker {
+    top:0px;
+}
+
+.overallFrustration .frustrationSlider {
     width:186px;
 }
 
-.overallFrustration .frustrationIcon {
+.overallFrustration .frustrationHighIcon {
     display:block;
     position:absolute;
     right:0px;
     top:0px;
 }
+
+.overallFrustration .frustrationLowIcon {
+    display:block;
+    position:absolute;
+    left:0px;
+    top:0px;
+}
+
 
 .overallFrustrationLabel {
     position: absolute;
@@ -504,10 +562,54 @@ td {
     text-align:center;
 }
 
+.button {
+    background-color: lightyellow;
+    border:1px solid black;
+    display:block;
+    padding:5px;
+    text-align:center;
+}
+
+.button:hover {
+    background-color:yellow;
+}
+
+
+.basicUI, .mainMenu
+{
+    position:relative;
+    width:640px;
+    height:400px;
+}
+
+
+
+.mainMessage {
+    position:absolute;
+    top: 70px;
+    width:90%;
+    left:5%;
+    font-size: 14pt;
+    text-align:center;
+}
+
+.mainButton, .newGame {
+    position:absolute;
+    top: 250px;
+    width:20%;
+    left: 20%;
+}
+
+.toMainMenu, .continueGame {
+    position:absolute;
+    top: 250px;
+    width:20%;
+    left:60%;
+}
+
 .zoomButton {
-    position:fixed;
-    left:0;
-    top:95%;
-    height:1.2em;
-    width:10em;
+    position:absolute;
+    left:0px;
+    top:0px;
+    height:30px;
 }

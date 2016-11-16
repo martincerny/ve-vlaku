@@ -42,7 +42,7 @@ viewRemovedKid kid =
 beforeMission : Model.Model -> Html Msg.Msg
 beforeMission model =
     div [ Attr.class "uiPage" ]
-        [ ViewUtils.viewBasicUI
+        [ ViewUtils.viewBasicUI model
             { mainMessage = "Jedeme na výpravu!"
             , mainAction = Msg.StartMission
             , mainActionTitle = "Do vlaku!"
@@ -77,7 +77,7 @@ missionSummary model =
                     "Cosi je shnilého..."
     in
         div [ Attr.class "uiPage" ]
-            [ ViewUtils.viewBasicUI
+            [ ViewUtils.viewBasicUI model
                 { mainMessage = mainMessage
                 , mainAction = Msg.EndMission
                 , mainActionTitle = "Další výprava"

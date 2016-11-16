@@ -1,8 +1,8 @@
 module ViewGame exposing (view)
 
-import Model 
+import Model
 import GameConstants exposing (..)
-import Msg 
+import Msg
 import Html exposing (..)
 import Html.Attributes as Attr
 import Html.Events as Events
@@ -28,8 +28,6 @@ kidPositions =
         List.foldr (\( pairA, pairB ) rest -> pairA :: pairB :: rest) [] positionPairs
 
 
-
-
 getKidPosition : Model.PlayerActivity -> Model.Kid -> ( Int, Int )
 getKidPosition playerActivity kid =
     let
@@ -45,15 +43,14 @@ getKidPosition playerActivity kid =
                     else
                         ( baseX - 16, baseY )
                 else if kid.positionId % 2 == 0 && calmDownInfo.positionId == kid.positionId + 1 then
-                        ( baseX - 12, baseY )
+                    ( baseX - 12, baseY )
                 else if kid.positionId % 2 == 1 && calmDownInfo.positionId == kid.positionId - 1 then
-                        ( baseX + 12, baseY )
+                    ( baseX + 12, baseY )
                 else
                     ( baseX, baseY )
 
             _ ->
                 ( baseX, baseY )
-
 
 
 playerPositionForCalmDown : Model.CalmDownInfo -> { position : ( Int, Int ), flip : Bool }
@@ -66,7 +63,7 @@ playerPositionForCalmDown calmDownInfo =
                 ( 16, False )
 
         ( baseX, baseY ) =
-            Utils.listGet calmDownInfo.kidId kidPositions
+            Utils.listGet calmDownInfo.positionId kidPositions
                 |> Maybe.withDefault ( 300, 300 )
     in
         { position = ( baseX + offsetX, baseY - 16 ), flip = shouldFlip }
@@ -105,7 +102,7 @@ viewWindow position =
 view : Model.GameModel -> Html Msg.Msg
 view model =
     div
-        [ ]
+        []
         [ Keyed.node "div"
             [ Attr.class "allKidsContainer" ]
             ((case model.playerActivity of
@@ -121,7 +118,7 @@ view model =
             (div [ Attr.class "filler" ] [] :: (List.map viewWindow windowPositions))
         , Keyed.node "div"
             [ Attr.class "allKidsUIContainer" ]
-            (List.map (\kid -> ViewKid.viewKidUI model.playerActivity (getKidPosition model.playerActivity kid) kid) model.kids)        
+            (List.map (\kid -> ViewKid.viewKidUI model.playerActivity (getKidPosition model.playerActivity kid) kid) model.kids)
         , div
             [ Attr.classList
                 [ ( "takeDeepBreath", True )
@@ -162,8 +159,7 @@ view model =
                 ]
             ]
         , div [ Attr.class "overallFrustration" ]
-            [ ViewUtils.horizontalProgress [] (1 - (model.kids |> List.map .frustration |> Utils.avg))
-            , img [ Attr.class "frustrationIcon", Attr.src "img/ui/frustration_icon.png" ] []
+            [ ViewUtils.viewFrustrationSlider (model.kids |> List.map .frustration |> Utils.avg)
             ]
         , div [ Attr.class "overallFrustrationLabel" ] [ text "Celková nálada" ]
         ]

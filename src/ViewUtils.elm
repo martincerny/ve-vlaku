@@ -1,13 +1,24 @@
-module ViewUtils exposing (positionToStyle, horizontalProgress, verticalProgress, viewEmoji, 
-    viewEmojiSentence
-    ,viewBasicUI)
+module ViewUtils
+    exposing
+        ( positionToStyle
+        , horizontalProgress
+        , verticalProgress
+        , viewEmoji
+        , viewEmojiSentence
+        , viewButton
+        , viewBasicUI
+        , viewZoomButton
+        , viewFrustrationSlider
+        )
 
 import Html exposing (..)
 import Html.Attributes as Attr
 import Html.Events as Events
 import Msg
 import Emojis
-import GameConstants exposing(..)
+import GameConstants exposing (..)
+import Model
+
 
 positionToStyle : ( Int, Int ) -> List ( String, String )
 positionToStyle ( x, y ) =
@@ -27,6 +38,19 @@ verticalProgress attributes progress =
     div ([ Attr.class "verticalProgressContainer" ] ++ attributes)
         [ div [ Attr.class "verticalProgress", Attr.style [ ( "height", (toString ((progress * 100))) ++ "%" ) ] ]
             []
+        ]
+
+
+viewFrustrationSlider : Float -> Html Msg.Msg
+viewFrustrationSlider frustration =
+    div [ Attr.class "frustrationSlider" ]
+        [ div [ Attr.class "sliderLine" ] []
+        , div [ Attr.class "frustrationBar" ]
+            --[ ViewUtils.horizontalProgress [] (1)
+            [ div [ Attr.class "sliderMarker", Attr.style [ ( "left", toString (round ((frustration) * 100)) ++ "%" ) ] ] []
+            ]
+        , img [ Attr.class "frustrationHighIcon", Attr.src "img/ui/frustration_high_icon.png" ] []
+        , img [ Attr.class "frustrationLowIcon", Attr.src "img/ui/frustration_low_icon.png" ] []
         ]
 
 
@@ -58,11 +82,31 @@ viewEmojiSentence coolDown sentence =
     in
         List.map (viewEmoji opacity) sentence
 
-viewBasicUI : {mainMessage : String, mainAction : Msg.UIMessage, mainActionTitle : String, mainMenuActionTitle : String} -> Html Msg.Msg
-viewBasicUI data =
-    div [] 
-    [ div [Attr.class "mainMessage"] [text data.mainMessage]
-    , div [Attr.class "mainButton", Events.onClick (Msg.UI data.mainAction)] [text data.mainActionTitle]
-    , div [Attr.class "toMainMenu", Events.onClick (Msg.UI Msg.ShowMainMenu)] [ text data.mainMenuActionTitle]
-    ]
 
+viewButton : Msg.Msg -> String -> String -> Html Msg.Msg
+viewButton msg class label =
+    a [ Attr.classList [ ( class, True ), ( "button", True ) ], Events.onClick msg ]
+        [ text label
+        ]
+
+
+viewBasicUI : Model.Model -> { mainMessage : String, mainAction : Msg.UIMessage, mainActionTitle : String, mainMenuActionTitle : String } -> Html Msg.Msg
+viewBasicUI model data =
+    div [ Attr.class "basicUI"]
+        [ div [ Attr.class "mainMessage" ] [ text data.mainMessage ]
+        , viewButton (Msg.UI data.mainAction) "mainButton" data.mainActionTitle
+        , viewButton (Msg.UI Msg.ShowMainMenu) "toMainMEnu" data.mainMenuActionTitle
+        , viewZoomButton model
+        ]
+
+
+viewZoomButton : Model.Model -> Html Msg.Msg
+viewZoomButton model =
+    let
+        ( msg, text ) =
+            if model.scale == 1 then
+                ( Msg.UI (Msg.SetScale 2), "Zvětšit" )
+            else
+                ( Msg.UI (Msg.SetScale 1), "Zmenšit" )
+    in
+        viewButton msg "zoomButton" text
