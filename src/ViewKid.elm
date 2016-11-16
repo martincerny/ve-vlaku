@@ -53,7 +53,7 @@ viewKidWaywardness kid =
             (List.map
                 (\id ->
                     img
-                        [ Attr.src "img/ui/waywardness_icon2.png"
+                        [ Attr.src "img/ui/waywardness_icon.png"
                         , Attr.class "waywardnessIcon"
                         , Attr.style (ViewUtils.positionToStyle ( id * 10, 0 ))
                         ]
@@ -137,7 +137,7 @@ viewKidUI playerActivity position kid =
         , div [ Attr.class "activityBar" ] [ ViewUtils.horizontalProgress [] kid.activity ]
         , img [ Attr.class "activityIcon", Attr.src "img/ui/activity_icon.png" ] []
         , div [ Attr.class "frustrationBar" ] [ ViewUtils.horizontalProgress [] (1 - kid.frustration) ]
-        , img [ Attr.class "frustrationIcon", Attr.src "img/ui/frustration_icon.png" ] []
+        , img [ Attr.class "frustrationIcon", Attr.src "img/ui/frustration_low_icon.png" ] []
         , viewKidWaywardness kid
         , div [ Attr.class "kidName" ] [ text (kid.name) ]
         , viewKidDialog kid
