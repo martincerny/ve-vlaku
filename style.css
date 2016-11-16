@@ -265,26 +265,72 @@ td {
 }
 
 
-.kidUI .activityBar, .kidUI .frustrationBar 
+.kidUI .activityBar, .kidUI .frustrationSlider 
 {
     position:absolute;
     left:-2px;
 }
 
-.kidUI .activityIcon, .kidUI .frustrationIcon 
+.kidUI .frustrationBar {
+    position:absolute;
+    top: 3px;
+    left: 10px;
+    width:14px;
+}
+
+/*
+.kidUI .frustrationBar .horizontalProgressContainer {
+    height:100%;
+    width: 100%;
+}
+*/
+
+
+.kidUI .frustrationSlider .sliderLine {
+    position:absolute;
+    height:2px;
+    top: 3px;
+    left: 10px;
+    width:17px;
+    background-color: black;
+}
+
+
+
+.kidUI .frustrationSlider .sliderMarker {
+    position:absolute;
+    height:6px;
+    width:2px;
+    top:-3px;
+    background-color: #dddddd;
+    border:1px solid black;
+}
+
+.kidUI .activityIcon, .kidUI .frustrationHighIcon 
 {
     display:block;
     position:absolute;
-    left:28px;
+    left:30px;
 }
 
+
+.kidUI .frustrationLowIcon
+{
+    display:block;
+    position:absolute;    
+}
+
+.kidUI .frustrationHighIcon 
+{
+    top:0px;
+}
 
 .kidUI .activityBar, .kidUI .activityIcon 
 {
     top: -20px;
 }
 
-.kidUI .frustrationBar, .kidUI .frustrationIcon
+.kidUI .frustrationSlider
 {
     top: -10px;
 }
@@ -335,6 +381,23 @@ td {
     width : 26px;    
 }
 
+
+/*
+.kidUI .volume {
+    position:absolute;
+    width:32px;
+    top:-20px;
+    left:-2px;
+}
+
+.kidUI .volume .foreground {
+    position:absolute;
+    height:10px;
+    top:0px;
+    overflow:hidden;
+}
+*/
+
 .kidUI .activityBar .horizontalProgress 
 {
     background-color: #178800;
@@ -351,6 +414,7 @@ td {
     background-color: #e0cf22;
 }
 
+/*
 .kidUI .frustrationBar .horizontalProgress 
 {
     background-color: #004f88;
@@ -366,7 +430,7 @@ td {
 {
     background-color: #d14ba7;
 }
-
+*/
 
 
 .playerNerves, .highActivityScore{

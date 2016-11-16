@@ -45,9 +45,9 @@ getKidPosition playerActivity kid =
                     else
                         ( baseX - 16, baseY )
                 else if kid.positionId % 2 == 0 && calmDownInfo.positionId == kid.positionId + 1 then
-                        ( baseX - 8, baseY )
+                        ( baseX - 12, baseY )
                 else if kid.positionId % 2 == 1 && calmDownInfo.positionId == kid.positionId - 1 then
-                        ( baseX + 8, baseY )
+                        ( baseX + 12, baseY )
                 else
                     ( baseX, baseY )
 

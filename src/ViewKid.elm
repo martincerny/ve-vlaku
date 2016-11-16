@@ -1,7 +1,7 @@
 module ViewKid exposing (viewKid, viewKidGraphics, viewKidUI, viewKidWaywardness)
 
-import Model exposing (..)
-import Msg exposing (..)
+import Model
+import Msg
 import Html exposing (..)
 import Html.Attributes as Attr
 import Html.Events as Events
@@ -22,13 +22,13 @@ viewKidGraphics angry mouthState g =
 
         mouth =
             case mouthState of
-                Happy ->
+                Model.Happy ->
                     g.mouthHappy
 
-                Sad ->
+                Model.Sad ->
                     g.mouthSad
 
-                Neutral ->
+                Model.Neutral ->
                     g.mouthNeutral
     in
         div [ Attr.classList [ ( "kidGraphicsContainer", True ), ( "angry", angry ) ] ]
@@ -43,7 +43,7 @@ viewKidGraphics angry mouthState g =
             ]
 
 
-viewKidWaywardness : Kid -> Html Msg
+viewKidWaywardness : Model.Kid -> Html Msg.Msg
 viewKidWaywardness kid =
     let
         numIcons =
@@ -63,11 +63,11 @@ viewKidWaywardness kid =
             )
 
 
-viewKid : PlayerActivity -> ( Int, Int ) -> Kid -> ( String, Html Msg )
+viewKid : Model.PlayerActivity -> ( Int, Int ) -> Model.Kid -> ( String, Html Msg.Msg )
 viewKid playerActivity position kid =
     let
         angry =
-            if isMuted kid then
+            if Model.isMuted kid then
                 False
             else if (kid.timeSinceLastOutburst < 0.5 && kid.kidDialogCooldown > 0) then
                 True
@@ -88,19 +88,19 @@ viewKid playerActivity position kid =
         , div
             [ Attr.classList
                 [ ( "kid", True )
-                , ( "muted", isMuted kid )
-                , ( "highActivity", isKidHighActivity kid )
-                , ( "increasesNerves", isKidAnnoying kid )
+                , ( "muted", Model.isMuted kid )
+                , ( "highActivity", Model.isKidHighActivity kid )
+                , ( "increasesNerves", Model.isKidAnnoying kid )
                 ]
             , Attr.style (ViewUtils.positionToStyle position)
-            , Events.onClick (Game (CalmDownStarted kid))
+            , Events.onClick (Msg.Game (Msg.CalmDownStarted kid))
             ]
             [ viewKidGraphics angry mouthState kid.graphics
             ]
         )
 
 
-viewKidDialog : Kid -> Html Msg
+viewKidDialog : Model.Kid -> Html Msg.Msg
 viewKidDialog kid =
     (if kid.kidDialogCooldown > 0 then
         div [ Attr.class "kidDialog" ] (ViewUtils.viewEmojiSentence kid.kidDialogCooldown kid.shownKidDialog)
@@ -109,7 +109,7 @@ viewKidDialog kid =
     )
 
 
-viewPlayerDialog : Kid -> Html Msg
+viewPlayerDialog : Model.Kid -> Html Msg.Msg
 viewPlayerDialog kid =
     (if kid.playerDialogCooldown > 0 then
         div [ Attr.classList [ ( "playerDialog", True ), ( "left", kid.positionId % 2 == 0 ) ] ] (ViewUtils.viewEmojiSentence kid.playerDialogCooldown kid.shownPlayerDialog)
@@ -118,26 +118,49 @@ viewPlayerDialog kid =
     )
 
 
-viewKidUI : PlayerActivity -> ( Int, Int ) -> Kid -> ( String, Html Msg )
+viewVolume : Float -> Html Msg.Msg
+viewVolume volume =
+    div [ Attr.class "volume" ]
+        [ img [ Attr.class "background", Attr.src "img/ui/volume_background.png" ] []
+        , div [ Attr.class "foreground", Attr.style [ ( "width", toString (round (volume * 100)) ++ "%" ) ] ]
+            [ img [ Attr.src "img/ui/volume_foreground.png" ] []
+            ]
+        ]
+
+
+viewFrustrationSlider : Model.Kid -> Html Msg.Msg
+viewFrustrationSlider kid =
+    div [ Attr.class "frustrationSlider" ]
+        [ div [ Attr.class "sliderLine" ] []
+        , div [ Attr.class "frustrationBar" ]
+            --[ ViewUtils.horizontalProgress [] (1)
+            [ div [ Attr.class "sliderMarker", Attr.style [ ( "left", toString (round ((kid.frustration) * 100)) ++ "%" ) ] ] []
+            ]
+        , img [ Attr.class "frustrationHighIcon", Attr.src "img/ui/frustration_high_icon.png" ] []
+        , img [ Attr.class "frustrationLowIcon", Attr.src "img/ui/frustration_low_icon.png" ] []
+        ]
+
+
+viewKidUI : Model.PlayerActivity -> ( Int, Int ) -> Model.Kid -> ( String, Html Msg.Msg )
 viewKidUI playerActivity position kid =
     ( toString kid.id
     , div
         [ Attr.classList
             [ ( "kidUI", True )
-            , ( "muted", isMuted kid )
-            , ( "highActivity", isKidHighActivity kid )
-            , ( "annoying", isKidAnnoying kid && not (isKidHighActivity kid) )
+            , ( "muted", Model.isMuted kid )
+            , ( "highActivity", Model.isKidHighActivity kid )
+            , ( "annoying", Model.isKidAnnoying kid && not (Model.isKidHighActivity kid) )
             , ( "sad", kid.frustration > metaGameConstants.minFrustrationToConsiderRemovingKid )
             , ( "happy", kid.frustration < metaGameConstants.maxFrustrationToConsiderReducingWaywardness )
             ]
         , Attr.style (ViewUtils.positionToStyle position)
-        , Events.onClick (Game (CalmDownStarted kid))
+        , Events.onClick (Msg.Game (Msg.CalmDownStarted kid))
         ]
         [ viewKidDialog kid
+          --        , viewVolume kid.activity
         , div [ Attr.class "activityBar" ] [ ViewUtils.horizontalProgress [] kid.activity ]
         , img [ Attr.class "activityIcon", Attr.src "img/ui/activity_icon.png" ] []
-        , div [ Attr.class "frustrationBar" ] [ ViewUtils.horizontalProgress [] (1 - kid.frustration) ]
-        , img [ Attr.class "frustrationIcon", Attr.src "img/ui/frustration_low_icon.png" ] []
+        , viewFrustrationSlider kid
         , viewKidWaywardness kid
         , div [ Attr.class "kidName" ] [ text (kid.name) ]
         , viewKidDialog kid
