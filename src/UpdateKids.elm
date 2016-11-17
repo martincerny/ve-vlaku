@@ -124,7 +124,6 @@ updateKidDefault deltaSeconds kid =
                                 0
                           )
                     )
-            , frustration = max (kid.frustration - usefulDelta * gameConstants.frustrationRecovery) 0
             , timeSinceLastOutburst =
                 kid.timeSinceLastOutburst + usefulDelta
                 --outbursts are not ticking when the kid is muted, so they use usefulDelta

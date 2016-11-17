@@ -18,15 +18,12 @@ import Preload
 viewMainMenu : Model.Model -> Html Msg.Msg
 viewMainMenu model =
     div [ Attr.class "mainMenu" ]
-        [ div [ Attr.class "newGame", Events.onClick (Msg.UI Msg.StartNewGame) ]
-            [ text "Nová hra"
-            ]
+        [ ViewUtils.viewButton (Msg.UI Msg.StartNewGame) "newGame" "Nová hra"
         , if model.gameModel.numMissions > 0 then
-            div [ Attr.class "continueGame", Events.onClick (Msg.UI Msg.StartMission) ]
-                [ text "Pokračovat"
-                ]
+            ViewUtils.viewButton (Msg.UI Msg.StartMission) "continueGame" "Pokračovat"
           else
             text ""
+        , ViewUtils.viewZoomButton model
         ]
 
 
@@ -39,7 +36,7 @@ viewPausedGame model =
             , ( "PauseMission", True )
             ]
         ]
-        [ ViewUtils.viewBasicUI
+        [ ViewUtils.viewBasicUI model
             { mainMessage = "Pauznuto"
             , mainAction = Msg.ResumeMission
             , mainActionTitle = "Pokračovat"
@@ -69,13 +66,7 @@ view model =
             Model.MissionSummary ->
                 [ ViewMetaGame.missionSummary model ]
          )
-            ++ [ div [ Attr.class "zoomButton" ]
-                    [ if model.scale == 1 then
-                        a [ Events.onClick (Msg.UI (Msg.SetScale 2)) ] [ text "Zvětšit" ]
-                      else
-                        a [ Events.onClick (Msg.UI (Msg.SetScale 1)) ] [ text "Zmenšit" ]
-                    ]
-               , div [ Attr.style [ ( "display", "none" ) ] ]
+            ++ [ div [ Attr.style [ ( "display", "none" ) ] ]
                     (List.map (\x -> img [ Attr.src x ] []) Preload.images)
                ]
         )

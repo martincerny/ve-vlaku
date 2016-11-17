@@ -47,7 +47,7 @@ viewKidWaywardness : Model.Kid -> Html Msg.Msg
 viewKidWaywardness kid =
     let
         numIcons =
-            round (kid.waywardness / 0.2)
+            round ((kid.waywardness - metaGameConstants.minimalWaywardness) / 0.2)
     in
         div [ Attr.class "waywardness" ]
             (List.map
@@ -55,7 +55,7 @@ viewKidWaywardness kid =
                     img
                         [ Attr.src "img/ui/waywardness_icon.png"
                         , Attr.class "waywardnessIcon"
-                        , Attr.style (ViewUtils.positionToStyle ( id * 10, 0 ))
+                        , Attr.style (ViewUtils.positionToStyle ( (id - 1 )  * 4, 0 ))
                         ]
                         []
                 )
@@ -128,19 +128,6 @@ viewVolume volume =
         ]
 
 
-viewFrustrationSlider : Model.Kid -> Html Msg.Msg
-viewFrustrationSlider kid =
-    div [ Attr.class "frustrationSlider" ]
-        [ div [ Attr.class "sliderLine" ] []
-        , div [ Attr.class "frustrationBar" ]
-            --[ ViewUtils.horizontalProgress [] (1)
-            [ div [ Attr.class "sliderMarker", Attr.style [ ( "left", toString (round ((kid.frustration) * 100)) ++ "%" ) ] ] []
-            ]
-        , img [ Attr.class "frustrationHighIcon", Attr.src "img/ui/frustration_high_icon.png" ] []
-        , img [ Attr.class "frustrationLowIcon", Attr.src "img/ui/frustration_low_icon.png" ] []
-        ]
-
-
 viewKidUI : Model.PlayerActivity -> ( Int, Int ) -> Model.Kid -> ( String, Html Msg.Msg )
 viewKidUI playerActivity position kid =
     ( toString kid.id
@@ -160,7 +147,7 @@ viewKidUI playerActivity position kid =
           --        , viewVolume kid.activity
         , div [ Attr.class "activityBar" ] [ ViewUtils.horizontalProgress [] kid.activity ]
         , img [ Attr.class "activityIcon", Attr.src "img/ui/activity_icon.png" ] []
-        , viewFrustrationSlider kid
+        , ViewUtils.viewFrustrationSlider kid.frustration
         , viewKidWaywardness kid
         , div [ Attr.class "kidName" ] [ text (kid.name) ]
         , viewKidDialog kid

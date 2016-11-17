@@ -9,7 +9,7 @@ import GameConstants exposing (metaGameConstants)
 
 commandsForMissionEnd : Model.GameModel -> List (Cmd Msg.Msg)
 commandsForMissionEnd model =
-    case model.state of
+    Debug.log "end" (case model.state of
         Model.Won ->
             [ Random.generate (Msg.metaGameMsg Msg.AddKids) (RandomGenerators.addKidAfterWin model)
             , Random.generate (Msg.metaGameMsg Msg.RemoveFrustratedKids) (RandomGenerators.removeKidsWithBadMood model)
@@ -22,7 +22,7 @@ commandsForMissionEnd model =
 
         _ ->
             []
-
+    )
 
 message : Msg.MetaGameMessage -> Model.Model -> ( Model.Model, Cmd Msg.Msg )
 message msg model =

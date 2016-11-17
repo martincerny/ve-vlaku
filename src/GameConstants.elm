@@ -31,7 +31,7 @@ gameConstants =
         0.2
         --0.17
     , calmDownFrustrationRecovery =
-        0.18
+        0.27
         --per each recovery event
     , calmDownFrustrationRecoveryStart =
         1.1
@@ -46,10 +46,7 @@ gameConstants =
         0.1
         -- seconds
     , calmDownFrustrationGrowth =
-        0.5
-    , frustrationRecovery =
-        0.00
-        -- when nothing happens, per second
+        0.4
     , dialogCooldown =
         3
         -- seconds
@@ -62,13 +59,13 @@ gameConstants =
         0.15
         -- per second
     , minOutburstInterval =
-        2
+        3
         --minimal time between two outbursts (seconds)
     , meanOutburstIntervalMax =
         30.0
         --mean outburst at 0 waywardness
     , meanOutburstIntervalMin =
-        3.0
+        4.0
         --mean outburst interval at max waywardness (has to be bigger than minOutburstInterval)
     , outburstMinActivityGrowth =
         0.1
@@ -90,7 +87,7 @@ metaGameConstants =
     { maximalMeanFrustrationToAddKid =
         0.5
     , maximalChanceOfAddingTwoKids =
-        0.3
+        0.1
         --at 0 mean frustration
     , maximalChanceOfAddingKid =
         1.2
@@ -108,7 +105,7 @@ metaGameConstants =
     , maxChanceOfReducingWaywardness =
         0.8
     , waywardnessReduction =
-        0.2
+        0.4
         --The reduction after the kid completes with little frustration
     , minimalWaywardness =
         0.2

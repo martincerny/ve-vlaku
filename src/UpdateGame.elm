@@ -53,7 +53,7 @@ frame deltaSeconds oldModel =
         newState =
             (if oldModel.highActivityScore >= gameConstants.highActivityScoreToLose then
                 Model.Lost Model.Activity
-             else if oldModel.nerves >= 1 then
+             else if oldModel.nerves >= 0.99 then
                 Model.Lost Model.Nerves
              else if not (Model.isStateLost oldModel.state) && oldModel.timeToWin <= 0 then
                 Model.Won

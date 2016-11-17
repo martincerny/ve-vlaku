@@ -3,7 +3,9 @@
 - Nervy vyplňovat
 - Sirka - polibek: 670px
 
-- Dát jednomu děcku při initu vysokou zlobivost
+- zrusit moznost vyberu textu
+
+- Kliknout na volne pozice a premistit tam tak hrace 
 
 - Randomizovat pozici při startu levelu ?
 
