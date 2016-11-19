@@ -90,14 +90,16 @@ viewButton msg class label =
         ]
 
 
-viewBasicUI : Model.Model -> { mainMessage : String, mainAction : Msg.UIMessage, mainActionTitle : String, mainMenuActionTitle : String } -> Html Msg.Msg
+viewBasicUI : Model.Model -> { mainMessage : String, mainAction : Msg.UIMessage, mainActionTitle : String, mainMenuActionTitle : String, otherContents : List (Html Msg.Msg) } -> Html Msg.Msg
 viewBasicUI model data =
-    div [ Attr.class "basicUI"]
-        [ div [ Attr.class "mainMessage" ] [ text data.mainMessage ]
-        , viewButton (Msg.UI data.mainAction) "mainButton" data.mainActionTitle
-        , viewButton (Msg.UI Msg.ShowMainMenu) "toMainMEnu" data.mainMenuActionTitle
-        , viewZoomButton model
-        ]
+    div [ Attr.class "basicUI" ]
+        ([ div [ Attr.class "mainMessage" ] [ text data.mainMessage ]
+         , viewButton (Msg.UI data.mainAction) "mainButton" data.mainActionTitle
+         , viewButton (Msg.UI Msg.ShowMainMenu) "toMainMEnu" data.mainMenuActionTitle
+         , viewZoomButton model
+         ]
+            ++ data.otherContents
+        )
 
 
 viewZoomButton : Model.Model -> Html Msg.Msg

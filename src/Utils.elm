@@ -1,4 +1,4 @@
-module Utils exposing (avg, fixedWidthNumberFormat, chooseByBoolList, listGet)
+module Utils exposing (avg, fixedWidthNumberFormat, chooseByBoolList, listGet, timeToMinSec)
 
 import String
 
@@ -7,19 +7,22 @@ avg : List Float -> Float
 avg list =
     (List.sum list) / (toFloat (List.length list))
 
-listGet : Int -> List a -> Maybe a 
+
+listGet : Int -> List a -> Maybe a
 listGet index list =
-    if index < 0 then 
+    if index < 0 then
         Nothing
     else
         case list of
             head :: tail ->
                 if index == 0 then
                     Just head
-                else 
+                else
                     listGet (index - 1) tail
+
             [] ->
                 Nothing
+
 
 chooseByBoolList : List Bool -> List a -> List a
 chooseByBoolList boolList list =
@@ -42,3 +45,10 @@ chooseByBoolList boolList list =
 fixedWidthNumberFormat : Int -> Int -> String
 fixedWidthNumberFormat width number =
     String.padLeft width '0' (toString number)
+
+
+timeToMinSec : Float -> String
+timeToMinSec time =
+    toString ((round time) // 60)
+        ++ ":"
+        ++ fixedWidthNumberFormat 2 ((round time) % 60)

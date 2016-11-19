@@ -150,10 +150,7 @@ view model =
                     [ td [] [ text ("Čas do cílové stanice") ]
                     , td []
                         [ text
-                            (toString ((round model.timeToWin) // 60)
-                                ++ ":"
-                                ++ Utils.fixedWidthNumberFormat 2 ((round model.timeToWin) % 60)
-                            )
+                            (Utils.timeToMinSec model.timeToWin)
                         ]
                     ]
                 ]

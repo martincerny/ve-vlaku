@@ -13,13 +13,15 @@ import ViewGame
 import ViewUtils
 import ViewKid
 
+
 viewKidMedaillon : Model.Kid -> Html Msg.Msg
 viewKidMedaillon kid =
-    div [Attr.class "kidMedaillon"] [
-        ViewKid.viewKidGraphics False Model.Neutral kid.graphics
+    div [ Attr.class "kidMedaillon" ]
+        [ ViewKid.viewKidGraphics False Model.Neutral kid.graphics
         , ViewKid.viewKidWaywardness kid
-        , div [Attr.class "kidName"] [text kid.name]
-    ]
+        , div [ Attr.class "kidName" ] [ text kid.name ]
+        ]
+
 
 viewNewlyAddedKid : Model.Kid -> Html Msg.Msg
 viewNewlyAddedKid kid =
@@ -35,7 +37,7 @@ viewWaywardnessReducedKid kid =
 viewRemovedKid : Model.Kid -> Html Msg.Msg
 viewRemovedKid kid =
     td [ Attr.class "removedKid" ]
-        [  viewKidMedaillon kid 
+        [ viewKidMedaillon kid
         ]
 
 
@@ -47,6 +49,7 @@ beforeMission model =
             , mainAction = Msg.StartMission
             , mainActionTitle = "Do vlaku!"
             , mainMenuActionTitle = "Zpět do menu"
+            , otherContents = [ div [ Attr.class "missionSummary" ] [ text ("Doba cesty: " ++ (Utils.timeToMinSec model.gameModel.timeToWin)) ] ]
             }
         , div [ Attr.class "newKidsContainer" ]
             [ table
@@ -82,6 +85,7 @@ missionSummary model =
                 , mainAction = Msg.EndMission
                 , mainActionTitle = "Další výprava"
                 , mainMenuActionTitle = "Zpět do menu"
+                , otherContents = []
                 }
             , div [ Attr.class "newKidsContainer" ]
                 (if List.isEmpty model.newlyAddedKids then
