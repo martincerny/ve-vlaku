@@ -18,12 +18,15 @@ import Preload
 viewMainMenu : Model.Model -> Html Msg.Msg
 viewMainMenu model =
     div [ Attr.class "mainMenu" ]
-        [ ViewUtils.viewButton (Msg.UI Msg.StartNewGame) "newGame" "Nová hra"
+        [ div [Attr.class "gameTitle"] [text "Ve vlaku"]
+        , div [Attr.class "gameSubtitle"] [text "Krotíme děti pro trochu lepší svět"]
+        , ViewUtils.viewButton (Msg.UI Msg.StartNewGame) "newGame" "Nová hra"
+        , ViewUtils.viewButtonEx (model.gameModel.numMissions <= 0) (Msg.UI Msg.StartMission) "continueGame" "Pokračovat"
+        , ViewUtils.viewZoomButton model
         , if model.gameModel.numMissions > 0 then
-            ViewUtils.viewButton (Msg.UI Msg.StartMission) "continueGame" "Pokračovat"
+            ViewUtils.viewStats model
           else
             text ""
-        , ViewUtils.viewZoomButton model
         ]
 
 
@@ -41,6 +44,7 @@ viewPausedGame model =
             , mainAction = Msg.ResumeMission
             , mainActionTitle = "Pokračovat"
             , mainMenuActionTitle = "Ukončit misi"
+            , otherContents = []
             }
         ]
     ]

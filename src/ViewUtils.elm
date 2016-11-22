@@ -6,9 +6,11 @@ module ViewUtils
         , viewEmoji
         , viewEmojiSentence
         , viewButton
+        , viewButtonEx
         , viewBasicUI
         , viewZoomButton
         , viewFrustrationSlider
+        , viewStats
         )
 
 import Html exposing (..)
@@ -83,11 +85,16 @@ viewEmojiSentence coolDown sentence =
         List.map (viewEmoji opacity) sentence
 
 
-viewButton : Msg.Msg -> String -> String -> Html Msg.Msg
-viewButton msg class label =
-    a [ Attr.classList [ ( class, True ), ( "button", True ) ], Events.onClick msg ]
+viewButtonEx : Bool -> Msg.Msg -> String -> String -> Html Msg.Msg
+viewButtonEx disabled msg class label =
+    a [ Attr.classList [ ( class, True ), ( "button", True ), ("disabled", disabled) ], Events.onClick msg ]
         [ text label
         ]
+
+
+viewButton : Msg.Msg -> String -> String -> Html Msg.Msg
+viewButton msg class label =
+    viewButtonEx False msg class label
 
 
 viewBasicUI : Model.Model -> { mainMessage : String, mainAction : Msg.UIMessage, mainActionTitle : String, mainMenuActionTitle : String, otherContents : List (Html Msg.Msg) } -> Html Msg.Msg
@@ -97,6 +104,7 @@ viewBasicUI model data =
          , viewButton (Msg.UI data.mainAction) "mainButton" data.mainActionTitle
          , viewButton (Msg.UI Msg.ShowMainMenu) "toMainMEnu" data.mainMenuActionTitle
          , viewZoomButton model
+         , viewStats model
          ]
             ++ data.otherContents
         )
@@ -112,3 +120,45 @@ viewZoomButton model =
                 ( Msg.UI (Msg.SetScale 1), "Zmenšit" )
     in
         viewButton msg "zoomButton" text
+
+
+viewStats : Model.Model -> Html Msg.Msg
+viewStats model =
+    div [ Attr.class "stats" ]
+        [ table [ Attr.class "missionStats" ]
+            [ tr []
+                [ td [ Attr.colspan 2 ] [ text "Výpravy:" ]
+                , td [ Attr.class "value" ] [ text (toString model.gameModel.numMissions) ]
+                ]
+            , tr [ Attr.class "positive" ]
+                [ td [] [ text "-" ]
+                , td [] [ text "Úspěšné" ]
+                , td [ Attr.class "value" ] [ text (toString (model.gameModel.numMissions - model.gameModel.numFailures)) ]
+                ]
+            , tr [ Attr.class "negative" ]
+                [ td [] [ text "-" ]
+                , td [] [ text "Nevydařené" ]
+                , td [ Attr.class "value" ] [ text (toString (model.gameModel.numFailures)) ]
+                ]
+            ]
+        , table [ Attr.class "kidStats" ]
+            [ tr []
+                [ td [ Attr.colspan 2 ] [ text "Děti:" ]
+                , td [ Attr.class "value" ] [ text (toString (List.length model.gameModel.kids)) ]
+                ]
+            , tr [ Attr.class "positive" ]
+                [ td [] [ text "-" ]
+                , td [] [ text "Vstoupily" ]
+                , td [ Attr.class "value" ] [ text (toString (model.gameModel.numKidsAdded)) ]
+                ]
+            , tr [ Attr.class "negative" ]
+                [ td [] [ text "-" ]
+                , td [] [ text "Odešly" ]
+                , td [ Attr.class "value" ] [ text (toString (model.gameModel.numKidsRemoved)) ]
+                ]
+            , tr [ Attr.class "positive" ]
+                [ td [ Attr.colspan 2 ] [ text "Výchovné momenty:" ]
+                , td [ Attr.class "value" ] [ text (toString model.gameModel.numKidsReducedWaywardness) ]
+                ]
+            ]
+        ]

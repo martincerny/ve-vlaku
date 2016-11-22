@@ -102,7 +102,7 @@ viewWindow position =
 view : Model.GameModel -> Html Msg.Msg
 view model =
     div
-        []
+        [ Attr.class "gameContainer" ]
         [ Keyed.node "div"
             [ Attr.class "allKidsContainer" ]
             ((case model.playerActivity of

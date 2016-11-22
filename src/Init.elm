@@ -41,7 +41,7 @@ init =
     in
         ( { uiState = Model.MainMenu
           , transitionInactivity = 0
-          , scale = 2
+          , scale = 1
           , newlyAddedKids = []
           , removedFrustratedKids = []
           , removedKidsAfterMissionFail = []
