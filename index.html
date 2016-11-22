@@ -19,19 +19,6 @@
         <script type="text/javascript" src="/_compile/src/Main.elm"></script>
 
         <!-- Removes splash and starts elm app. -->
-        <script type="text/javascript">
-                while (document.body.firstChild) {
-                        document.body.removeChild(document.body.firstChild);
-                }
-                //runElmProgram();
-                var storedState = localStorage.getItem('ve-vlaku-save');
-                var startingState = storedState ? JSON.parse(storedState) : null;
-
-                var main = Elm.Main.fullscreen(startingState);
-
-                main.ports.setStorage.subscribe(function(state) {
-                        localStorage.setItem('ve-vlaku-save', JSON.stringify(state));
-                });                
-        </script>
+        <script type="text/javascript" src="start.js"></script>
 
 </html>

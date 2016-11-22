@@ -5,7 +5,8 @@ import Msg
 import Random
 import KidGenerator
 import RandomGenerators
-import Json.Decode
+import Json.Decode exposing ((:=))
+import SaveLoad
 
 
 initialKids : Int
@@ -34,20 +35,57 @@ initGame =
           ]
 
 
-init : Json.Decode.Value -> ( Model.Model, Cmd Msg.Msg )
-init _ =
+cmdsAfterLoad : Model.GameModel -> Cmd Msg.Msg
+cmdsAfterLoad loadedGame =
+    Random.generate (Msg.metaGameMsg Msg.SetTimeToWin) (RandomGenerators.timeToWin (List.length loadedGame.kids) ) 
+
+type alias Flags = 
+ {
+     settings : Json.Decode.Value
+     , state : Json.Decode.Value
+ }
+
+init : Flags -> ( Model.Model, Cmd Msg.Msg )
+init flags =
     let
-        ( gameModel, cmd ) =
+        ( defaultGameModel, defaultCmd ) =
             initGame
+
+        defaultMainModel =
+            { uiState = Model.MainMenu
+            , transitionInactivity = 0
+            , scale = 1
+            , newlyAddedKids = []
+            , removedFrustratedKids = []
+            , removedKidsAfterMissionFail = []
+            , kidsWithReducedWaywardness = []
+            , gameModel = gameModel
+            }
+
+        resultStoredSettings =
+            Json.Decode.decodeValue (SaveLoad.settingsDecoder defaultMainModel) flags.settings
+
+        resultStoredState =
+            Json.Decode.decodeValue (SaveLoad.gameDecoder defaultGameModel) flags.state
+
+        (gameModel, cmd) =
+            case resultStoredState of
+                Ok model ->
+                    (model, cmdsAfterLoad model)
+
+                Err _ ->
+                    (defaultGameModel, defaultCmd)
+
+        mainModel =
+            case resultStoredSettings of
+                Ok model ->
+                    model
+
+                Err _ ->
+                    defaultMainModel
     in
-        ( { uiState = Model.MainMenu
-          , transitionInactivity = 0
-          , scale = 1
-          , newlyAddedKids = []
-          , removedFrustratedKids = []
-          , removedKidsAfterMissionFail = []
-          , kidsWithReducedWaywardness = []
-          , gameModel = gameModel
+        ( { mainModel
+            | gameModel = gameModel
           }
         , cmd
         )

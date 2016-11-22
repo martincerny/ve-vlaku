@@ -9,6 +9,7 @@ import UpdateUI
 import UpdateGame
 import UpdateMetaGame
 import Time
+import SaveLoad
 
 
 update : Msg.Msg -> Model.Model -> ( Model.Model, Cmd Msg.Msg )
@@ -25,7 +26,10 @@ update msg model =
                 ( { model | gameModel = newGameModel }, cmd )
 
         Msg.Meta metaMsg ->
-            UpdateMetaGame.message metaMsg model
+            let (newModel, cmd) =
+                UpdateMetaGame.message metaMsg model
+            in 
+                newModel ! [cmd, SaveLoad.saveGame (SaveLoad.encodeGame newModel.gameModel) ]
 
         Msg.Frame delta ->
             let

@@ -4,6 +4,7 @@ import Model
 import UpdateGame
 import Msg
 import Init
+import SaveLoad
 
 
 frame : Float -> Model.Model -> Model.Model
@@ -63,5 +64,9 @@ message msg model =
                     (Model.setUIState newModel Model.RunningGame) ! startMessages
 
             Msg.SetScale scale ->
-                { model | scale = scale } ! []
+                let
+                    newModel =
+                        { model | scale = scale }
+                in
+                    newModel ! [ SaveLoad.saveSettings (SaveLoad.encodeSettings newModel) ]
         )
