@@ -40,7 +40,7 @@ message msg model =
             Msg.ResumeMission ->
                 (Model.setUIState model Model.RunningGame) ! []
 
-            Msg.EndMission ->
+            Msg.MissionBriefing ->
                 (Model.setUIState model Model.BeforeMission)
                     ! [ (UpdateGame.beforeMission model.gameModel) ]
 

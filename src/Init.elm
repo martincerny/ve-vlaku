@@ -37,7 +37,7 @@ initGame =
 
 cmdsAfterLoad : Model.GameModel -> Cmd Msg.Msg
 cmdsAfterLoad loadedGame =
-    Random.generate (Msg.metaGameMsg Msg.SetTimeToWin) (RandomGenerators.timeToWin (List.length loadedGame.kids) ) 
+    Cmd.none 
 
 type alias Flags = 
  {

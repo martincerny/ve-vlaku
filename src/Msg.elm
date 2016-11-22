@@ -36,7 +36,7 @@ type UIMessage
     | StartMission
     | PauseMission 
     | ResumeMission
-    | EndMission
+    | MissionBriefing
     | ShowMainMenu
     | SetScale Int
 

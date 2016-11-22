@@ -82,7 +82,7 @@ missionSummary model =
         div [ Attr.class "uiPage" ]
             [ ViewUtils.viewBasicUI model
                 { mainMessage = mainMessage
-                , mainAction = Msg.EndMission
+                , mainAction = Msg.MissionBriefing
                 , mainActionTitle = "Další výprava"
                 , mainMenuActionTitle = "Zpět do menu"
                 , otherContents = []

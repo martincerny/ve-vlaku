@@ -11,7 +11,8 @@ font-family:starseed;
  -webkit-user-select: none;  /* Chrome all / Safari all */
   -moz-user-select: none;     /* Firefox all */
   -ms-user-select: none;      /* IE 10+ */
-  user-select: none;          /* Likely future */  
+  user-select: none;          /* Likely future */
+  cursor:default;  
 }
 
 
@@ -39,7 +40,13 @@ td {
     padding-top:30px;
     padding-left:10px;
     background-color:#e0cf22;
+    cursor:pointer;
 }
+
+.takeDeepBreath * {
+    cursor:pointer;    
+}
+
 
 .takeDeepBreath .playerDeepBreath
 {
@@ -119,6 +126,10 @@ td {
    position:absolute; 
 }
 
+.kid *, .kidUI *
+{
+   cursor:pointer;    
+}
 
 .playerRow td, .player, .noPlayer
 {
@@ -580,6 +591,7 @@ td {
     display:block;
     padding:5px;
     text-align:center;
+    cursor:pointer;
 }
 
 .button:hover {
@@ -693,4 +705,11 @@ td {
 .gameSubtitle {
     font-size:20px;
     top:120px;
+}
+
+.titleImage {
+    display:block;
+    position: absolute;
+    left: 192px;
+    top: 150px;    
 }
