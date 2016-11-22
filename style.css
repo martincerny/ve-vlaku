@@ -1,6 +1,6 @@
 @font-face {
     font-family: starseed;
-    src: url(img/starseed_pro.ttf);
+    src: url(img/starseed_pro.woff);
 }
 
 
@@ -160,6 +160,10 @@ td {
     position:absolute;
 }
 
+.changedKidsTable {
+    margin-top:5px;
+}
+
 .kidsTable td 
 {
     width:50px;
@@ -169,29 +173,34 @@ td {
 {
     top:120px;
     left:50px;
+    width:290px;
 }
 
 .reducedWaywardnessKidContainer
 {
     top:120px;
     left:350px;     
+    width:290px;
 }
 
 .removedFrustratedKidsContainer
 {
-    top:170px;
-    left:50px; 
+    top:155px;
+    left:50px;
+    width:290px;
 }
 
 .removedKidsAfterMissionFailedContainer
 {
-    top:170px;
-    left:350px;     
+    top:155px;
+    left:350px;
+    width:290px;     
 }
 
 .kidMedaillon
 {
     position:relative;
+    width:54px;
 }
 
 .kidMedaillon .kidName
@@ -631,14 +640,14 @@ td {
 
 .mainButton, .newGame {
     position:absolute;
-    top: 250px;
+    top: 270px;
     width:20%;
     left: 20%;
 }
 
 .toMainMenu, .continueGame {
     position:absolute;
-    top: 250px;
+    top: 270px;
     width:20%;
     left:60%;
 }
@@ -661,7 +670,7 @@ td {
 
 .stats {
     position:absolute;
-    top: 300px;
+    top: 320px;
     left:20%;
     width:60%;
 }

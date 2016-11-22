@@ -1,15 +1,13 @@
-- Nervy dát k hráči
-- Blikat nervy
-- Nervy vyplňovat
 - Sirka - polibek: 670px
 
-- zrusit moznost vyberu textu
+- Mohou mi děti zároveň přijít pro dobrou náladu a odejít pro špatnou?
+  - Pokud ano, vyřešit zobrazení
+
+- Vyřešit ttf/woff pro elm-reactor a IE 11
 
 - Kliknout na volne pozice a premistit tam tak hrace 
 
 - Randomizovat pozici při startu levelu ?
-
-- Statitstiky: nováčků, odejitých dětí, výchovné působení (celkové zklidnění)
 
 - Oddychovací animace při deepbrath
 
@@ -25,6 +23,5 @@
 
 
 - Napsat na Elm-list kvůli exposing
-- Navrhnout rozsireni Basics o List.get (dle indexu)
-- Navrhnout rozsireni Random o fixedGenerator a permutationGenerator
+- Navrhnout typ TypeInfo
 
