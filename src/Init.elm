@@ -5,6 +5,7 @@ import Msg
 import Random
 import KidGenerator
 import RandomGenerators
+import Json.Decode
 
 
 initialKids : Int
@@ -33,8 +34,8 @@ initGame =
           ]
 
 
-init : ( Model.Model, Cmd Msg.Msg )
-init =
+init : Json.Decode.Value -> ( Model.Model, Cmd Msg.Msg )
+init _ =
     let
         ( gameModel, cmd ) =
             initGame

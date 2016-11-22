@@ -23,7 +23,15 @@
                 while (document.body.firstChild) {
                         document.body.removeChild(document.body.firstChild);
                 }
-                runElmProgram();
+                //runElmProgram();
+                var storedState = localStorage.getItem('ve-vlaku-save');
+                var startingState = storedState ? JSON.parse(storedState) : null;
+
+                var main = Elm.Main.fullscreen(startingState);
+
+                main.ports.setStorage.subscribe(function(state) {
+                        localStorage.setItem('ve-vlaku-save', JSON.stringify(state));
+                });                
         </script>
 
 </html>
