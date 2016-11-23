@@ -35,11 +35,13 @@ update msg model =
             let
                 deltaSeconds =
                     delta / Time.second
+                
+                updatedUIModel = UpdateUI.frame deltaSeconds model
             in
-                if Model.shouldUpdateGame model then
+                if Model.shouldUpdateGame updatedUIModel then
                     let
                         ( updatedGameModel, cmd ) =
-                            UpdateGame.frame deltaSeconds model.gameModel
+                            UpdateGame.frame deltaSeconds updatedUIModel.gameModel
 
                         ( missionEnded, numFailures ) =
                             case updatedGameModel.state of
@@ -53,7 +55,7 @@ update msg model =
                                     ( False, 0 )
                     in
                         if missionEnded then
-                            { model
+                            { updatedUIModel
                                 | gameModel =
                                     { updatedGameModel
                                         | numMissions = updatedGameModel.numMissions + 1
@@ -63,6 +65,6 @@ update msg model =
                             }
                                 ! (cmd :: UpdateMetaGame.commandsForMissionEnd updatedGameModel)
                         else
-                            ( { model | gameModel = updatedGameModel }, cmd )
+                            ( { updatedUIModel | gameModel = updatedGameModel }, cmd )
                 else
-                    (UpdateUI.frame deltaSeconds model) ! []
+                    updatedUIModel ! []

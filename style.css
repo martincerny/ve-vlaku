@@ -66,27 +66,6 @@ td {
     background-color:#178800;
 }
 
-.gameOverlay
-{
-    position:absolute;
-    top: 0px;
-    left:0px;
-    width: 0px;
-    height: 0px;
-    font-size: 50;
-    font-weight:bold;
-    text-align: center;
-}
-
-.gameOverlay.PauseMission
-{
-    padding:100px;
-    padding-top: 100px;
-    background-color: lightgray;
-    width: 600px;
-    height: 240px;
-}
-
 .horizontalProgressContainer
 {
     height: 6px;
@@ -627,7 +606,10 @@ td {
     background-color: #fafcf4
 }
 
-
+.PauseMission .basicUI
+{
+    background-color: rgba(240, 240, 240, 0.8) 
+}
 
 .mainMessage {
     position:absolute;

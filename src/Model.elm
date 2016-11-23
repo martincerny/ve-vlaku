@@ -198,7 +198,7 @@ setUIState model state =
 
 shouldUpdateGame : Model -> Bool
 shouldUpdateGame model =
-    model.uiState == RunningGame
+    model.uiState == RunningGame && model.transitionInactivity <= 0
 
 
 isStateLost : GameState -> Bool

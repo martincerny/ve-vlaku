@@ -69,4 +69,13 @@ message msg model =
                         { model | scale = scale }
                 in
                     newModel ! [ SaveLoad.saveSettings (SaveLoad.encodeSettings newModel) ]
+
+            Msg.KeyPressed keyCode ->
+                let 
+                    _ = Debug.log "key" keyCode
+                    in
+                if keyCode == 27 then
+                    message Msg.PauseMission model
+                else
+                    model ! []
         )

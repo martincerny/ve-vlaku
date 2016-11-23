@@ -1,19 +1,31 @@
-- Sirka - polibek: 670px
+== Grafika ==
+- Tutorial
+- Bubliny
+- Vlak
+- Barvy vlasů, kůže
+- Animace zlobicich
+- Oddychovací animace při deepbrath
 
+== Zvuk ==
+- Soundscape do podkresu
+
+== Bugy ==
+- CalmDown na MouseDown?
 - Mohou mi děti zároveň přijít pro dobrou náladu a odejít pro špatnou?
   - Pokud ano, vyřešit zobrazení
 
 - Vyřešit ttf/woff pro elm-reactor a IE 11
 
+== Featury ==
+- Fast forward (mezerník ?)
+- Pauza hry na Esc, při ztrátě focusu
+
 - Kliknout na volne pozice a premistit tam tak hrace 
 
 - Randomizovat pozici při startu levelu ?
 
-- Oddychovací animace při deepbrath
-
 - Generovat cíl cesty + stanice po cestě
 
-- Fast forward (mezerník ?)
 
 
 - Zlobení - rozjeté dítě může excitovat (jednorázově) souseda
@@ -25,3 +37,5 @@
 - Napsat na Elm-list kvůli exposing
 - Navrhnout typ TypeInfo
 
+
+- Sirka - polibek: 670px
