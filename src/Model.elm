@@ -175,6 +175,7 @@ type alias Model =
     , kidsWithReducedWaywardness : List Kid    
     , uiState : UIState 
     , transitionInactivity : Float
+    , allowScale : Bool
     , scale : Int
     }
 

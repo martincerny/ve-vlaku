@@ -37,13 +37,15 @@ initGame =
 
 cmdsAfterLoad : Model.GameModel -> Cmd Msg.Msg
 cmdsAfterLoad loadedGame =
-    Cmd.none 
+    Cmd.none
 
-type alias Flags = 
- {
-     settings : Json.Decode.Value
-     , state : Json.Decode.Value
- }
+
+type alias Flags =
+    { settings : Json.Decode.Value
+    , state : Json.Decode.Value
+    , query : String
+    }
+
 
 init : Flags -> ( Model.Model, Cmd Msg.Msg )
 init flags =
@@ -54,6 +56,7 @@ init flags =
         defaultMainModel =
             { uiState = Model.MainMenu
             , transitionInactivity = 0
+            , allowScale = True
             , scale = 1
             , newlyAddedKids = []
             , removedFrustratedKids = []
@@ -68,13 +71,24 @@ init flags =
         resultStoredState =
             Json.Decode.decodeValue (SaveLoad.gameDecoder defaultGameModel) flags.state
 
-        (gameModel, cmd) =
+        ( allowScale, defaultScale ) =
+            case flags.query of
+                "noScale" ->
+                    ( False, 1 )
+
+                "full" ->
+                    ( True, 2 )
+
+                _ ->
+                    ( True, 1 )
+
+        ( gameModel, cmd ) =
             case resultStoredState of
                 Ok model ->
-                    (model, cmdsAfterLoad model)
+                    ( model, cmdsAfterLoad model )
 
                 Err _ ->
-                    (defaultGameModel, defaultCmd)
+                    ( defaultGameModel, defaultCmd )
 
         mainModel =
             case resultStoredSettings of
@@ -82,10 +96,11 @@ init flags =
                     model
 
                 Err _ ->
-                    defaultMainModel
+                    { defaultMainModel | scale = defaultScale }
     in
         ( { mainModel
             | gameModel = gameModel
+            , allowScale = allowScale
           }
         , cmd
         )

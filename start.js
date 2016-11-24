@@ -7,7 +7,9 @@ var startingState = storedState ? JSON.parse(storedState) : null;
 var storedSettings = localStorage.getItem('ve-vlaku-settings');
 var startingSettings = storedSettings ? JSON.parse(storedSettings) : null;
 
-var main = Elm.Main.fullscreen({ settings: startingSettings, state: startingState });
+var query = window.location.search.substring(1);
+
+var main = Elm.Main.fullscreen({ settings: startingSettings, state: startingState, query : query });
 
 main.ports.saveGame.subscribe(function (state) {
     localStorage.setItem('ve-vlaku-save', JSON.stringify(state));

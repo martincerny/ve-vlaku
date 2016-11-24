@@ -87,7 +87,7 @@ viewEmojiSentence coolDown sentence =
 
 viewButtonEx : Bool -> Msg.Msg -> String -> String -> Html Msg.Msg
 viewButtonEx disabled msg class label =
-    a [ Attr.classList [ ( class, True ), ( "button", True ), ("disabled", disabled) ], Events.onClick msg ]
+    a [ Attr.classList [ ( class, True ), ( "button", True ), ( "disabled", disabled ) ], Events.onClick msg ]
         [ text label
         ]
 
@@ -112,14 +112,17 @@ viewBasicUI model data =
 
 viewZoomButton : Model.Model -> Html Msg.Msg
 viewZoomButton model =
-    let
-        ( msg, text ) =
-            if model.scale == 1 then
-                ( Msg.UI (Msg.SetScale 2), "Zvětšit" )
-            else
-                ( Msg.UI (Msg.SetScale 1), "Zmenšit" )
-    in
-        viewButton msg "zoomButton" text
+    if model.allowScale then
+        let
+            ( msg, text ) =
+                if model.scale == 1 then
+                    ( Msg.UI (Msg.SetScale 2), "Zvětšit" )
+                else
+                    ( Msg.UI (Msg.SetScale 1), "Zmenšit" )
+        in
+            viewButton msg "zoomButton" text
+    else
+        text ""
 
 
 viewStats : Model.Model -> Html Msg.Msg
