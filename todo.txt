@@ -18,7 +18,8 @@
 
 == Featury ==
 - Fast forward (mezerník ?)
-- Pauza hry na Esc, při ztrátě focusu
+- Pauza hry při ztrátě focusu
+- Tipy před misí
 
 - Kliknout na volne pozice a premistit tam tak hrace 
 

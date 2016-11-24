@@ -1,18 +1,14 @@
 module View exposing (view)
 
 import Model
-import GameConstants exposing (..)
 import Msg
 import Html exposing (..)
 import Html.Attributes as Attr
-import Html.Events as Events
-import Html.Keyed as Keyed
-import Utils
-import Emojis
 import ViewGame
 import ViewMetaGame
 import ViewUtils
 import Preload
+import Tutorial
 
 
 viewMainMenu : Model.Model -> Html Msg.Msg
@@ -20,7 +16,7 @@ viewMainMenu model =
     div [ Attr.class "mainMenu" ]
         [ img [ Attr.class "titleImage", Attr.src "img/titleImage.png" ] []
         , div [ Attr.class "gameTitle" ] [ text "Ve vlaku" ]
-        , div [ Attr.class "gameSubtitle" ] [ text "Krotíme děti pro trochu lepší svět" ]
+        , div [ Attr.class "gameSubtitle" ] [ text "Zvládni sebe i děti pro trochu lepší svět" ]
         , ViewUtils.viewButton (Msg.UI Msg.StartNewGame) "newGame" "Nová hra"
         , ViewUtils.viewButtonEx (model.gameModel.numMissions <= 0) (Msg.UI Msg.MissionBriefing) "continueGame" "Pokračovat"
         , ViewUtils.viewZoomButton model
@@ -57,6 +53,9 @@ view model =
 
             Model.BeforeMission ->
                 [ ViewMetaGame.beforeMission model ]
+
+            Model.Tutorial step ->
+                [ Tutorial.view step]
 
             Model.RunningGame ->
                 [ ViewGame.view model.gameModel ]

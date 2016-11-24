@@ -597,7 +597,7 @@ td {
 }
 
 
-.basicUI, .mainMenu
+.basicUI, .mainMenu, .tutorial
 {
     position:relative;
     width:640px;
@@ -703,4 +703,13 @@ td {
     position: absolute;
     left: 192px;
     top: 150px;    
+}
+
+.tutorial .tutorialNext {
+    bottom: 10px;
+    font-size: 32px;
+    height: 41px;
+    position: absolute;
+    right: 10px;
+    width: 180px;
 }

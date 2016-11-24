@@ -43,21 +43,28 @@ viewRemovedKid kid =
 
 beforeMission : Model.Model -> Html Msg.Msg
 beforeMission model =
-    div [ Attr.class "uiPage" ]
-        [ ViewUtils.viewBasicUI model
-            { mainMessage = "Jedeme na výpravu!"
-            , mainAction = Msg.StartMission
-            , mainActionTitle = "Do vlaku!"
-            , mainMenuActionTitle = "Zpět do menu"
-            , otherContents = [ div [ Attr.class "missionSummary" ] [ text ("Doba cesty: " ++ (Utils.timeToMinSec model.gameModel.timeToWin)) ] ]
-            }
-        , div [ Attr.class "newKidsContainer" ]
-            [ table
-                [ Attr.class "kidsTable" ]
-                [ tr [] (List.map viewNewlyAddedKid model.gameModel.kids)
+    let
+        action =
+            if model.gameModel.numMissions <= 0 then
+                Msg.StartTutorial
+            else
+                Msg.StartMission
+    in
+        div [ Attr.class "uiPage" ]
+            [ ViewUtils.viewBasicUI model
+                { mainMessage = "Jedeme na výpravu!"
+                , mainAction = action
+                , mainActionTitle = "Do vlaku!"
+                , mainMenuActionTitle = "Zpět do menu"
+                , otherContents = [ div [ Attr.class "missionSummary" ] [ text ("Doba cesty: " ++ (Utils.timeToMinSec model.gameModel.timeToWin)) ] ]
+                }
+            , div [ Attr.class "newKidsContainer" ]
+                [ table
+                    [ Attr.class "kidsTable" ]
+                    [ tr [] (List.map viewNewlyAddedKid model.gameModel.kids)
+                    ]
                 ]
             ]
-        ]
 
 
 missionSummary : Model.Model -> Html Msg.Msg

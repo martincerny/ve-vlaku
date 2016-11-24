@@ -34,6 +34,18 @@ message msg model =
                     (Model.setUIState modelWithNewGame Model.BeforeMission)
                         ! [ (UpdateGame.beforeMission model.gameModel), cmd ]
 
+            Msg.StartTutorial ->
+                (Model.setUIState model (Model.Tutorial 0)) ! []
+
+            Msg.TutorialNext ->
+                let 
+                    nextStep =
+                        case model.uiState of
+                            Model.Tutorial step -> step + 1
+                            _ -> 0
+                in
+                (Model.setUIState model (Model.Tutorial nextStep)) ! []
+
             Msg.PauseMission ->
                 (Model.setUIState model Model.PausedGame) ! []
 

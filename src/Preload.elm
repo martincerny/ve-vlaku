@@ -72,4 +72,7 @@ images =
     , "img/ui/frustration_icon.png"
     , "img/ui/waywardness_icon.png"
     , "img/ui/waywardness_icon2.png"
+    , "img/tutorial/tutorial1.png"
+    , "img/tutorial/tutorial2.png"
+    , "img/tutorial/tutorial3.png"
     ]

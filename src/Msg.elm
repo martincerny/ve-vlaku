@@ -34,6 +34,8 @@ type MetaGameMessage
 
 type UIMessage
     = StartNewGame
+    | StartTutorial
+    | TutorialNext
     | StartMission
     | PauseMission 
     | ResumeMission

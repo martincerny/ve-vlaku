@@ -132,6 +132,7 @@ type GameState
 type UIState
     = MainMenu
     | BeforeMission
+    | Tutorial Int
     | RunningGame
     | PausedGame
     | MissionSummary
